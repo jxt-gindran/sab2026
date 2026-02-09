@@ -16,55 +16,52 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="bg-sab text-white sticky top-0 z-50 shadow-lg transition-colors duration-300">
+    <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50 transition-all duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          
+        <div className="flex items-center justify-between h-24">
+
           {/* Logo / Brand */}
-          <Link to="/" className="flex-shrink-0 flex items-center gap-3" onClick={() => setIsOpen(false)}>
-            <div className="bg-white/10 p-2 rounded-full">
-              <Heart className="h-6 w-6 text-orange-500 fill-current" />
+          <Link to="/" className="flex-shrink-0 flex items-center gap-4 group" onClick={() => setIsOpen(false)}>
+            <div className="bg-brand-navy p-2.5 rounded-2xl shadow-xl shadow-brand-navy/10 group-hover:scale-110 transition-transform">
+              <Heart className="h-6 w-6 text-brand-cyan fill-current" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-xl leading-none tracking-tight">SAB2026</span>
-              <span className="text-xs text-teal-100 font-light tracking-wider">SEPEDA AMAL BORNEO</span>
+              <span className="font-black text-2xl tracking-tighter text-brand-navy">SAB 2026</span>
+              <span className="text-[9px] font-black text-brand-cyan uppercase tracking-[0.3em] leading-none">Borneo Charity</span>
             </div>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
+            <div className="flex items-center space-x-10">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    isActive(link.path)
-                      ? 'bg-sab-dark text-white'
-                      : 'text-teal-50 hover:bg-sab-dark hover:text-white'
-                  }`}
+                  className={`text-sm font-black transition-all duration-300 hover:text-brand-cyan uppercase tracking-widest ${isActive(link.path)
+                      ? 'text-brand-cyan'
+                      : 'text-brand-navy/60'
+                    }`}
                 >
                   {link.name}
                 </Link>
               ))}
               <Link
                 to="/donate"
-                className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md transition-transform hover:scale-105"
+                className="bg-brand-navy text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-brand-navy/20 hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1 active:scale-95"
               >
-                Donate Now
+                Get Involved
               </Link>
             </div>
           </div>
 
           {/* Mobile menu button */}
-          <div className="-mr-2 flex md:hidden">
+          <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              className="bg-sab-dark inline-flex items-center justify-center p-2 rounded-md text-teal-100 hover:text-white hover:bg-teal-700 focus:outline-none"
+              className="p-3 bg-slate-50 rounded-2xl text-brand-navy"
             >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
@@ -72,18 +69,17 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-sab-dark">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="md:hidden bg-white border-t border-slate-50 h-[calc(100vh-6rem)] animate-fade-in">
+          <div className="px-6 py-10 space-y-4">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive(link.path)
-                    ? 'bg-sab text-white'
-                    : 'text-teal-100 hover:bg-sab hover:text-white'
-                }`}
+                className={`block px-5 py-5 rounded-3xl text-xl font-black transition-all ${isActive(link.path)
+                    ? 'bg-brand-cyan/10 text-brand-cyan'
+                    : 'text-brand-navy hover:bg-slate-50'
+                  }`}
               >
                 {link.name}
               </Link>
@@ -91,7 +87,7 @@ const Navbar: React.FC = () => {
             <Link
               to="/donate"
               onClick={() => setIsOpen(false)}
-              className="block w-full text-center mt-4 bg-orange-600 hover:bg-orange-700 text-white px-3 py-3 rounded-md text-base font-bold"
+              className="block w-full text-center mt-12 bg-brand-coral text-white py-6 rounded-3xl text-2xl font-black shadow-2xl"
             >
               Donate Now
             </Link>

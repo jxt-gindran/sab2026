@@ -393,13 +393,13 @@ const Home: React.FC = () => {
           <h3 className="text-sm font-black text-brand-slate/40 mb-10 uppercase tracking-[0.3em]">Our Partners in Hope</h3>
           <div className="flex flex-wrap justify-center items-center gap-12 lg:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
             {/* Logos */}
-            <div className="h-32 w-64 flex items-center justify-center">
+            <div className="h-48 w-96 flex items-center justify-center">
               <img src="/assets/logos/MMA_logo.png" alt="MMA" className="max-h-full max-w-full object-contain" />
             </div>
-            <div className="h-32 w-64 flex items-center justify-center">
+            <div className="h-48 w-96 flex items-center justify-center">
               <img src="/assets/logos/MMAF_logo.png" alt="MMAF" className="max-h-full max-w-full object-contain" />
             </div>
-            <div className="h-32 w-64 flex items-center justify-center">
+            <div className="h-48 w-96 flex items-center justify-center">
               <img src="/assets/logos/SAB%20Logo_%20Light.png" alt="SAB" className="max-h-full max-w-full object-contain invert" />
             </div>
             {/* Placeholders */}

@@ -12,12 +12,12 @@ const Footer: React.FC = () => {
           {/* 1. BRAND COLUMN */}
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center text-brand-cyan shadow-lg">
-                <Heart className="h-6 w-6 fill-current" />
+              <div className="h-14 w-14 bg-white/10 rounded-xl flex items-center justify-center shadow-lg p-3">
+                <img src="/assets/logos/SABFavicon.png" alt="SAB Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <div className="text-xl font-black text-white tracking-tight font-heading">SAB 2026</div>
-                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest">Sepeda Amal Borneo</div>
+                <div className="text-lg font-black text-white tracking-tight font-heading uppercase leading-tight max-w-[200px]">SEPEDA AMAL BORNEO</div>
+                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest mt-1">SAB 2026 Charity Ride</div>
               </div>
             </div>
             <p className="text-brand-slate text-sm font-medium leading-relaxed">

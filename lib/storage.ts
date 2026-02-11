@@ -29,8 +29,15 @@ interface DB {
 }
 
 // Ensure local directory exists
-if (!process.env.VERCEL && !fs.existsSync(path.dirname(DB_PATH))) {
-    try { fs.mkdirSync(path.dirname(DB_PATH), { recursive: true }); } catch (e) { }
+if (!process.env.VERCEL) {
+    try {
+        const dir = path.dirname(DB_PATH);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    } catch (e) {
+        console.error("Warning: Could not create local DB directory", e);
+    }
 }
 
 function readDB(): DB {

@@ -1,53 +1,62 @@
 
 import { addDonation } from '../lib/storage';
 
+// Simple helper for robust response
+const sendJson = (res: any, status: number, data: any) => {
+    if (typeof res.status === 'function') {
+        return res.status(status).json(data);
+    } else {
+        res.statusCode = status;
+        res.setHeader('Content-Type', 'application/json');
+        return res.end(JSON.stringify(data));
+    }
+};
+
 export default async function handler(req: any, res: any) {
+    // Enable simple CORS for debugging if needed
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.statusCode = 200;
+        return res.end();
+    }
+
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method Not Allowed' });
-    }
-
-    const { amount, name, email, reference, purpose, riderId } = req.body;
-
-    if (!process.env.HITPAY_API_KEY) {
-        return res.status(500).json({ message: 'Server Error: Missing API Key' });
-    }
-
-    const apiKey = process.env.HITPAY_API_KEY.trim();
-
-    // Validation: Ensure user didn't paste a URL
-    if (apiKey.includes('http') || apiKey.includes('://')) {
-        return res.status(500).json({
-            message: 'Configuration Error: Invalid API Key format',
-            details: 'It looks like you pasted a URL (http...) instead of the API Key. Please update Vercel Environment Variables.'
-        });
+        return sendJson(res, 405, { message: 'Method Not Allowed' });
     }
 
     try {
-        // Record donation intent locally
-        addDonation(amount, riderId || null, name || 'Anonymous');
+        const { amount, name, email, reference, purpose } = req.body;
 
-        // Determine environment based on API Key prefix
-        // Sandbox keys can start with 'sb_' or 'test_' depending on HitPay version
+        if (!process.env.HITPAY_API_KEY) {
+            console.error('HitPay API Key missing');
+            return sendJson(res, 500, { message: 'Server Config Error: Missing API Key' });
+        }
+
+        const apiKey = process.env.HITPAY_API_KEY.trim();
+        // Sandbox detection
         const isSandbox = apiKey.toLowerCase().startsWith('sb_') || apiKey.toLowerCase().startsWith('test_');
 
         const baseUrl = isSandbox
             ? 'https://api.sandbox.hit-pay.com/v1/payment-requests'
             : 'https://api.hit-pay.com/v1/payment-requests';
 
-        const params = new URLSearchParams({
-            amount: amount.toString(),
-            currency: 'MYR',
-            reference_number: reference,
-            redirect_url: 'https://sab2026.vercel.app/#/donate',
-            purpose: purpose || `Donation ${reference}`
-        });
+        console.log(`[HitPay] Sending request to ${baseUrl}`);
 
-        // Only append optional fields if they have values to avoid sending empty strings if API prevents it
+        const params = new URLSearchParams();
+        params.append('amount', amount ? amount.toString() : '0');
+        params.append('currency', 'MYR');
+        params.append('reference_number', reference || `REF-${Date.now()}`);
+        params.append('redirect_url', 'https://sab2026.vercel.app/#/donate');
+        params.append('purpose', purpose || 'Donation');
+
+        // Optional fields
         if (email) params.append('email', email);
         if (name) params.append('name', name);
 
-        console.log(`[HitPay] Initializing payment. Sandbox: ${isSandbox}, URL: ${baseUrl}`);
-
+        // Fetch
         const response = await fetch(baseUrl, {
             method: 'POST',
             headers: {
@@ -58,25 +67,36 @@ export default async function handler(req: any, res: any) {
             body: params.toString()
         });
 
-        const data = await response.json();
+        // Safe Response Handling
+        const rawText = await response.text();
+        console.log('[HitPay] Raw Response:', rawText.substring(0, 500)); // Log first 500 chars
 
-        if (response.ok) {
-            console.log('[HitPay] Success:', data.url);
-            return res.status(200).json({ url: data.url });
-        } else {
-            console.error('HitPay Error Response:', data);
-            return res.status(response.status).json({
-                message: 'Payment creation failed',
-                details: data,
-                debug: {
-                    sentKeywords: isSandbox ? 'SANDBOX' : 'PRODUCTION',
-                    targetUrl: baseUrl,
-                    keyPrefix: apiKey.substring(0, 3) + '...'
-                }
+        let data;
+        try {
+            data = JSON.parse(rawText);
+        } catch (e) {
+            console.error('HitPay returned non-JSON:', rawText);
+            return sendJson(res, 502, {
+                message: 'Payment Gateway Error: Invalid Response',
+                raw: rawText.substring(0, 100)
             });
         }
-    } catch (error) {
-        console.error('Server Error:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
+
+        if (response.ok) {
+            return sendJson(res, 200, { url: data.url });
+        } else {
+            console.error('HitPay API Error:', data);
+            return sendJson(res, response.status || 500, {
+                message: 'Payment Gateway Rejected Request',
+                details: data
+            });
+        }
+
+    } catch (error: any) {
+        console.error('Critical Handler Error:', error);
+        return sendJson(res, 500, {
+            message: 'Internal Server Error',
+            error: error.message || String(error)
+        });
     }
 }

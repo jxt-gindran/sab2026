@@ -28,11 +28,25 @@ export default async function handler(req: any, res: any) {
 
         // Determine environment based on API Key prefix
         // Sandbox keys can start with 'sb_' or 'test_' depending on HitPay version
-        const isSandbox = apiKey.startsWith('sb_') || apiKey.startsWith('test_');
+        const isSandbox = apiKey.toLowerCase().startsWith('sb_') || apiKey.toLowerCase().startsWith('test_');
 
         const baseUrl = isSandbox
             ? 'https://api.sandbox.hit-pay.com/v1/payment-requests'
             : 'https://api.hit-pay.com/v1/payment-requests';
+
+        const params = new URLSearchParams({
+            amount: amount.toString(),
+            currency: 'MYR',
+            reference_number: reference,
+            redirect_url: 'https://sab2026.vercel.app/#/donate',
+            purpose: purpose || `Donation ${reference}`
+        });
+
+        // Only append optional fields if they have values to avoid sending empty strings if API prevents it
+        if (email) params.append('email', email);
+        if (name) params.append('name', name);
+
+        console.log(`[HitPay] Initializing payment. Sandbox: ${isSandbox}, URL: ${baseUrl}`);
 
         const response = await fetch(baseUrl, {
             method: 'POST',
@@ -41,23 +55,16 @@ export default async function handler(req: any, res: any) {
                 'X-BUSINESS-API-KEY': apiKey,
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: new URLSearchParams({
-                amount: amount.toString(),
-                currency: 'MYR',
-                email: email,
-                name: name,
-                reference_number: reference,
-                redirect_url: 'https://sab2026.vercel.app/#/donate',
-                purpose: purpose || `Donation ${reference}`
-            })
+            body: params.toString()
         });
 
         const data = await response.json();
 
         if (response.ok) {
+            console.log('[HitPay] Success:', data.url);
             return res.status(200).json({ url: data.url });
         } else {
-            console.error('HitPay Error:', data);
+            console.error('HitPay Error Response:', data);
             return res.status(response.status).json({
                 message: 'Payment creation failed',
                 details: data,

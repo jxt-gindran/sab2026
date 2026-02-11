@@ -1,74 +1,105 @@
 import React from 'react';
-import { HeartHandshake, ShieldPlus, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Facebook, Instagram, Linkedin, Heart, ShieldCheck } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-brand-navy text-slate-300 py-20 border-t border-brand-navy/10 relative overflow-hidden">
-      {/* Decorative Cyan Glow */}
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-brand-cyan/10 rounded-full blur-[100px] pointer-events-none translate-x-1/2 translate-y-1/2"></div>
+    <footer className="bg-brand-navy text-brand-pale py-20 border-t border-brand-navy/10 relative overflow-hidden font-sans">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
-          {/* Organized By */}
-          <div>
-            <h3 className="text-xs font-black text-brand-cyan uppercase tracking-[0.2em] mb-8">Organized By</h3>
-            <div className="flex items-center space-x-4">
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
-                <ShieldPlus className="h-8 w-8 text-white mb-2" />
-                <span className="block text-[10px] font-black text-white uppercase tracking-widest">MMA</span>
+          {/* 1. BRAND COLUMN */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center text-brand-cyan shadow-lg">
+                <Heart className="h-6 w-6 fill-current" />
               </div>
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
-                <HeartHandshake className="h-8 w-8 text-white mb-2" />
-                <span className="block text-[10px] font-black text-white uppercase tracking-widest">Foundation</span>
+              <div>
+                <div className="text-xl font-black text-white tracking-tight font-heading">SAB 2026</div>
+                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest">Sepeda Amal Borneo</div>
               </div>
             </div>
-            <p className="mt-6 text-sm text-slate-400 font-medium leading-relaxed">
-              Malaysian Medical Association & MMA Foundation. Standing together for children's health since 2022.
+            <p className="text-brand-slate text-sm font-medium leading-relaxed">
+              Trusted Authority. <br />Vibrant Hope.
+            </p>
+            <div className="flex flex-col gap-4 items-start">
+              <div className="bg-white p-2 rounded-lg shadow-sm">
+                <img
+                  src="/assets/logos/MAPS%20Logo.png"
+                  alt="MAPS"
+                  className="h-8 w-auto object-contain"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              </div>
+              <div className="bg-white p-2 rounded-lg shadow-sm">
+                <img
+                  src="/assets/logos/MyPOPI-1.png"
+                  alt="MyPOPI"
+                  className="h-8 w-auto object-contain"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 2. QUICK LINKS */}
+          <div>
+            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">Quick Links</h3>
+            <ul className="space-y-4">
+              <li><Link to="/mission" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">The Mission</Link></li>
+              <li><Link to="/ride" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">The Ride</Link></li>
+              <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Sponsorships</Link></li>
+              <li><Link to="/faq" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">FAQ</Link></li>
+              <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+
+          {/* 3. LEGAL & TRUST */}
+          <div>
+            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">Legal & Trust</h3>
+            <ul className="space-y-4">
+              <li><Link to="/privacy" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/refund" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Refund Policy</Link></li>
+              <li className="flex items-start gap-2">
+                <ShieldCheck className="h-4 w-4 text-brand-cyan shrink-0 mt-0.5" />
+                <span className="text-sm text-brand-pale">Tax Exempt: LHDN.01/35/42/51/179-6.5621</span>
+              </li>
+              <li className="text-sm text-brand-pale opacity-60">MMAF Reg: PPM-001-14-14022019</li>
+            </ul>
+          </div>
+
+          {/* 4. SOCIALS */}
+          <div>
+            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">Connect</h3>
+            <div className="flex gap-4">
+              <a href="https://www.facebook.com/sepedaamalborneo" target="_blank" rel="noreferrer" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="https://www.instagram.com/sepedaamalborneo" target="_blank" rel="noreferrer" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1">
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a href="#" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1">
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
+            <p className="mt-8 text-xs text-brand-slate leading-relaxed">
+              Every pedal stroke brings hope to a child in need. Join the movement.
             </p>
           </div>
 
-          {/* In Support Of */}
-          <div>
-            <h3 className="text-xs font-black text-brand-coral uppercase tracking-[0.2em] mb-8">In Support Of</h3>
-            <div className="flex flex-col space-y-4 text-sm font-bold text-white">
-              <a href="https://maps-malaysia.org" target="_blank" rel="noreferrer" className="group flex items-center gap-3 hover:text-brand-cyan transition-colors">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan"></span>
-                MAPS (Paediatric Surgery)
-              </a>
-              <a href="https://mypopi.org" target="_blank" rel="noreferrer" className="group flex items-center gap-3 hover:text-brand-cyan transition-colors">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan"></span>
-                MyPOPI (Immunodeficiencies)
-              </a>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="text-xs font-black text-brand-cyan uppercase tracking-[0.2em] mb-8">Contact Information</h3>
-            <div className="space-y-4 text-sm text-slate-400 font-medium">
-              <p className="flex flex-col">
-                <span className="text-white font-bold mb-1">Tax Exemption Receipts:</span>
-                +60 14 513 9470
-              </p>
-              <p className="flex flex-col">
-                <span className="text-white font-bold mb-1">General Inquiries:</span>
-                +60 3 404 113 75 (ext. 113)
-              </p>
-            </div>
-          </div>
         </div>
 
-        <div className="border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-brand-cyan flex items-center justify-center text-brand-navy">
-              <Heart className="h-5 w-5 fill-current" />
-            </div>
-            <span className="text-white font-black tracking-tight">SAB 2026</span>
-          </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            &copy; 2026 Sepeda Amal Borneo. All rights reserved.
+        {/* COPYRIGHT BAR */}
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[10px] font-bold text-brand-slate uppercase tracking-widest text-center md:text-left">
+            &copy; 2026 Sepeda Amal Borneo. Organized by MMA Foundation.
           </p>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-brand-cyan animate-pulse"></span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-brand-slate">System Operational</span>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,169 +1,186 @@
 import React from 'react';
-import { Heart, Shield, Stethoscope, Baby, ArrowRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Heart, Stethoscope, ShieldCheck, ExternalLink, Quote } from 'lucide-react';
 
 const Mission: React.FC = () => {
   return (
-    <div className="bg-white font-['Inter']">
+    <div className="bg-white min-h-screen">
 
-      {/* 🏥 MISSION HERO */}
-      <section className="relative pt-32 pb-24 overflow-hidden bg-brand-navy">
-        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] bg-brand-cyan blur-[100px] rounded-full"></div>
-          <div className="absolute bottom-[20%] left-[10%] w-[30%] h-[30%] bg-brand-coral blur-[100px] rounded-full"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
-            The Cause • Why We Pedal
+      {/* 1. HERO SECTION: Split Screen */}
+      <section className="bg-brand-navy text-white relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[80vh]">
+          {/* Image Left (Mobile Top) */}
+          <div className="relative h-[50vh] lg:h-auto">
+            <img
+              src="/assets/images/surgeon-holding-childs-hand.jpg"
+              alt="Surgeon holding child's hand"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-brand-navy/60 mix-blend-multiply"></div>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-none">
-            Saving <span className="text-brand-cyan">Little</span> Hearts.
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto font-medium leading-relaxed">
-            Sepeda Amal Borneo 2026 is dedicated to two critical pillars of paediatric health in Malaysia. Every kilometer we ride is a heartbeat we protect.
+
+          {/* Text Right */}
+          <div className="flex flex-col justify-center p-12 lg:p-24 relative z-10">
+            <div className="inline-flex items-center gap-2 text-brand-cyan mb-6">
+              <Heart className="h-5 w-5 fill-current" />
+              <span className="text-xs font-black uppercase tracking-[0.3em]">The Cause</span>
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-black font-heading leading-tight mb-8">
+              Two Causes. <br />
+              <span className="text-brand-cyan">One Lifeline.</span>
+            </h1>
+            <p className="text-xl text-brand-pale font-medium leading-relaxed mb-12 max-w-lg">
+              We ride to bridge the gap between life and death for Malaysia’s children. Every kilometer cycled funds a surgery or a diagnosis that otherwise wouldn't happen.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. ABOUT SAB */}
+      <section className="py-24 bg-brand-pale">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-black text-brand-navy mb-8 font-heading">Who We Are.</h2>
+          <p className="text-xl md:text-2xl text-brand-slate font-medium leading-relaxed">
+            Sepeda Amal Borneo (SAB) is a charity cycling group dedicated to supporting local non-profits. Founded in 2022, we raise vital funds while standing in solidarity with those in need. We turn awareness into action.
           </p>
         </div>
       </section>
 
-      {/* 👶 PILLAR 1: MAPS */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-
-            <div className="w-full lg:w-1/2">
-              <div className="relative">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-brand-cyan/10 rounded-full blur-3xl"></div>
-                <div className="rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,43,73,0.15)] relative z-10">
-                  <img
-                    src="https://picsum.photos/seed/sabmaps/800/1000"
-                    alt="Surgical Precision"
-                    className="w-full h-full object-cover aspect-[4/5]"
-                  />
-                </div>
-                {/* Floating Badge */}
-                <div className="absolute -bottom-8 -right-8 bg-brand-navy p-8 rounded-[2rem] shadow-2xl z-20 border border-white/10">
-                  <Stethoscope className="h-10 w-10 text-brand-cyan mb-3" />
-                  <div className="text-white font-black text-xl leading-tight">Expert <br />Surgery</div>
-                </div>
-              </div>
+      {/* 3. BENEFICIARY A: MAPS */}
+      <section className="py-24 bg-white relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border border-brand-grey/20 order-2 lg:order-1">
+              <img
+                src="/assets/images/pediatric-surgery.jpg"
+                alt="Paediatric Surgery"
+                className="w-full h-full object-cover"
+              />
             </div>
+            <div className="order-1 lg:order-2">
+              <img src="/assets/logos/MAPS%20Logo.png" alt="MAPS Logo" className="h-20 mb-8 object-contain" />
+              <h3 className="text-3xl lg:text-4xl font-black text-brand-navy mb-2 font-heading">Malaysian Association of Paediatric Surgery</h3>
+              <div className="text-sm font-black text-brand-orange uppercase tracking-widest mb-8">Repairing Little Lives</div>
 
-            <div className="w-full lg:w-1/2">
-              <div className="inline-flex items-center gap-3 text-brand-cyan mb-6">
-                <Heart className="h-8 w-8 fill-current" />
-                <span className="text-sm font-black uppercase tracking-[0.3em]">Foundation Pillar 01</span>
-              </div>
-              <h2 className="text-5xl font-black text-brand-navy mb-8 tracking-tighter leading-tight">Repairing Lives: <br />MAPS Foundation.</h2>
-              <div className="space-y-6 text-lg text-slate-500 font-medium leading-relaxed mb-12">
-                <p>
-                  The <span className="text-brand-navy font-bold">Malaysian Association of Paediatric Surgery (MAPS)</span> is at the forefront of surgical excellence. Many children in Borneo are born with congenital conditions that require complex, expensive operations.
-                </p>
-                <p>
-                  Through SAB 2026, we fund:
-                </p>
-                <ul className="space-y-4">
-                  {[
-                    "O.T. consumables for abdominal and thoracic surgeries.",
-                    "Post-operative recovery monitoring for newborns.",
-                    "Specialized surgical kits for remote clinics."
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <div className="h-2 w-2 rounded-full bg-brand-cyan mt-2.5 flex-shrink-0"></div>
-                      <span className="text-brand-navy font-bold">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <p className="text-lg text-brand-slate mb-8 leading-relaxed">
+                For babies born with congenital abnormalities, surgery is their only chance. MAPS funds training and equipment to perform miracles on hearts, intestines, and airways.
+              </p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <Link to="/donate" className="w-full sm:w-auto bg-brand-navy text-white font-black px-10 py-5 rounded-2xl hover:bg-brand-cyan hover:text-brand-navy transition-all shadow-xl">
-                  Sponsor a Surgery
-                </Link>
-                <a href="https://maps-malaysia.org" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-xs hover:text-brand-navy transition-colors">
-                  Visit MAPS Site <ExternalLink className="h-4 w-4" />
-                </a>
-              </div>
+              <ul className="space-y-4 mb-8">
+                {[
+                  "Advancing excellence in surgical care.",
+                  "Ensuring equitable access to safe surgery.",
+                  "Funding life-saving equipment for rural hospitals."
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="h-6 w-6 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan shrink-0">
+                      <Stethoscope className="h-3 w-3" />
+                    </div>
+                    <span className="text-brand-navy font-bold">{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="https://maps-malaysia.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-brand-cyan font-black uppercase tracking-widest text-xs hover:text-brand-navy transition-colors border-b-2 border-brand-cyan pb-1"
+              >
+                Visit Official Website <ExternalLink className="h-4 w-4" />
+              </a>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* 🛡️ PILLAR 2: MyPOPI */}
-      <section className="py-32 bg-slate-50 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row-reverse items-center gap-16 lg:gap-24">
+      {/* 4. BENEFICIARY B: MyPOPI */}
+      <section className="py-24 bg-white relative border-t border-brand-pale/30">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <img src="/assets/logos/MyPOPI-1.png" alt="MyPOPI Logo" className="h-20 mb-8 object-contain" />
+              <h3 className="text-3xl lg:text-4xl font-black text-brand-navy mb-2 font-heading">MyPOPI (Immune Deficiency)</h3>
+              <div className="text-sm font-black text-brand-orange uppercase tracking-widest mb-8">Defending the Defenseless</div>
 
-            <div className="w-full lg:w-1/2">
-              <div className="relative">
-                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-brand-coral/10 rounded-full blur-3xl"></div>
-                <div className="rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,43,73,0.1)] relative z-10">
-                  <img
-                    src="https://picsum.photos/seed/sabmypopi/800/1000"
-                    alt="Protected Child"
-                    className="w-full h-full object-cover aspect-[4/5]"
-                  />
-                </div>
-                {/* Floating Badge */}
-                <div className="absolute -top-8 -left-8 bg-brand-coral p-8 rounded-[2rem] shadow-2xl z-20">
-                  <Shield className="h-10 w-10 text-white mb-3" />
-                  <div className="text-white font-black text-xl leading-tight">Immune <br />Defense</div>
-                </div>
-              </div>
+              <p className="text-lg text-brand-slate mb-8 leading-relaxed">
+                Supporting 'bubble babies' born without functioning immune systems. Your funds aid in early diagnosis, isolation protection, and bone marrow transplants.
+              </p>
+
+              <ul className="space-y-4 mb-8">
+                {[
+                  "Promoting early diagnosis to prevent fatal infections.",
+                  "Improving quality of life for families.",
+                  "Funding IPOPI diagnostics kits."
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="h-6 w-6 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan shrink-0">
+                      <ShieldCheck className="h-3 w-3" />
+                    </div>
+                    <span className="text-brand-navy font-bold">{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="https://mypopi.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-brand-cyan font-black uppercase tracking-widest text-xs hover:text-brand-navy transition-colors border-b-2 border-brand-cyan pb-1"
+              >
+                Visit Official Website <ExternalLink className="h-4 w-4" />
+              </a>
             </div>
-
-            <div className="w-full lg:w-1/2">
-              <div className="inline-flex items-center gap-3 text-brand-coral mb-6">
-                <Baby className="h-8 w-8" />
-                <span className="text-sm font-black uppercase tracking-[0.2em]">Foundation Pillar 02</span>
-              </div>
-              <h2 className="text-5xl font-black text-brand-navy mb-8 tracking-tighter leading-tight">The Bubble of Hope: <br />MyPOPI.</h2>
-              <div className="space-y-6 text-lg text-slate-500 font-medium leading-relaxed mb-12">
-                <p>
-                  <span className="text-brand-navy font-bold">MyPOPI</span> supports children affected by Primary Immunodeficiencies (PID). These children are born without the natural ability to fight infections.
-                </p>
-                <p>
-                  Your donations help create a 'bubble of safety' through:
-                </p>
-                <ul className="space-y-4">
-                  {[
-                    "Early genetic screening for newborn PID detection.",
-                    "Regular IVIG (Intravenous Immunoglobulin) treatments.",
-                    "Home-care isolation support for high-risk patients."
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <div className="h-2 w-2 rounded-full bg-brand-coral mt-2.5 flex-shrink-0"></div>
-                      <span className="text-brand-navy font-bold">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <Link to="/donate" className="w-full sm:w-auto bg-brand-coral text-white font-black px-10 py-5 rounded-2xl hover:bg-brand-navy transition-all shadow-xl">
-                  Fund a Shield
-                </Link>
-                <a href="https://mypopi.org" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-xs hover:text-brand-navy transition-colors">
-                  Visit MyPOPI Site <ExternalLink className="h-4 w-4" />
-                </a>
-              </div>
+            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border border-brand-grey/20">
+              <img
+                src="/assets/images/immune deficiency care.jpg"
+                alt="Immune Deficiency Care"
+                className="w-full h-full object-cover"
+              />
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* 🚀 CALL TO ACTION */}
-      <section className="py-24 bg-brand-navy text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-brand-cyan/5 opacity-50 z-0"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tighter">Ready to make an impact?</h2>
+      {/* 5. STORIES OF HOPE (New) */}
+      <section className="py-24 bg-brand-pale">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center bg-white rounded-[3rem] p-8 md:p-12 shadow-2xl overflow-hidden relative">
+            <div className="lg:col-span-2 relative h-full min-h-[300px]">
+              <img
+                src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600&h=800&auto=format&fit=crop"
+                alt="Happy Child"
+                className="w-full h-full object-cover rounded-2xl grayscale hover:grayscale-0 transition-all duration-700"
+              />
+            </div>
+            <div className="lg:col-span-3 py-8 lg:pr-12">
+              <Quote className="h-16 w-16 text-brand-cyan mb-8 opacity-20" />
+              <h2 className="text-3xl md:text-5xl font-black text-brand-navy mb-8 font-heading leading-tight">Real Lives.<br />Real Impact.</h2>
+              <p className="text-xl md:text-2xl font-medium text-brand-slate italic mb-8">
+                "Thanks to the surgery funded by SAB, I can play football again."
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="h-1 w-12 bg-brand-orange"></div>
+                <div>
+                  <div className="font-black text-brand-navy text-lg uppercase tracking-widest">Adik Rizky, 7</div>
+                  <div className="text-xs font-bold text-brand-cyan uppercase tracking-widest">Congenital Heart Defect Survivor</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CTA */}
+      <section className="py-24 bg-brand-navy text-center">
+        <div className="max-w-2xl mx-auto px-6">
+          <Heart className="h-16 w-16 text-brand-orange mx-auto mb-8 animate-pulse" />
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-10 font-heading">These children cannot fight alone.</h2>
           <Link
             to="/donate"
-            className="inline-flex items-center gap-3 bg-brand-cyan hover:bg-white text-brand-navy text-xl font-black px-12 py-6 rounded-[2rem] shadow-2xl transition-all hover:scale-105"
+            className="inline-block bg-brand-orange text-white text-xl font-black px-12 py-5 rounded-full hover:bg-white hover:text-brand-orange transition-all shadow-xl hover:-translate-y-1 uppercase tracking-widest"
           >
-            Donate Now <ArrowRight className="h-6 w-6" />
+            Donate to the Mission
           </Link>
         </div>
       </section>

@@ -7,6 +7,11 @@ import Mission from './pages/Mission';
 import Legacy from './pages/Legacy';
 import Ride from './pages/Ride';
 import Donate from './pages/Donate';
+import Terms from './pages/Terms';
+import Refund from './pages/Refund';
+import Privacy from './pages/Privacy';
+import Contact from './pages/Contact';
+import FAQ from './pages/FAQ';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -19,7 +24,7 @@ const ScrollToTop = () => {
 const App: React.FC = () => {
   return (
     <HashRouter>
-      <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900">
+      <div className="flex flex-col min-h-screen">
         <ScrollToTop />
         <Navbar />
         <main className="flex-grow">
@@ -29,6 +34,11 @@ const App: React.FC = () => {
             <Route path="/legacy" element={<Legacy />} />
             <Route path="/ride" element={<Ride />} />
             <Route path="/donate" element={<Donate />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/refund" element={<Refund />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/faq" element={<FAQ />} />
           </Routes>
         </main>
         <Footer />

@@ -1,337 +1,412 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Heart,
+  ShieldCheck,
+  ArrowRight,
   TrendingUp,
   Map,
-  ShieldCheck,
   Users,
-  ArrowRight,
-  Heart,
-  Play,
-  Quote,
   CheckCircle2,
-  Trophy,
-  Stethoscope,
-  Bike
+  Calendar,
+  MapPin,
+  Stethoscope
 } from 'lucide-react';
+import { GoGear } from 'react-icons/go';
 
 const RIDERS = [
   {
     id: 1,
     name: 'Dr. Ahmad Rizal',
     role: 'Paediatric Surgeon',
-    image: 'https://i.pravatar.cc/300?u=dr1',
+    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=300&h=300&auto=format&fit=crop',
     goal: 50000,
-    raised: 38500,
-    quote: "I see these kids every day in the OT. This ride is for their second chance.",
-    stats: { km: 660, years: 4 }
+    raised: 38500
   },
   {
     id: 2,
     name: 'Sarah Chen',
     role: 'Endurance Cyclist',
-    image: 'https://i.pravatar.cc/300?u=sc1',
+    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=300&h=300&auto=format&fit=crop',
     goal: 30000,
-    raised: 12400,
-    quote: "Healing isn't just medical; it's a community effort. Let's pedal together.",
-    stats: { km: 1200, years: 2 }
+    raised: 12400
   },
   {
     id: 3,
     name: 'Lt. Murali Kumar',
     role: 'Retired Officer',
-    image: 'https://i.pravatar.cc/300?u=mk1',
+    image: 'https://images.unsplash.com/photo-1544191136-11f8149e634e?q=80&w=300&h=300&auto=format&fit=crop',
     goal: 25000,
-    raised: 24800,
-    quote: "No child should fight alone. We ride so they don't have to.",
-    stats: { km: 3900, years: 6 }
+    raised: 24800
+  },
+  {
+    id: 4,
+    name: 'Elena Tan',
+    role: 'Triathlete',
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=300&h=300&auto=format&fit=crop',
+    goal: 15000,
+    raised: 8200
   }
 ];
 
+const TIMELINE = [
+  { year: '2022', title: 'Cycle for Cancer', raised: 'RM 230k' },
+  { year: '2023', title: 'Program ROSE', raised: 'RM 250k' },
+  { year: '2024', title: 'Program ROSE', raised: 'RM 270k' },
+  { year: '2025', title: 'MAPPAC', raised: 'RM 450k' },
+];
+
 const Home: React.FC = () => {
+  const scrollContainer = useRef<HTMLDivElement>(null);
+  const [raisedAmount, setRaisedAmount] = useState('RM 1.2M');
+  const [ridersList, setRidersList] = useState(RIDERS);
+
+  useEffect(() => {
+    // Fetch dynamic stats
+    fetch('/api/stats').then(res => res.json()).then(data => {
+      if (data && typeof data.totalRaised === 'number') {
+        // Assuming 1.2M is historical base, we add current campaign to it?
+        // Or if 1.2M is 2026 goal?
+        // The user said "Add sum total to include manual and hitpay".
+        // I will treat 1.2M as historical base and add the new amount.
+        const base = 1200000;
+        const total = base + data.totalRaised;
+        setRaisedAmount(`RM ${(total / 1000000).toFixed(3)}M`);
+      }
+    }).catch(err => console.error(err));
+
+    // Fetch riders update
+    fetch('/api/riders').then(res => res.json()).then(data => {
+      if (Array.isArray(data)) {
+        // Map API data to match local structure or just use it
+        setRidersList(data.slice(0, 4));
+      }
+    }).catch(console.error);
+  }, []);
+
+  // JSON-LD Schema
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "NGO",
+        "name": "Sepeda Amal Borneo",
+        "url": "https://sab2026.com",
+        "logo": "https://sab2026.com/logo.png",
+        "description": "A charity cycling movement funding paediatric surgeries in Borneo.",
+        "parentOrganization": {
+          "@type": "Organization",
+          "name": "Malaysian Medical Association Foundation"
+        }
+      },
+      {
+        "@type": "Event",
+        "name": "Sepeda Amal Borneo 2026 Charity Ride",
+        "startDate": "2026-07-26",
+        "location": {
+          "@type": "Place",
+          "name": "Borneo",
+          "address": "Kota Kinabalu to Miri"
+        },
+        "description": "A 660km charity cycle to raise funds for paediatric surgery and immune deficiency support.",
+        "organizer": {
+          "@type": "Organization",
+          "name": "MMA Foundation"
+        }
+      }
+    ]
+  };
+
   return (
-    <div className="w-full bg-white font-['Inter']">
+    <div className="w-full bg-white font-sans text-brand-slate">
+      <script type="application/ld+json">
+        {JSON.stringify(schemaData)}
+      </script>
 
-      {/* 🚀 EMOTIONAL HERO SECTION */}
-      <section className="relative min-h-[95vh] flex items-center pt-20 pb-20 overflow-hidden">
-        {/* Abstract Background Glows */}
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[60%] bg-brand-cyan/10 blur-[120px] rounded-full z-0"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[50%] bg-brand-coral/5 blur-[120px] rounded-full z-0"></div>
+      {/* 2. HERO SECTION (The Emotional Hook) */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/assets/images/male-working-as-paediatrician.jpg"
+            alt="SAB 2026 Medical Mission"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-brand-navy/80 mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"></div>
+        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-12">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center text-white mt-16 animate-fade-in">
+          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-[1.1] font-heading text-white">
+            Pedal for Care, <br />
+            <span className="text-brand-cyan">Ride for Hope.</span>
+          </h1>
+          <h2 className="text-lg md:text-2xl font-medium text-brand-pale mb-10 max-w-3xl mx-auto leading-relaxed">
+            Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.
+          </h2>
 
-            {/* Left: Humanity-Focused Messaging */}
-            <div className="w-full lg:w-1/2 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-navy text-brand-cyan text-xs font-black tracking-[0.2em] mb-8 uppercase shadow-xl animate-fade-in">
-                <Heart className="h-3 w-3 fill-current" />
-                SAB 2026 • The Human Race
-              </div>
-
-              <h1 className="text-6xl md:text-8xl font-black text-brand-navy leading-[0.9] mb-10 tracking-tighter">
-                Rewrite <br />
-                <span className="text-brand-cyan">their future.</span> <br />
-                One pedal <br />
-                at a time.
-              </h1>
-
-              <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                We're cycling 660km to fund surgeries for Malaysia's most vulnerable children. <span className="text-brand-navy font-bold">Your heart fuels our legs.</span>
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
-                <Link
-                  to="/donate"
-                  className="group bg-brand-coral hover:bg-brand-coral/90 text-white text-xl font-black px-12 py-6 rounded-[2rem] shadow-2xl shadow-brand-coral/30 transition-all hover:-translate-y-1 flex items-center gap-3"
-                >
-                  Save a Life Now
-                  <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
-                </Link>
-                <button className="flex items-center gap-4 text-brand-navy font-black text-lg group">
-                  <div className="h-16 w-16 rounded-full border-2 border-slate-200 flex items-center justify-center group-hover:bg-brand-cyan group-hover:border-brand-cyan transition-all">
-                    <Play className="h-6 w-6 fill-current group-hover:text-white" />
-                  </div>
-                  Watch the Story
-                </button>
-              </div>
+          <div className="flex flex-col items-center gap-4">
+            <Link
+              to="/donate"
+              className="bg-brand-orange hover:bg-white hover:text-brand-orange text-white text-xl font-black px-12 py-5 rounded-full shadow-[0_0_30px_rgba(255,127,50,0.4)] hover:shadow-xl transition-all hover:-translate-y-1 animate-pulse flex items-center gap-3 uppercase tracking-widest"
+            >
+              Save a Life Now <ArrowRight className="h-6 w-6" />
+            </Link>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-pale/60">
+              <ShieldCheck className="h-4 w-4" />
+              <span>Organized by MMA Foundation | Tax Exempt</span>
             </div>
-
-            {/* Right: Emotional Visual Composite */}
-            <div className="w-full lg:w-1/2 relative">
-              <div className="relative z-10 w-full aspect-square md:aspect-[4/5] rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,43,73,0.3)] group">
-                <img
-                  src="https://picsum.photos/seed/sabkids/1000/1250"
-                  alt="Child Patient"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/80 via-transparent to-transparent"></div>
-
-                {/* Floating "Why We Ride" Banner */}
-                <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20">
-                  <Quote className="h-8 w-8 text-brand-cyan mb-4 opacity-50" />
-                  <p className="text-white text-lg font-bold leading-snug italic">
-                    "The surgery I received changed my life. Now, I see these doctors riding so other kids can have the same chance I did."
-                  </p>
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className="h-1 w-8 bg-brand-cyan rounded-full"></div>
-                    <span className="text-brand-cyan font-black text-xs uppercase tracking-widest">Aishah, Former Patient</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Impact Badges */}
-              <div className="absolute -top-10 -right-10 z-20 animate-bounce-slow">
-                <div className="bg-white p-6 rounded-[2.5rem] shadow-2xl border border-slate-100 flex flex-col items-center">
-                  <div className="text-4xl font-black text-brand-navy leading-none mb-1">100%</div>
-                  <div className="text-[10px] font-black text-brand-coral uppercase tracking-widest text-center">Direct Medical <br />Funding</div>
-                </div>
-              </div>
-
-              <div className="absolute top-1/2 -left-12 z-20 animate-bounce-slow" style={{ animationDelay: '1.5s' }}>
-                <div className="bg-brand-navy p-6 rounded-[2.5rem] shadow-2xl flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-brand-cyan flex items-center justify-center text-brand-navy">
-                    <Stethoscope className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <div className="text-white font-black text-xl leading-none">Pediatric Care</div>
-                    <div className="text-brand-cyan text-[10px] font-black uppercase tracking-widest">Our Mission</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
 
-      {/* 📊 REAL-TIME IMPACT DASHBOARD */}
-      <section className="py-24 bg-slate-50 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-            <div className="lg:col-span-1 flex flex-col justify-center">
-              <h2 className="text-3xl font-black text-brand-navy mb-4 tracking-tight leading-tight">Lives Touched <br />by Your Kindness.</h2>
-              <div className="h-1 w-20 bg-brand-cyan rounded-full"></div>
-            </div>
-
-            <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* 3. IMPACT STATS STRIP (Social Proof) */}
+      <section className="py-12 bg-white relative z-20 -mt-10 mx-4 md:mx-0">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-[2rem] shadow-2xl border border-brand-grey/20 p-8 md:p-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {[
-                { label: 'Funds Raised', value: 'RM 1,284,500', icon: TrendingUp, color: 'text-brand-cyan' },
-                { label: 'Distance Covered', value: '3,900 KM', icon: Map, color: 'text-brand-coral' },
-                { label: 'Beneficiaries', value: '2 Charities', icon: Users, color: 'text-brand-navy' }
+                { label: 'Raised', value: raisedAmount, icon: TrendingUp },
+                { label: 'Cycled', value: '3,900 KM', icon: Map },
+                { label: 'Tax Relief', value: '100%', icon: ShieldCheck },
+                { label: 'Charities', value: '2 Lifelines', icon: Heart }
               ].map((stat, i) => (
-                <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all">
-                  <div className={`p-4 rounded-2xl bg-slate-50 inline-block mb-6 group-hover:bg-brand-navy group-hover:text-white transition-colors ${stat.color}`}>
-                    <stat.icon className="h-8 w-8" />
-                  </div>
-                  <div className="text-3xl font-black text-brand-navy mb-2 tracking-tight">{stat.value}</div>
-                  <div className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</div>
+                <div key={i} className="text-center md:text-left flex flex-col items-center md:items-start group">
+                  <stat.icon className="h-8 w-8 text-brand-cyan mb-3 group-hover:scale-110 transition-transform" />
+                  <div className="text-3xl lg:text-4xl font-black text-brand-navy tracking-tight font-heading">{stat.value}</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-brand-slate/60 group-hover:text-brand-orange transition-colors">{stat.label}</div>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. THE MISSION (About Us & Beneficiaries) */}
+      <section id="mission" className="py-24 bg-brand-pale">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {/* The Why */}
+            <div>
+              <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm animate-fade-in">Our Core Mission</div>
+              <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-6 tracking-tighter font-heading">Two Causes. <br />One Lifeline.</h2>
+              <p className="text-lg text-brand-slate font-medium mb-8 leading-relaxed">
+                Sepeda Amal Borneo is more than a cycling event; it is a movement. We ride to turn awareness into action, ensuring that no child is denied medical care due to lack of funds.
+              </p>
+              <div className="h-1 w-24 bg-brand-cyan rounded-full"></div>
+            </div>
+
+            {/* The Who (Cards) */}
+            <div className="grid gap-6">
+              {/* Card A: MAPS */}
+              <div className="bg-white p-8 rounded-[2rem] border border-brand-grey/20 hover:shadow-xl transition-all group cursor-pointer hover:border-brand-cyan/30">
+                <div className="flex items-start gap-6">
+                  <div className="h-20 w-20 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-brand-grey/20 p-2 group-hover:scale-105 transition-transform">
+                    <img src="/assets/logos/MAPS%20Logo.png" alt="MAPS Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-black text-brand-navy mb-2 font-heading">MAPS Malaysia</h3>
+                    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest mb-3">Repairing Little Lives</div>
+                    <p className="text-sm text-brand-slate font-medium mb-4">Funding complex paediatric surgeries for congenital anomalies and life-threatening conditions.</p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mt-6">
+                      <Link to="/mission" className="text-[10px] font-black text-brand-navy uppercase tracking-widest hover:text-brand-cyan transition-colors flex items-center gap-1 border-b border-brand-navy hover:border-brand-cyan pb-0.5">
+                        See How We Help <ArrowRight className="h-3 w-3" />
+                      </Link>
+                      <Link to="/donate?beneficiary=MAPS" className="text-[10px] font-black text-brand-orange uppercase tracking-widest hover:text-brand-navy transition-colors flex items-center gap-1">
+                        Donate Directly →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card B: MyPOPI */}
+              <div className="bg-white p-8 rounded-[2rem] border border-brand-grey/20 hover:shadow-xl transition-all group cursor-pointer hover:border-brand-cyan/30">
+                <div className="flex items-start gap-6">
+                  <div className="h-20 w-20 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-brand-grey/20 p-2 group-hover:scale-105 transition-transform">
+                    <img src="/assets/logos/MyPOPI-1.png" alt="MyPOPI Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-black text-brand-navy mb-2 font-heading">MyPOPI</h3>
+                    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest mb-3">Defending the Defenseless</div>
+                    <p className="text-sm text-brand-slate font-medium mb-4">Supporting diagnostics and treatment for Primary Immunodeficiency (PID) patients.</p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mt-6">
+                      <Link to="/mission" className="text-[10px] font-black text-brand-navy uppercase tracking-widest hover:text-brand-cyan transition-colors flex items-center gap-1 border-b border-brand-navy hover:border-brand-cyan pb-0.5">
+                        See How We Help <ArrowRight className="h-3 w-3" />
+                      </Link>
+                      <Link to="/donate?beneficiary=MyPOPI" className="text-[10px] font-black text-brand-orange uppercase tracking-widest hover:text-brand-navy transition-colors flex items-center gap-1">
+                        Donate Directly →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           </div>
         </div>
       </section>
 
-      {/* 🏅 RIDER HIGHLIGHT: THE CHAMPIONS (BENTO GRID) */}
-      <section className="py-32 bg-white">
+      {/* 5. OUR LEGACY (The Track Record) */}
+      <section id="history" className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-            <div className="max-w-2xl">
-              <h2 className="text-5xl font-black text-brand-navy mb-6 tracking-tighter">Meet Your Champions.</h2>
-              <p className="text-xl text-slate-500 font-medium">These riders are pushing their limits to ensure no child fights alone. Sponsor their journey and double the impact.</p>
+          <div className="mb-16 text-center md:text-left">
+            <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-4 tracking-tighter font-heading">A History of Moving Mountains.</h2>
+            <p className="text-brand-slate font-medium text-lg">Consistent impact, year after year.</p>
+          </div>
+
+          <div className="relative">
+            {/* Chain Graphic Line */}
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-brand-pale -translate-y-1/2 hidden md:block z-0"></div>
+
+            {/* Horizontal Scroll Container */}
+            <div className="flex overflow-x-auto gap-8 pb-8 md:grid md:grid-cols-4 md:gap-8 relative z-10 snap-x snap-mandatory hide-scrollbar">
+              {TIMELINE.map((item, i) => (
+                <div key={i} className="min-w-[280px] snap-center bg-white p-8 rounded-[2rem] border border-brand-grey/20 shadow-lg text-center relative group hover:-translate-y-2 transition-transform">
+                  {/* Use GoGear icon */}
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2">
+                    <GoGear className="h-6 w-6 text-brand-cyan" />
+                  </div>
+
+                  <div className="text-4xl font-black text-brand-navy mb-2 font-heading">{item.year}</div>
+                  <div className="text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-4">{item.title}</div>
+                  <div className="inline-block bg-brand-pale/50 px-5 py-2 rounded-xl text-brand-navy font-black text-xl">
+                    {item.raised}
+                  </div>
+                </div>
+              ))}
             </div>
-            <Link to="/ride" className="inline-flex items-center gap-2 text-brand-navy font-black uppercase tracking-widest text-sm hover:text-brand-cyan transition-colors">
-              View All 40+ Riders <ArrowRight className="h-4 w-4" />
+          </div>
+        </div>
+      </section>
+
+      {/* 6. THE RIDE & RIDERS (The Event) */}
+      <section id="ride" className="py-24 bg-brand-pale">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="text-center mb-16 px-4">
+            <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">The Challenge</div>
+            <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-8 tracking-tighter font-heading">Kota Kinabalu to Miri.</h2>
+            <div className="max-w-5xl mx-auto rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden text-white border border-brand-cyan/20 group">
+              {/* Background Image */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src="/assets/images/KK-miri.png"
+                  alt="Kota Kinabalu to Miri Route"
+                  className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[2000ms]"
+                />
+                <div className="absolute inset-0 bg-brand-navy/60 mix-blend-multiply"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"></div>
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                <MapPin className="h-16 w-16 text-brand-cyan mx-auto mb-6 animate-bounce" />
+                <h3 className="text-5xl md:text-6xl font-black mb-4 font-heading tracking-tight">660 KM</h3>
+                <p className="text-brand-pale font-medium text-xl max-w-2xl mx-auto leading-relaxed">
+                  A high-endurance cross-country expedition across the rugged heart of Borneo.
+                </p>
+
+                {/* Visual Route Placeholder */}
+                <div className="mt-12 max-w-lg mx-auto">
+                  <div className="h-3 w-full bg-white/10 rounded-full relative overflow-hidden">
+                    <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-brand-cyan via-brand-orange to-brand-cyan animate-shimmer" style={{ backgroundSize: '200% 100%' }}></div>
+                  </div>
+                  <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] mt-6 text-brand-cyan">
+                    <span className="flex items-center gap-2 animate-pulse"><div className="h-2 w-2 rounded-full bg-brand-cyan"></div> KK</span>
+                    <span className="flex items-center gap-2 animate-pulse"><div className="h-2 w-2 rounded-full bg-brand-orange"></div> MIRI</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8 flex items-end justify-between px-4">
+            <div>
+              <h2 className="text-3xl font-black text-brand-navy font-heading">Meet the Champions.</h2>
+              <p className="text-[10px] font-bold text-brand-orange uppercase tracking-widest mt-2">Endurance mirrors the patient's journey.</p>
+            </div>
+            <Link to="/ride" className="hidden md:inline-flex items-center gap-2 font-black text-brand-navy hover:text-brand-cyan uppercase tracking-widest text-xs border-b-2 border-transparent hover:border-brand-cyan pb-1 transition-all">
+              View All Riders <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-            {/* Featured Rider (Large Card) */}
-            <div className="md:col-span-8 group relative rounded-[3rem] overflow-hidden bg-brand-navy h-[600px] shadow-2xl">
-              <img
-                src={RIDERS[0].image}
-                alt={RIDERS[0].name}
-                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-1000"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/20 to-transparent"></div>
-
-              <div className="absolute bottom-12 left-12 right-12">
-                <div className="inline-block px-4 py-2 bg-brand-cyan text-brand-navy text-[10px] font-black uppercase tracking-widest rounded-full mb-6">Featured Champion</div>
-                <h3 className="text-5xl font-black text-white mb-4 tracking-tight">{RIDERS[0].name}</h3>
-                <p className="text-brand-cyan text-lg font-bold mb-8 max-w-md italic leading-relaxed">"{RIDERS[0].quote}"</p>
-
-                <div className="grid grid-cols-2 gap-12 mb-10">
-                  <div>
-                    <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Fundraising Progress</div>
-                    <div className="flex items-end gap-2 mb-3">
-                      <span className="text-3xl font-black text-white">RM {RIDERS[0].raised.toLocaleString()}</span>
-                      <span className="text-slate-500 font-bold mb-1">/ RM {RIDERS[0].goal.toLocaleString()}</span>
-                    </div>
-                    <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-cyan rounded-full shadow-[0_0_20px_rgba(0,174,239,0.5)]" style={{ width: `${(RIDERS[0].raised / RIDERS[0].goal) * 100}%` }}></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <div className="text-2xl font-black text-white">{RIDERS[0].stats.km}</div>
-                      <div className="text-[10px] font-bold text-slate-500 uppercase">Training KM</div>
-                    </div>
-                    <div className="w-px h-10 bg-white/10"></div>
-                    <div className="text-center">
-                      <div className="text-2xl font-black text-white">{RIDERS[0].stats.years}</div>
-                      <div className="text-[10px] font-bold text-slate-500 uppercase">Years Riding</div>
-                    </div>
-                  </div>
-                </div>
-
-                <Link to={`/donate?rider=${RIDERS[0].id}`} className="inline-flex bg-white hover:bg-brand-cyan text-brand-navy font-black px-10 py-5 rounded-2xl transition-all shadow-xl">
-                  Sponsor Dr. Rizal
-                </Link>
-              </div>
-            </div>
-
-            {/* Side Riders (Vertical Stack) */}
-            <div className="md:col-span-4 flex flex-col gap-6">
-              {RIDERS.slice(1).map(rider => (
-                <div key={rider.id} className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 group transition-all hover:bg-white hover:shadow-2xl">
-                  <div className="flex items-center gap-5 mb-6">
-                    <img src={rider.image} alt={rider.name} className="h-16 w-16 rounded-2xl object-cover shadow-lg" />
-                    <div>
-                      <h4 className="text-xl font-black text-brand-navy leading-none mb-1">{rider.name}</h4>
-                      <span className="text-xs font-bold text-brand-cyan uppercase tracking-widest">{rider.role}</span>
-                    </div>
-                  </div>
-                  <div className="mb-6">
-                    <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                      <span>Raised</span>
-                      <span className="text-brand-navy">RM {rider.raised.toLocaleString()}</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-coral" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
-                    </div>
-                  </div>
-                  <Link to={`/donate?rider=${rider.id}`} className="w-full inline-flex items-center justify-center gap-2 border-2 border-brand-navy text-brand-navy font-black py-4 rounded-2xl hover:bg-brand-navy hover:text-white transition-all">
-                    Sponsor {rider.name.split(' ')[1]} <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              ))}
-
-              {/* Call to Action Card */}
-              <div className="flex-grow bg-brand-cyan p-8 rounded-[2.5rem] relative overflow-hidden group border-4 border-brand-navy">
-                <Bike className="absolute -bottom-6 -right-6 h-32 w-32 text-brand-navy/20 rotate-12" />
-                <h4 className="text-2xl font-black text-brand-navy mb-4 relative z-10 leading-tight">Ready to ride <br />with us?</h4>
-                <Link to="/ride" className="inline-flex items-center gap-2 bg-brand-navy text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest relative z-10 hover:bg-white hover:text-brand-navy transition-all">
-                  Register as Rider
-                </Link>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 🏥 MEDICAL LEGACY & MISSION */}
-      <section className="py-32 bg-slate-900 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-[60%] h-full bg-brand-navy/50 z-0 skew-x-[-20deg] translate-x-20"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-
-            <div className="order-2 lg:order-1">
-              <div className="inline-flex items-center gap-3 text-brand-cyan mb-8">
-                <Trophy className="h-8 w-8" />
-                <span className="text-sm font-black uppercase tracking-[0.3em]">Our Legacy of Impact</span>
-              </div>
-              <h2 className="text-5xl md:text-6xl font-black text-white mb-10 tracking-tighter leading-tight">Beyond the finishing line.</h2>
-              <p className="text-xl text-slate-400 font-medium mb-12 leading-relaxed">
-                Since 2022, the Sepeda Amal Borneo movement has raised over <span className="text-white font-bold">RM 1.2M</span> for paediatric care.
-                We don't just cycle for sport; we cycle to ensure that expert medical care is accessible to every child in Malaysia, regardless of their background.
-              </p>
-
-              <div className="space-y-6">
-                {[
-                  "Funding complex heart and abdominal surgeries.",
-                  "Sourcing critical diagnostic kits for rare immune disorders.",
-                  "Supporting family recovery and post-op medication.",
-                  "Building a network of paediatric specialists across Borneo."
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 group">
-                    <div className="h-6 w-6 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan group-hover:bg-brand-cyan group-hover:text-brand-navy transition-all">
-                      <CheckCircle2 className="h-4 w-4" />
-                    </div>
-                    <span className="text-lg font-bold text-slate-300">{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-16">
-                <Link to="/mission" className="bg-brand-cyan hover:bg-white text-brand-navy font-black px-12 py-6 rounded-[2rem] transition-all shadow-2xl flex items-center gap-3 w-fit">
-                  Explore Our Mission
-                </Link>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2 grid grid-cols-2 gap-6">
-              <img src="https://picsum.photos/seed/sabdoc1/500/800" className="rounded-[3rem] shadow-2xl mt-12" alt="Mission 1" />
-              <img src="https://picsum.photos/seed/sabdoc2/500/800" className="rounded-[3rem] shadow-2xl -mt-12" alt="Mission 2" />
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 💳 FINAL CTA */}
-      <section className="py-24 bg-brand-cyan text-brand-navy text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter">Will you be the reason a child survives?</h2>
-          <p className="text-xl md:text-2xl font-bold opacity-80 mb-12">Every contribution, large or small, goes directly to the Malaysian Medical Association Foundation.</p>
-          <Link
-            to="/donate"
-            className="inline-block bg-brand-navy text-white text-2xl font-black px-16 py-8 rounded-[2.5rem] shadow-3xl hover:bg-white hover:text-brand-navy transition-all hover:scale-105 active:scale-95"
+          {/* Rider Carousel */}
+          <div
+            ref={scrollContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-8"
           >
-            Donate Now
+            {ridersList.map((rider) => (
+              <div key={rider.id} className="bg-white rounded-[2rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all group">
+                <div className="h-64 w-full rounded-2xl overflow-hidden mb-6 relative">
+                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-brand-navy/90 to-transparent">
+                    <div className="text-white font-black text-xl font-heading">{rider.name}</div>
+                    <div className="text-brand-cyan text-[10px] font-bold uppercase tracking-widest">{rider.role}</div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <div className="flex justify-between text-[10px] font-black text-brand-slate uppercase tracking-widest mb-2">
+                    <span>Raised: RM {rider.raised.toLocaleString()}</span>
+                    <span className="text-brand-navy">Goal: RM {rider.goal.toLocaleString()}</span>
+                  </div>
+                  <div className="w-full h-3 bg-brand-pale/30 rounded-full overflow-hidden">
+                    <div className="h-full bg-brand-orange rounded-full" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
+                  </div>
+                </div>
+
+                <Link to={`/donate?rider=${rider.id}`} className="block w-full text-center border-2 border-brand-orange bg-white text-brand-orange font-black py-4 rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm uppercase tracking-widest">
+                  Donate to Me
+                </Link>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* 7. CTA (The Closer) */}
+      <section className="py-24 bg-white text-center border-t border-brand-pale">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter text-brand-navy font-heading">Ready to Make an Impact?</h2>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <Link
+              to="/donate"
+              className="w-full sm:w-auto bg-brand-navy text-white text-lg font-black px-12 py-6 rounded-[2rem] shadow-2xl hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest"
+            >
+              Donate to General Fund
+            </Link>
+            <button className="w-full sm:w-auto bg-transparent border-2 border-brand-cyan text-brand-cyan hover:bg-brand-cyan hover:text-brand-navy text-lg font-black px-12 py-6 rounded-[2rem] transition-all uppercase tracking-widest" onClick={() => window.location.href = '/ride'}>
+              Register as a Cyclist
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. CORPORATE TRUST STRIP (New) */}
+      <section className="py-16 bg-slate-50 border-t border-brand-pale">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h3 className="text-sm font-black text-brand-slate/40 mb-10 uppercase tracking-[0.3em]">Our Partners in Hope</h3>
+          <div className="flex flex-wrap justify-center items-center gap-12 lg:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
+            {/* Logos */}
+            <div className="h-32 w-64 flex items-center justify-center">
+              <img src="/assets/logos/MMA_logo.png" alt="MMA" className="max-h-full max-w-full object-contain" />
+            </div>
+            <div className="h-32 w-64 flex items-center justify-center">
+              <img src="/assets/logos/MMAF_logo.png" alt="MMAF" className="max-h-full max-w-full object-contain" />
+            </div>
+            <div className="h-32 w-64 flex items-center justify-center">
+              <img src="/assets/logos/SAB%20Logo_%20Light.png" alt="SAB" className="max-h-full max-w-full object-contain invert" />
+            </div>
+            {/* Placeholders */}
+            <div className="h-24 px-10 bg-brand-pale/20 rounded-xl flex items-center justify-center font-bold text-slate-400 text-sm uppercase tracking-widest border border-brand-pale">Global Sponsor</div>
+          </div>
+          <Link to="/contact" className="inline-block mt-12 text-[10px] font-black text-brand-orange hover:text-brand-navy border-b-2 border-brand-orange hover:border-brand-navy pb-1 transition-all uppercase tracking-widest">
+            Become a Corporate Partner →
           </Link>
         </div>
       </section>

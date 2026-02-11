@@ -1,168 +1,161 @@
-import React from 'react';
-import { Calendar, MapPin, Mountain, Bike, ArrowRight, Timer, Wind, Shield } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { MapPin, Calendar, Users, TrendingUp, Quote, ArrowRight, UserPlus } from 'lucide-react';
+import ridersData from '../data/riders.json';
+import RegistrationModal from '../components/RegistrationModal';
+import InteractiveMap from '../components/InteractiveMap';
+import RiderStoryModal from '../components/RiderStoryModal';
+import { ChevronDown, ChevronUp } from 'lucide-react'; // For FAQ if accordion, or just static
 
 const Ride: React.FC = () => {
+  const [isRegOpen, setIsRegOpen] = useState(false);
+  const [selectedRider, setSelectedRider] = useState<any | null>(null);
+  const [riders, setRiders] = useState(ridersData);
+
+  useEffect(() => {
+    fetch('/api/riders').then(res => res.json()).then(data => {
+      if (Array.isArray(data)) setRiders(data);
+    }).catch(console.error);
+  }, []);
+
   return (
-    <div className="w-full bg-white font-['Inter']">
+    <div className="bg-white min-h-screen">
 
-      {/* 🚴 RIDE HERO */}
-      <section className="relative pt-32 pb-24 overflow-hidden bg-brand-navy">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand-cyan/20 blur-[100px] rounded-full z-0"></div>
+      {/* 1. EVENT HERO */}
+      <section className="bg-brand-navy text-white relative overflow-hidden pt-32 pb-24">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="w-full lg:w-3/5 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
-                The Event • Endurance Challenge
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-none">
-                The <span className="text-brand-cyan">Infinite</span> <br />Road.
-              </h1>
-              <p className="text-xl md:text-2xl text-slate-400 max-w-2xl font-medium leading-relaxed mb-12">
-                660km from Kota Kinabalu to Miri. 8,000m of elevation. 20 dedicated cyclists. One shared mission of hope.
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-cyan">
-                    <Calendar className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Date</div>
-                    <div className="text-lg font-black text-white">26 July - 1 Aug 2026</div>
-                  </div>
-                </div>
-                <div className="h-10 w-px bg-white/10 hidden md:block"></div>
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-coral">
-                    <MapPin className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Route</div>
-                    <div className="text-lg font-black text-white">KK → Miri</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="w-full lg:w-2/5 relative">
-              <div className="bg-white/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8">
-                  <Bike className="h-32 w-32 text-white/5 -rotate-12" />
-                </div>
-                <h3 className="text-xl font-black text-brand-cyan mb-8 uppercase tracking-widest leading-tight">Registration Status</h3>
-                <div className="space-y-6 mb-10">
-                  <div className="flex justify-between items-end">
-                    <span className="text-white font-bold text-lg">Confirmed Riders</span>
-                    <span className="text-3xl font-black text-white">20 <span className="text-slate-500 text-sm">/ 40</span></span>
-                  </div>
-                  <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-cyan rounded-full" style={{ width: '50%' }}></div>
-                  </div>
-                </div>
-                <button className="w-full bg-brand-cyan hover:bg-white text-brand-navy font-black py-5 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3">
-                  Join the Peloton <ArrowRight className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
+            26 July - 1 August 2026
           </div>
-        </div>
-      </section>
+          <h1 className="text-5xl md:text-8xl font-black font-heading leading-tight mb-8">
+            The Journey: <br />
+            <span className="text-brand-orange">SAB2026.</span>
+          </h1>
+          <div className="flex items-center justify-center gap-3 text-xl text-brand-pale font-medium mb-16">
+            <MapPin className="h-5 w-5 text-brand-cyan" />
+            <span>Kota Kinabalu to Miri</span>
+          </div>
 
-      {/* 🗺️ THE CHALLENGE STATS */}
-      <section className="py-24 bg-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 border-t border-white/10 pt-16">
             {[
-              { label: 'Total Distance', value: '660 KM', icon: Mountain, detail: 'Cross-state endurance', color: 'bg-brand-navy' },
-              { label: 'Total Elevation', value: '8,000 M', icon: Wind, detail: 'Challenging Borneo peaks', color: 'bg-brand-coral' },
-              { label: 'Time Goal', value: '6 Days', icon: Timer, detail: 'Avg 110km per day', color: 'bg-brand-cyan' }
+              { label: 'Days', value: '6' },
+              { label: 'Distance', value: '660 KM' },
+              { label: 'Elevation', value: '8,000 M' },
+              { label: 'Cyclists', value: '20' },
             ].map((stat, i) => (
-              <div key={i} className="group p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all">
-                <div className={`h-16 w-16 rounded-2xl flex items-center justify-center text-white mb-8 transition-transform group-hover:scale-110 ${stat.color}`}>
-                  <stat.icon className="h-8 w-8" />
-                </div>
-                <div className="text-4xl font-black text-brand-navy mb-2 tracking-tighter">{stat.value}</div>
-                <div className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">{stat.label}</div>
-                <p className="text-slate-500 font-medium leading-relaxed">{stat.detail}</p>
+              <div key={i} className="flex flex-col items-center">
+                <div className="text-4xl md:text-5xl font-black text-white mb-2 font-heading">{stat.value}</div>
+                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 🏔️ ROUTE BREAKDOWN */}
-      <section className="py-32 bg-slate-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+      {/* 2. PHILOSOPHY QUOTE */}
+      <section className="py-24 bg-brand-pale">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <Quote className="h-12 w-12 text-brand-cyan mx-auto mb-8 opacity-50" />
+          <p className="text-2xl md:text-4xl font-black text-brand-navy leading-tight font-heading italic">
+            "Endurance cycling mirrors the realities faced by patients: long journeys marked by uncertainty, setbacks, and the need for sustained support. We take these conversations out of hospitals and into everyday spaces."
+          </p>
+        </div>
+      </section>
 
-            <div className="relative">
-              <div className="rounded-[4rem] overflow-hidden shadow-2xl border-8 border-white p-2">
-                <img
-                  src="https://picsum.photos/seed/sabroute/800/800"
-                  alt="Borneo Landscape"
-                  className="w-full h-full object-cover aspect-square rounded-[3.5rem]"
-                />
-              </div>
-              {/* Floating Shield */}
-              <div className="absolute -top-10 -right-10 bg-brand-navy p-10 rounded-full shadow-2xl border-4 border-white animate-bounce-slow">
-                <Shield className="h-12 w-12 text-brand-cyan" />
-              </div>
-            </div>
+      {/* 2.5 INTERACTIVE MAP */}
+      {/* 2.5 INTERACTIVE MAP (Placeholder) */}
+      <div className="w-full max-w-7xl mx-auto px-6 -mt-12 relative z-20 mb-24">
+        <div className="w-full h-96 bg-slate-200 rounded-[2.5rem] relative overflow-hidden group shadow-2xl border border-white/20">
+          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-brand-pale to-transparent z-10"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-brand-slate/30 text-2xl md:text-4xl font-black uppercase tracking-widest text-center px-4">[ Interactive Map Placeholder: KK to Miri ]</span>
+          </div>
+          {/* Simulated Grid */}
+          <div className="w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(#013254 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+        </div>
+      </div>
 
-            <div>
-              <h2 className="text-5xl font-black text-brand-navy mb-8 tracking-tighter leading-tight">The Journey <br />of Resillience.</h2>
-              <p className="text-xl text-slate-500 font-medium mb-12 leading-relaxed">
-                The SAB 2026 route is a reflection of the challenges our patients face. From the steep climbs of Crocker Range to the tropical winds of the Sarawak coast, our cyclists push through physical pain to deliver medical hope.
-              </p>
 
-              <div className="space-y-8">
-                {[
-                  { title: "Neutral Support", desc: "Full escort vehicles with medical and mechanical aid." },
-                  { title: "Safety Protocol", desc: "Rigorous safety standards and group riding dynamics." },
-                  { title: "Team Spirit", desc: "This is not a race. We start together, we finish together." }
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-6 group">
-                    <div className="h-10 w-10 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-navy group-hover:bg-brand-cyan transition-colors flex-shrink-0">
-                      <span className="font-black text-xs">{i + 1}</span>
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-black text-brand-navy mb-1">{item.title}</h4>
-                      <p className="text-slate-500 font-medium">{item.desc}</p>
-                    </div>
+      {/* 3. MEET THE CHAMPIONS */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-brand-navy mb-4 font-heading">Support a Rider.</h2>
+            <p className="text-brand-slate font-medium">Sponsor a champion and help them reach their fundraising goal.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {riders.map((rider) => (
+              <div key={rider.id} className="group bg-white rounded-[2.5rem] p-6 border border-brand-grey/20 hover:border-brand-cyan/50 hover:shadow-2xl transition-all">
+                <div className="aspect-square rounded-[2rem] overflow-hidden mb-6 relative">
+                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
+
+                <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{rider.name}</h3>
+
+                <div className="mb-6">
+                  <div className="flex justify-between text-[10px] font-black text-brand-slate uppercase tracking-widest mb-2">
+                    <span>Raised: RM {rider.raised.toLocaleString()}</span>
+                    <span className="text-brand-navy">{(rider.raised / rider.goal * 100).toFixed(0)}%</span>
                   </div>
-                ))}
+                  <div className="w-full h-2 bg-brand-pale rounded-full overflow-hidden">
+                    <div className="h-full bg-brand-cyan rounded-full" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => setSelectedRider(rider)}
+                    className="w-full text-center py-4 rounded-xl border border-brand-grey/30 text-brand-navy font-black uppercase tracking-widest text-xs hover:bg-brand-navy hover:text-white transition-colors"
+                  >
+                    Read Story
+                  </button>
+                  <a
+                    href={`#/donate?rider=${rider.id}`}
+                    className="block w-full text-center py-4 rounded-xl border-2 border-brand-orange text-brand-orange font-black uppercase tracking-widest text-xs hover:bg-brand-orange hover:text-white transition-colors"
+                  >
+                    Donate to Me
+                  </a>
+                </div>
               </div>
-            </div>
-
+            ))}
           </div>
+        </div>
+      </section >
+
+      {/* 3.5 FAQ SECTION */}
+
+
+      {/* 4. REGISTRATION CTA */}
+      <section className="py-24 bg-brand-navy text-center relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#0cdfed 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
+        <div className="max-w-2xl mx-auto px-6 relative z-10">
+          <UserPlus className="h-16 w-16 text-brand-orange mx-auto mb-8" />
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 font-heading">Join the Peloton.</h2>
+          <p className="text-xl text-brand-pale font-medium mb-12">
+            Ready to push your limits for a cause? <br />
+            <span className="text-brand-orange font-bold text-sm uppercase tracking-widest block mt-4">Minimum Donation to Ride: RM 3,000</span>
+          </p>
+          <button
+            onClick={() => setIsRegOpen(true)}
+            className="inline-block bg-brand-orange text-white text-xl font-black px-12 py-5 rounded-full hover:bg-white hover:text-brand-orange transition-all shadow-xl hover:-translate-y-1"
+          >
+            Register to Ride
+          </button>
+          <p className="text-xs text-brand-pale/40 mt-6 max-w-sm mx-auto">
+            Limited slots available. Riders are selected based on fundraising commitment and fitness readiness.
+          </p>
         </div>
       </section>
 
-      {/* 💳 FINAL CTA */}
-      <section className="py-24 bg-brand-coral text-white text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter">Support our champions.</h2>
-          <p className="text-xl md:text-2xl font-bold opacity-80 mb-12">Don't want to ride? You can still be part of the peloton by sponsoring a cyclist.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Link
-              to="/donate"
-              className="bg-brand-navy text-white text-xl font-black px-12 py-6 rounded-2xl shadow-3xl hover:bg-white hover:text-brand-navy transition-all"
-            >
-              Sponsor a Rider
-            </Link>
-            <Link
-              to="/mission"
-              className="text-white font-black text-lg flex items-center gap-2 hover:opacity-75 transition-opacity underline decoration-white/30 underline-offset-8"
-            >
-              Read the Mission <ArrowRight className="h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
 
-    </div>
+      <RegistrationModal isOpen={isRegOpen} onClose={() => setIsRegOpen(false)} />
+      <RiderStoryModal rider={selectedRider} onClose={() => setSelectedRider(null)} />
+
+    </div >
   );
 };
 

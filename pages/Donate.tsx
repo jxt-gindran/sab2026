@@ -336,7 +336,7 @@ const Donate: React.FC = () => {
                                 email: donorEmail,
                                 reference: 'SAB-' + Date.now(),
                                 riderId: selectedRider,
-                                purpose: `Donation for SAB2026 (${selectedRider ? `Rider: ${ridersData.find(r => r.id === selectedRider)?.name}` : 'General'})`
+                                purpose: `Donation for SAB2026 (Fund: ${selectedRider ? `Rider: ${ridersData.find(r => r.id === selectedRider)?.name}` : 'General'})`
                               })
                             });
                             const data = await response.json();

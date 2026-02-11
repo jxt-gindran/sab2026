@@ -16,6 +16,7 @@ import {
   Landmark,
   FileText
 } from 'lucide-react';
+import { GoGear } from 'react-icons/go';
 import ridersData from '../data/riders.json';
 
 const RIDERS = ridersData.map(r => ({
@@ -102,16 +103,22 @@ const Donate: React.FC = () => {
         </div>
 
         {/* Progress Stepper */}
+
         <div className="flex items-center justify-between mb-12 px-8 max-w-2xl mx-auto">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center group">
               <div className={`h-10 w-10 rounded-full flex items-center justify-center font-black text-sm transition-all shadow-lg
                 ${step >= i ? 'bg-brand-navy text-white scale-110' : 'bg-white text-slate-300 border border-slate-200'}
               `}>
-                {step > i ? <CheckCircle2 className="h-5 w-5" /> : i}
+                {step > i ? <CheckCircle2 className="h-5 w-5" /> : <GoGear className="h-6 w-6" />}
               </div>
               {i < 4 && (
-                <div className={`h-1 w-12 mx-2 md:w-24 rounded-full transition-colors ${step > i ? 'bg-brand-cyan' : 'bg-slate-200'}`} />
+                <div
+                  className={`h-3 w-12 mx-2 md:w-24 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
+                  style={{
+                    backgroundImage: `repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 6px)`
+                  }}
+                />
               )}
             </div>
           ))}

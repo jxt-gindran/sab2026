@@ -399,9 +399,7 @@ const Home: React.FC = () => {
             <div className="h-48 w-96 flex items-center justify-center">
               <img src="/assets/logos/MMAF_logo.png" alt="MMAF" className="max-h-full max-w-full object-contain" />
             </div>
-            <div className="h-48 w-96 flex items-center justify-center">
-              <img src="/assets/logos/SAB%20Logo_%20Light.png" alt="SAB" className="max-h-full max-w-full object-contain invert" />
-            </div>
+
             {/* Placeholders */}
             <div className="h-24 px-10 bg-brand-pale/20 rounded-xl flex items-center justify-center font-bold text-slate-400 text-sm uppercase tracking-widest border border-brand-pale">Global Sponsor</div>
           </div>

@@ -12,7 +12,6 @@ import {
   MapPin,
   Stethoscope
 } from 'lucide-react';
-import { GoGear } from 'react-icons/go';
 
 const RIDERS = [
   {
@@ -60,15 +59,12 @@ const Home: React.FC = () => {
   const scrollContainer = useRef<HTMLDivElement>(null);
   const [raisedAmount, setRaisedAmount] = useState('RM 1.2M');
   const [ridersList, setRidersList] = useState(RIDERS);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     // Fetch dynamic stats
     fetch('/api/stats').then(res => res.json()).then(data => {
       if (data && typeof data.totalRaised === 'number') {
-        // Assuming 1.2M is historical base, we add current campaign to it?
-        // Or if 1.2M is 2026 goal?
-        // The user said "Add sum total to include manual and hitpay".
-        // I will treat 1.2M as historical base and add the new amount.
         const base = 1200000;
         const total = base + data.totalRaised;
         setRaisedAmount(`RM ${(total / 1000000).toFixed(3)}M`);
@@ -78,7 +74,6 @@ const Home: React.FC = () => {
     // Fetch riders update
     fetch('/api/riders').then(res => res.json()).then(data => {
       if (Array.isArray(data)) {
-        // Map API data to match local structure or just use it
         setRidersList(data.slice(0, 4));
       }
     }).catch(console.error);
@@ -136,29 +131,101 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"></div>
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center text-white mt-16 animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-[1.1] font-heading text-white">
-            Pedal for Care, <br />
-            <span className="text-brand-cyan">Ride for Hope.</span>
-          </h1>
-          <h2 className="text-lg md:text-2xl font-medium text-brand-pale mb-10 max-w-3xl mx-auto leading-relaxed">
-            Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.
-          </h2>
+        <div className={`relative z-10 max-w-7xl mx-auto px-4 py-20 mt-16 grid items-center gap-12 transition-all duration-700 ${isVideoOpen ? 'lg:grid-cols-2 text-left' : 'grid-cols-1 text-center'}`}>
+          <div className={`animate-fade-in ${isVideoOpen ? 'lg:items-start' : 'items-center'} flex flex-col`}>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-[1.1] font-heading text-white transition-all">
+              Pedal for Care, <br />
+              <span className="text-brand-cyan">Ride for Hope.</span>
+            </h1>
+            <h2 className={`text-lg md:text-2xl font-medium text-brand-pale mb-10 leading-relaxed transition-all ${isVideoOpen ? 'max-w-xl' : 'max-w-3xl mx-auto'}`}>
+              Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.
+            </h2>
 
-          <div className="flex flex-col items-center gap-4">
-            <Link
-              to="/donate"
-              className="bg-brand-orange hover:bg-white hover:text-brand-orange text-white text-xl font-black px-12 py-5 rounded-full shadow-[0_0_30px_rgba(255,127,50,0.4)] hover:shadow-xl transition-all hover:-translate-y-1 animate-pulse flex items-center gap-3 uppercase tracking-widest"
-            >
-              Save a Life Now <ArrowRight className="h-6 w-6" />
-            </Link>
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-pale/60">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Organized by MMA Foundation | Tax Exempt</span>
+            <div className={`flex flex-col gap-6 w-full ${isVideoOpen ? 'lg:items-start' : 'items-center'}`}>
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <Link
+                  to="/donate"
+                  className="bg-brand-orange hover:bg-white hover:text-brand-orange text-white text-xl font-black px-12 py-5 rounded-full shadow-[0_0_30px_rgba(255,127,50,0.4)] hover:shadow-xl transition-all hover:-translate-y-1 animate-pulse flex items-center gap-3 uppercase tracking-widest"
+                >
+                  Save a Life Now <ArrowRight className="h-6 w-6" />
+                </Link>
+
+                {!isVideoOpen && (
+                  <button
+                    onClick={() => setIsVideoOpen(true)}
+                    className="flex items-center gap-2 px-8 py-5 rounded-full bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-sm backdrop-blur-md border border-white/20 transition-all hover:scale-105"
+                  >
+                    Past Highlights 🎥
+                    <ArrowRight className="h-4 w-4 text-brand-cyan" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-pale/60">
+                <ShieldCheck className="h-4 w-4" />
+                <span>Organized by MMA Foundation | Tax Exempt</span>
+              </div>
             </div>
           </div>
+
+          {/* DESKTOP VIDEO REVEAL (Appears to the right) */}
+          {isVideoOpen && (
+            <div className="hidden lg:flex justify-end items-center animate-scale-in relative pr-12">
+              <button
+                onClick={() => setIsVideoOpen(false)}
+                className="absolute top-0 right-0 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all z-20 group"
+                title="Close Highlights"
+              >
+                <ArrowRight className="h-6 w-6 rotate-180 group-hover:text-brand-cyan" />
+              </button>
+
+              <div className="relative w-full max-w-[340px] aspect-[9/19.5] bg-black rounded-[3rem] border-[10px] border-slate-800 shadow-[0_0_100px_rgba(12,223,237,0.4)] overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
+                <video
+                  autoPlay
+                  controls
+                  className="w-full h-full object-cover"
+                  src="/assets/videos/highlights.mp4"
+                >
+                  Your browser does not support the video tag.
+                </video>
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/5 to-transparent z-10"></div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
+
+      {/* MOBILE VIDEO MODAL (Full screen overlay, only for smaller screens) */}
+      {isVideoOpen && (
+        <div className="lg:hidden fixed inset-0 z-[100] flex items-center justify-center bg-brand-navy/95 backdrop-blur-xl animate-fade-in p-6">
+          <button
+            onClick={() => setIsVideoOpen(false)}
+            className="absolute top-8 right-8 text-white hover:text-brand-cyan transition-colors z-[110]"
+          >
+            <ArrowRight className="h-10 w-10 rotate-180" />
+            <span className="block text-[10px] font-black uppercase tracking-widest mt-2">Close</span>
+          </button>
+
+          {/* Mobile Phone Frame */}
+          <div className="relative w-full max-w-[320px] aspect-[9/19.5] bg-black rounded-[3rem] border-[8px] border-slate-800 shadow-[0_0_80px_rgba(12,223,237,0.3)] overflow-hidden animate-scale-in">
+            {/* Notch */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
+
+            <video
+              autoPlay
+              controls
+              className="w-full h-full object-cover"
+              src="/assets/videos/highlights.mp4"
+            >
+              Your browser does not support the video tag.
+            </video>
+
+            {/* Reflection Effect */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/5 to-transparent z-10"></div>
+          </div>
+        </div>
+      )}
 
       {/* 3. IMPACT STATS STRIP (Social Proof) */}
       <section className="py-12 bg-white relative z-20 -mt-10 mx-4 md:mx-0">
@@ -304,9 +371,9 @@ const Home: React.FC = () => {
             <div className="flex overflow-x-auto gap-8 pb-8 md:grid md:grid-cols-4 md:gap-8 relative z-10 snap-x snap-mandatory hide-scrollbar">
               {TIMELINE.map((item, i) => (
                 <div key={i} className="min-w-[280px] snap-center bg-white p-8 rounded-[2rem] border border-brand-grey/20 shadow-lg text-center relative group hover:-translate-y-2 transition-transform">
-                  {/* Use GoGear icon */}
+                  {/* Use Lucide Settings icon for consistency */}
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2">
-                    <GoGear className="h-6 w-6 text-brand-cyan" />
+                    <TrendingUp className="h-6 w-6 text-brand-cyan" />
                   </div>
 
                   <div className="text-4xl font-black text-brand-navy mb-2 font-heading">{item.year}</div>

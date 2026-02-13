@@ -65,10 +65,14 @@ const Privacy: React.FC = () => {
                     <div className="bg-brand-pale/20 p-8 rounded-[2rem] border border-brand-pale mt-12">
                         <h4 className="text-brand-navy font-black text-xl mb-4">Contact Us</h4>
                         <p className="mb-2"><strong>Malaysian Medical Association Foundation</strong></p>
-                        <p className="mb-2">4th Floor, MMA House, 124, Jalan Pahang,</p>
-                        <p className="mb-4">53000 Kuala Lumpur, Malaysia.</p>
-                        <p className="text-brand-orange font-bold">Email: foundation@mma.org.my</p>
-                        <p className="text-brand-orange font-bold">Phone: +603-4041 1375</p>
+                        <p className="mb-2">
+                            <a href="https://maps.google.com/?q=MMA+House,+124,+Jalan+Pahang,+53000+Kuala+Lumpur" target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange transition-colors">
+                                4th Floor, MMA House, 124, Jalan Pahang,<br />
+                                53000 Kuala Lumpur, Malaysia.
+                            </a>
+                        </p>
+                        <p className="text-brand-orange font-bold">Email: <a href="mailto:foundation@mma.org.my" className="underline hover:text-brand-navy">foundation@mma.org.my</a></p>
+                        <p className="text-brand-orange font-bold">Phone: <a href="tel:+60340411375" className="underline hover:text-brand-navy">+603-4041 1375</a></p>
                     </div>
                 </div>
             </div>

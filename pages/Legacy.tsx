@@ -1,5 +1,6 @@
-import React from 'react';
-import { ShieldCheck, Heart, TrendingUp, Users, Calendar, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldCheck, Heart, TrendingUp, Users, Calendar, ArrowUpRight, X } from 'lucide-react';
+import { GoGear } from "react-icons/go";
 
 const TIMELINE = [
   {
@@ -8,7 +9,8 @@ const TIMELINE = [
     beneficiary: 'MAKNA',
     raised: 'RM 230,000',
     stats: '10 Cyclists · 1,100km',
-    desc: 'The inaugural ride that started a movement.'
+    desc: 'The inaugural ride that started a movement.',
+    details: 'In 2022, 10 courageous cyclists embarked on a grueling 1,100km journey across Borneo to raise funds for MAKNA (Majlis Kanser Nasional). This inaugural ride set the foundation for what would become a yearly tradition of giving back, channeling the endurance of cycling into hope for cancer patients.'
   },
   {
     year: '2023',
@@ -16,7 +18,8 @@ const TIMELINE = [
     beneficiary: 'Cervical Cancer Awareness',
     raised: 'RM 250,000',
     stats: '20 Cyclists · 700km',
-    desc: 'Expanding our reach to women\'s health.'
+    desc: 'Expanding our reach to women\'s health.',
+    details: 'Program ROSE (Remove Obstacles to Cervical Screening) aims to eliminate cervical cancer in Malaysia. Our 20 cyclists covered 700km, raising RM 250,000 to support self-sampling screening for women in remote areas, ensuring that geography is no barrier to lifesaving healthcare.'
   },
   {
     year: '2024',
@@ -24,7 +27,8 @@ const TIMELINE = [
     beneficiary: 'Cervical Cancer Awareness',
     raised: 'RM 270,000',
     stats: '7 Cyclists · 900km',
-    desc: 'Consistently pushing limits for consistent impact.'
+    desc: 'Consistently pushing limits for consistent impact.',
+    details: 'Continuing our support for Program ROSE, 7 elite cyclists pushed their limits over 900km. The funds raised helped expand screening programs further into East Malaysia, reinforcing the message that early detection saves lives and empowering more women to take charge of their health.'
   },
   {
     year: '2025',
@@ -32,20 +36,24 @@ const TIMELINE = [
     beneficiary: 'Paediatric Palliative Care',
     raised: 'RM 450,000',
     stats: '17 Cyclists · 600km',
-    desc: 'Our biggest fundraising milestone yet.'
+    desc: 'Our biggest fundraising milestone yet.',
+    details: 'MAPPAC (Malaysian Association of Paediatric Palliative Care) provides critical care for children with life-limiting conditions. With 17 cyclists covering 600km, we raised our highest amount yet—RM 450,000—to support these families, ensuring comfort and dignity for the children who need it most.'
   },
   {
     year: '2026',
     title: 'SAB2026',
     beneficiary: 'MAPS & MyPOPI',
     raised: 'Targeting Impact',
-    stats: 'Surgery & Immunity',
+    stats: '10 Cyclists · Surgery & Immunity',
     desc: 'Writing the next chapter. Join us.',
+    details: 'SAB2026 targets Paediatric Surgery & Immunology. We are gathering 10 elite cyclists to ride for MAPS (Malaysian Association of Paediatric Surgery) and MyPOPI (Malaysian Patient Organization for Primary Immunodeficiencies). Join us in making this the most impactful ride yet, funding life-saving surgeries and immune treatments.',
     active: true
   },
 ];
 
 const Legacy: React.FC = () => {
+  const [selectedItem, setSelectedItem] = useState<typeof TIMELINE[0] | null>(null);
+
   return (
     <div className="bg-white min-h-screen">
 
@@ -69,8 +77,8 @@ const Legacy: React.FC = () => {
           {/* Organizer Cards */}
           <div className="grid md:grid-cols-2 gap-8">
             {/* MMA Card */}
-            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="h-16 w-16 bg-white rounded-xl flex items-center justify-center mb-6 p-2">
+            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] backdrop-blur-sm hover:bg-white/10 transition-colors flex flex-col items-center text-center">
+              <div className="h-28 w-28 bg-white rounded-xl flex items-center justify-center mb-6 p-4 shadow-lg">
                 <img src="/assets/logos/MMA_logo.png" alt="MMA Logo" className="w-full h-full object-contain" />
               </div>
               <h3 className="text-2xl font-black mb-2 font-heading text-white">Malaysian Medical Association</h3>
@@ -78,8 +86,8 @@ const Legacy: React.FC = () => {
             </div>
 
             {/* MMA Foundation Card */}
-            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] backdrop-blur-sm hover:bg-white/10 transition-colors">
-              <div className="h-16 w-16 bg-white rounded-xl flex items-center justify-center mb-6 p-2">
+            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] backdrop-blur-sm hover:bg-white/10 transition-colors flex flex-col items-center text-center">
+              <div className="h-28 w-28 bg-white rounded-xl flex items-center justify-center mb-6 p-4 shadow-lg">
                 <img src="/assets/logos/MMAF_logo.png" alt="MMAF Logo" className="w-full h-full object-contain" />
               </div>
               <h3 className="text-2xl font-black mb-2 font-heading text-white">MMA Foundation</h3>
@@ -93,19 +101,26 @@ const Legacy: React.FC = () => {
       <section className="py-24 bg-brand-pale relative">
         <div className="max-w-5xl mx-auto px-6">
           <div className="relative">
-            {/* Vertical Line */}
-            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 bg-brand-cyan/30 md:-translate-x-1/2"></div>
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 md:-translate-x-1/2 border-l-4 border-dashed border-brand-cyan/40"></div>
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 md:-translate-x-1/2 translate-x-1.5 border-l-4 border-dashed border-brand-cyan/40"></div>
 
             <div className="space-y-16">
               {TIMELINE.map((item, i) => (
                 <div key={i} className={`relative flex flex-col md:flex-row gap-8 items-center ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
 
-                  {/* Timeline Dot */}
-                  <div className="absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-4 border-brand-cyan bg-white z-10 box-content"></div>
+                  {/* Timeline Dot (Updated to GoGear icon) */}
+                  <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-12 h-12 rounded-full border-4 border-brand-cyan bg-white z-10 shadow-lg">
+                    <span className="text-brand-navy flex items-center justify-center">
+                      <GoGear size={24} />
+                    </span>
+                  </div>
 
                   {/* Content Card */}
                   <div className="w-full md:w-1/2 pl-20 md:pl-0 md:px-10">
-                    <div className={`bg-white p-8 rounded-[2rem] shadow-xl border border-brand-grey/10 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group ${item.active ? 'ring-4 ring-brand-cyan/20' : ''}`}>
+                    <div
+                      onClick={() => setSelectedItem(item)}
+                      className={`bg-white p-8 rounded-[2rem] shadow-xl border border-brand-grey/10 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group cursor-pointer ${item.active ? 'ring-4 ring-brand-cyan/20' : ''}`}
+                    >
                       {item.active && (
                         <div className="absolute top-0 right-0 bg-brand-cyan text-brand-navy text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">Current</div>
                       )}
@@ -128,6 +143,9 @@ const Legacy: React.FC = () => {
                               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Funds Raised</div>
                               <div className="text-2xl font-black text-brand-orange">{item.raised}</div>
                             </div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity text-brand-cyan font-bold text-sm bg-brand-navy/5 px-3 py-1 rounded-full">
+                              Read More
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -144,12 +162,57 @@ const Legacy: React.FC = () => {
 
           <div className="text-center mt-24">
             <p className="text-brand-slate font-medium mb-6">Be part of history.</p>
-            <a href="#/donate" className="inline-flex items-center gap-2 text-brand-navy font-black text-lg hover:text-brand-orange transition-colors">
-              Make your mark <ArrowUpRight className="h-5 w-5" />
+            <a href="#/donate" className="inline-flex items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-brand-orange/90 transition-all uppercase tracking-widest text-sm group">
+              Make your mark <ArrowUpRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
         </div>
       </section>
+
+      {/* Modal Popup */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedItem(null)}>
+          <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 md:p-12 relative shadow-2xl animate-scale-in border-4 border-brand-cyan/10" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedItem(null)}
+              className="absolute top-6 right-6 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
+            >
+              <X className="h-6 w-6 text-slate-500" />
+            </button>
+
+            <div className="text-brand-cyan font-black text-6xl opacity-20 absolute top-8 right-12 font-heading pointer-events-none">
+              {selectedItem.year}
+            </div>
+
+            <div className="relative z-10">
+              <div className="text-xs font-black text-brand-orange uppercase tracking-[0.2em] mb-2">{selectedItem.beneficiary}</div>
+              <h2 className="text-4xl font-black text-brand-navy mb-6 font-heading">{selectedItem.title}</h2>
+
+              <div className="flex flex-wrap gap-3 mb-8">
+                <div className="bg-brand-pale/50 px-4 py-2 rounded-xl text-sm font-bold text-brand-slate flex items-center gap-2">
+                  <Users className="h-4 w-4" /> {selectedItem.stats}
+                </div>
+                <div className="bg-brand-pale/50 px-4 py-2 rounded-xl text-sm font-bold text-brand-slate flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" /> {selectedItem.raised}
+                </div>
+              </div>
+
+              <div className="prose prose-slate text-brand-slate font-medium leading-relaxed">
+                <p>{selectedItem.details}</p>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={() => setSelectedItem(null)}
+                  className="px-6 py-2 rounded-lg font-bold text-sm text-brand-slate hover:bg-slate-100 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

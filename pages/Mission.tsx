@@ -41,7 +41,7 @@ const Mission: React.FC = () => {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-black text-brand-navy mb-8 font-heading">Who We Are.</h2>
           <p className="text-xl md:text-2xl text-brand-slate font-medium leading-relaxed">
-            Sepeda Amal Borneo (SAB) is a charity cycling group dedicated to supporting local non-profits. Founded in 2022, we raise vital funds while standing in solidarity with those in need. We turn awareness into action.
+            Sepeda Amal Borneo (SAB) is a charity cycling group dedicated to supporting NGOs (Non-Governmental Organisations). Founded in 2022, we raise vital funds while standing in solidarity with those in need. We turn awareness into action.
           </p>
         </div>
       </section>

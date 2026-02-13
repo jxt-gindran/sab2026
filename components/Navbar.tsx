@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
 
   // Pages where the hero section is dark, allowing for a transparent navbar initially
-  const isDarkHeroPage = ['/', '/mission', '/ride'].includes(location.pathname);
+  const isDarkHeroPage = ['/', '/mission', '/ride', '/legacy'].includes(location.pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
             <Link to="/" className="flex-shrink-0 flex items-center gap-5 group" onClick={() => window.scrollTo(0, 0)}>
               <div className="relative">
                 <div className="h-20 w-20 bg-brand-navy rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500 overflow-hidden relative">
-                  <Heart className="absolute h-8 w-8 text-brand-cyan fill-current z-0" />
+
                   <img
                     src="/assets/logos/SAB%20Logo_%20Light.png"
                     alt="SAB"
@@ -103,8 +103,14 @@ const Navbar: React.FC = () => {
               </div>
             </div>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden">
+            {/* Mobile Actions (Donate + Menu) */}
+            <div className="md:hidden flex items-center gap-4">
+              <Link
+                to="/donate"
+                className="bg-brand-orange text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse"
+              >
+                Donate
+              </Link>
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`p-2 rounded-xl transition-colors ${mobileMenuButtonClass}`}
@@ -119,6 +125,14 @@ const Navbar: React.FC = () => {
         {isOpen && (
           <div className="md:hidden bg-white border-t border-brand-pale h-screen animate-fade-in fixed inset-0 top-20 z-40 overflow-y-auto">
             <div className="px-6 py-8 space-y-2">
+              <Link
+                to="/donate"
+                onClick={() => setIsOpen(false)}
+                className="block w-full text-center bg-brand-orange text-white py-5 rounded-2xl text-xl font-black shadow-xl uppercase tracking-widest mb-8"
+              >
+                DONATE NOW
+              </Link>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -140,14 +154,6 @@ const Navbar: React.FC = () => {
                 >
                   Register to Ride
                 </button>
-
-                <Link
-                  to="/donate"
-                  onClick={() => setIsOpen(false)}
-                  className="block w-full text-center bg-brand-orange text-white py-5 rounded-2xl text-xl font-black shadow-xl uppercase tracking-widest"
-                >
-                  DONATE NOW
-                </Link>
               </div>
             </div>
           </div>

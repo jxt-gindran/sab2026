@@ -182,6 +182,44 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* 4. PATIENT IMPACT (Social Proof) */}
+      <section className="py-24 bg-white relative">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="bg-brand-pale/20 rounded-[3rem] p-10 md:p-16 relative overflow-hidden flex flex-col md:flex-row items-center gap-12 border border-brand-pale">
+            {/* Image */}
+            <div className="w-full md:w-1/3 relative">
+              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl rotate-3 border-4 border-white">
+                <img
+                  src="https://images.unsplash.com/photo-1540479859555-17af45c78602?q=80&w=600&h=800&auto=format&fit=crop"
+                  alt="Adik Rizky playing football"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg rotate-3 z-10">
+                <div className="text-4xl font-black text-brand-orange font-heading">7</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-brand-slate">Years Old</div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="w-full md:w-2/3 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 text-brand-cyan mb-4">
+                <Heart className="h-5 w-5 fill-current animate-pulse" />
+                <span className="text-xs font-black uppercase tracking-[0.3em]">Real Lives. Real Impact.</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-6 font-heading">Meet Adik Rizky.</h2>
+              <blockquote className="text-xl md:text-2xl text-brand-slate font-medium italic mb-8 leading-relaxed">
+                "Born with a congenital heart defect, Rizky needed urgent surgery his family couldn't afford. Thanks to funds raised by our cyclists for MAPS, he received his life-saving operation in 2024. Today, he is back in school and playing football."
+              </blockquote>
+
+              <Link to="/donate?beneficiary=MAPS" className="inline-flex items-center gap-2 text-brand-orange font-black uppercase tracking-widest text-sm border-b-2 border-brand-orange hover:text-brand-navy hover:border-brand-navy pb-1 transition-all group">
+                Donate to help more kids like Rizky <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 4. THE MISSION (About Us & Beneficiaries) */}
       <section id="mission" className="py-24 bg-brand-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -260,7 +298,7 @@ const Home: React.FC = () => {
 
           <div className="relative">
             {/* Chain Graphic Line */}
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-brand-pale -translate-y-1/2 hidden md:block z-0"></div>
+            <div className="absolute top-1/2 left-0 right-0 h-2 bg-tire-tread -translate-y-1/2 hidden md:block z-0"></div>
 
             {/* Horizontal Scroll Container */}
             <div className="flex overflow-x-auto gap-8 pb-8 md:grid md:grid-cols-4 md:gap-8 relative z-10 snap-x snap-mandatory hide-scrollbar">
@@ -355,7 +393,7 @@ const Home: React.FC = () => {
                     <span className="text-brand-navy">Goal: RM {rider.goal.toLocaleString()}</span>
                   </div>
                   <div className="w-full h-3 bg-brand-pale/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-orange rounded-full" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
+                    <div className="h-full bg-brand-orange rounded-full bg-chain-fill" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
                   </div>
                 </div>
 

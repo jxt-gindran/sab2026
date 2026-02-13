@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Calendar, Users, TrendingUp, Quote, ArrowRight, UserPlus } from 'lucide-react';
 import ridersData from '../data/riders.json';
 import RegistrationModal from '../components/RegistrationModal';
-import InteractiveMap from '../components/InteractiveMap';
+import { BorneoRouteMap } from '../components/BorneoRouteMap';
 import RiderStoryModal from '../components/RiderStoryModal';
 import { ChevronDown, ChevronUp } from 'lucide-react'; // For FAQ if accordion, or just static
 
@@ -64,16 +64,9 @@ const Ride: React.FC = () => {
       </section>
 
       {/* 2.5 INTERACTIVE MAP */}
-      {/* 2.5 INTERACTIVE MAP (Placeholder) */}
+      {/* 2.5 INTERACTIVE MAP */}
       <div className="w-full max-w-7xl mx-auto px-6 -mt-12 relative z-20 mb-24">
-        <div className="w-full h-96 bg-slate-200 rounded-[2.5rem] relative overflow-hidden group shadow-2xl border border-white/20">
-          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-brand-pale to-transparent z-10"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-brand-slate/30 text-2xl md:text-4xl font-black uppercase tracking-widest text-center px-4">[ Interactive Map Placeholder: KK to Miri ]</span>
-          </div>
-          {/* Simulated Grid */}
-          <div className="w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(#013254 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-        </div>
+        <BorneoRouteMap />
       </div>
 
 
@@ -95,12 +88,12 @@ const Ride: React.FC = () => {
                 <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{rider.name}</h3>
 
                 <div className="mb-6">
-                  <div className="flex justify-between text-[10px] font-black text-brand-slate uppercase tracking-widest mb-2">
-                    <span>Raised: RM {rider.raised.toLocaleString()}</span>
-                    <span className="text-brand-navy">{(rider.raised / rider.goal * 100).toFixed(0)}%</span>
+                  <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
+                    <span>Raised: <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
+                    <span>Goal: <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
                   </div>
-                  <div className="w-full h-2 bg-brand-pale rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-cyan rounded-full" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
+                  <div className="w-full h-3 bg-brand-pale/50 rounded-full overflow-hidden p-0.5">
+                    <div className="h-full bg-brand-orange rounded-full shadow-sm" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
                   </div>
                 </div>
 

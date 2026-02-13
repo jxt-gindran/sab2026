@@ -7,14 +7,14 @@ import {
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
-  ShieldCheck,
   AlertCircle,
   Copy,
   ExternalLink,
   ChevronRight,
-  MousePointerClick,
   Landmark,
-  FileText
+  Grab,
+  Lock,
+  Flag
 } from 'lucide-react';
 import { GoGear } from 'react-icons/go';
 import ridersData from '../data/riders.json';
@@ -79,7 +79,7 @@ const Donate: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 border-b border-brand-pale pb-12">
           <div className="flex flex-col items-center text-center group">
             <div className="h-16 w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-6 text-brand-navy group-hover:bg-brand-cyan group-hover:text-brand-navy transition-colors">
-              <MousePointerClick className="h-8 w-8" />
+              <Grab className="h-8 w-8" />
             </div>
             <div className="font-black text-brand-navy uppercase tracking-widest text-xs mb-2">Select a Cause</div>
             <div className="text-sm text-brand-slate font-medium max-w-xs">Choose to support the General Fund or a specific Rider.</div>
@@ -87,7 +87,7 @@ const Donate: React.FC = () => {
 
           <div className="flex flex-col items-center text-center group">
             <div className="h-16 w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-6 text-brand-navy group-hover:bg-brand-cyan group-hover:text-brand-navy transition-colors">
-              <ShieldCheck className="h-8 w-8" />
+              <Lock className="h-8 w-8" />
             </div>
             <div className="font-black text-brand-navy uppercase tracking-widest text-xs mb-2">100% Secure</div>
             <div className="text-sm text-brand-slate font-medium max-w-xs">Funds go directly to the MMA Foundation (Tax Exempt).</div>
@@ -95,7 +95,7 @@ const Donate: React.FC = () => {
 
           <div className="flex flex-col items-center text-center group">
             <div className="h-16 w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-6 text-brand-navy group-hover:bg-brand-cyan group-hover:text-brand-navy transition-colors">
-              <FileText className="h-8 w-8" />
+              <Flag className="h-8 w-8" />
             </div>
             <div className="font-black text-brand-navy uppercase tracking-widest text-xs mb-2">Receive Receipt</div>
             <div className="text-sm text-brand-slate font-medium max-w-xs">Get your LHDN-compliant tax exemption receipt instantly.</div>
@@ -129,7 +129,7 @@ const Donate: React.FC = () => {
           {/* MAIN FORM PANEL */}
           <div className="lg:col-span-8">
             <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-brand-navy/5 p-10 md:p-14 border border-brand-grey/20 min-h-[600px] flex flex-col relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-navy via-brand-cyan to-brand-orange"></div>
+              <div className="absolute top-0 left-0 w-full h-2 bg-brand-cyan"></div>
 
               {/* STEP 1: AMOUNT & BENEFICIARY */}
               {step === 1 && (
@@ -245,7 +245,7 @@ const Donate: React.FC = () => {
                   </div>
 
                   <div className="bg-brand-cyan/5 p-6 rounded-3xl border border-brand-cyan/20 flex items-start gap-4">
-                    <ShieldCheck className="h-6 w-6 text-brand-cyan flex-shrink-0 mt-1" />
+                    <Lock className="h-6 w-6 text-brand-cyan flex-shrink-0 mt-1" />
                     <p className="text-xs text-brand-navy/70 font-bold leading-relaxed">Your data is encrypted and handled according to PDPA 2010. We only use it for issuing receipts and donation verification.</p>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ const Donate: React.FC = () => {
                   <div className="space-y-4 mb-10">
                     {[
                       { id: 'HITPAY', name: 'HitPay Checkout', icon: ExternalLink, subtitle: 'FPX, Cards, GrabPay, ShopeePay' },
-                      { id: 'TRANSFER', name: 'Manual Bank Transfer', icon: CreditCard, subtitle: 'UOB Direct (Receipt Upload Required)' }
+                      { id: 'TRANSFER', name: 'Manual Bank Transfer', icon: CreditCard, subtitle: 'UOB Direct (WhatsApp / Email Proof)' }
                     ].map(method => (
                       <button
                         key={method.id}
@@ -442,7 +442,7 @@ const Donate: React.FC = () => {
                               }}
                             />
                             <div className="w-full bg-brand-cyan text-brand-navy font-black py-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 group-hover:bg-brand-navy group-hover:text-white uppercase tracking-widest text-sm">
-                              <FileText className="h-5 w-5" />
+                              <Flag className="h-5 w-5" />
                               Click to Upload Receipt
                             </div>
                           </div>
@@ -508,7 +508,7 @@ const Donate: React.FC = () => {
                 <div className="bg-white/5 rounded-3xl p-6 border border-white/10">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="h-10 w-10 bg-brand-cyan rounded-2xl flex items-center justify-center text-brand-navy shadow-[0_0_20px_rgba(0,174,239,0.3)]">
-                      <ShieldCheck className="h-6 w-6" />
+                      <Lock className="h-6 w-6" />
                     </div>
                     <div className="text-xs font-black uppercase tracking-widest leading-none">Tax Exempt</div>
                   </div>

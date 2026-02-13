@@ -16,8 +16,8 @@ const Footer: React.FC = () => {
                 <img src="/assets/logos/SABFavicon.png" alt="SAB Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <div className="text-lg font-black text-white tracking-tight font-heading uppercase leading-tight max-w-[200px]">SEPEDA AMAL BORNEO</div>
-                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest mt-1">SAB 2026 Charity Ride</div>
+                <div className="text-lg font-black text-white tracking-tight font-heading uppercase leading-tight max-w-[200px]">SEPEDA AMAL BORNEO 2026</div>
+                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest mt-1">Charity Ride</div>
               </div>
             </div>
             <p className="text-brand-slate text-sm font-medium leading-relaxed">

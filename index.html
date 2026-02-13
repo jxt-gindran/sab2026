@@ -108,6 +108,35 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Task 1: Thematic Patterns */
+    .bg-tire-tread {
+      background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(148, 169, 187, 0.3) 5px, rgba(148, 169, 187, 0.3) 10px);
+    }
+
+    .bg-chain-fill {
+      background-image: radial-gradient(circle closest-side, currentColor 40%, transparent 42%),
+        radial-gradient(circle closest-side, currentColor 40%, transparent 42%);
+      background-position: 0 0, 50% 0;
+      background-size: 12px 100%;
+      background-repeat: space no-repeat;
+    }
+
+    /* Utility for Chain Links */
+    .chain-link-dots {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .chain-link-dots::before,
+    .chain-link-dots::after {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
   </style>
 </head>
 

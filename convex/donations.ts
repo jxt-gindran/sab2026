@@ -39,10 +39,18 @@ export const recordPayment = internalMutation({
         message: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        // Check if existing pending donation with same paymentId/ref exists?
-        // For now, just insert new record or update?
-        // HitPay ref is unique.
-        // We'll just insert a completed record.
+        // Idempotency: skip if this paymentId was already recorded
+        if (args.paymentId) {
+            const existing = await ctx.db
+                .query("donations")
+                .withIndex("by_paymentId", q => q.eq("paymentId", args.paymentId))
+                .first();
+            if (existing) {
+                console.warn(`[recordPayment] Duplicate paymentId ${args.paymentId} — skipping`);
+                return existing._id;
+            }
+        }
+
         return await ctx.db.insert("donations", {
             amount: args.amount,
             riderId: args.riderId,
@@ -60,7 +68,7 @@ export const recordPayment = internalMutation({
 export const getTotal = query({
     args: {},
     handler: async (ctx) => {
-        const donations = await ctx.db.query("donations").filter(q => q.eq(q.field("status"), "completed")).collect();
+        const donations = await ctx.db.query("donations").withIndex("by_status", q => q.eq("status", "completed")).collect();
         return donations.reduce((sum, d) => sum + d.amount, 0);
     },
 });

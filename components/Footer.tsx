@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
           {/* 1. BRAND COLUMN */}
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 bg-white/10 rounded-xl flex items-center justify-center shadow-lg p-3">
+              <div className="h-24 w-24 bg-white/10 rounded-xl flex items-center justify-center shadow-lg p-3 shrink-0">
                 <img src="/assets/logos/SABFavicon.png" alt="SAB Logo" className="w-full h-full object-contain" />
               </div>
               <div>
@@ -20,8 +20,10 @@ const Footer: React.FC = () => {
                 <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest mt-1">Charity Ride</div>
               </div>
             </div>
-            <p className="text-brand-slate text-sm font-medium leading-relaxed">
-              Trusted Authority. <br />Vibrant Hope.
+            <p className="text-brand-slate text-sm font-medium leading-relaxed max-w-sm">
+              Trusted Authority. Vibrant Hope.<br /><br />
+              Sepeda Amal Borneo 2026 (SAB2026) is a premier 660KM charity cycling event across Borneo, from Kota Kinabalu (Sabah) to Miri (Sarawak).
+              Organized by the Malaysian Medical Association Foundation (MMAF) to fund life-saving paediatric surgeries and support children with Primary Immunodeficiencies (PID).
             </p>
             <div className="flex flex-col gap-4 items-start">
               <div className="bg-white p-2 rounded-lg shadow-sm">

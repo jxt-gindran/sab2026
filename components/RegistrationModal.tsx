@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, ExternalLink, CheckCircle2, UserPlus, Heart } from 'lucide-react';
+import React from 'react';
+import { X, UserPlus, Heart } from 'lucide-react';
 
 interface RegistrationModalProps {
     isOpen: boolean;

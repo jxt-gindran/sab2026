@@ -1,0 +1,16 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+    donations: defineTable({
+        amount: v.number(),
+        riderId: v.optional(v.number()), // 0 or null for general
+        name: v.string(),
+        email: v.optional(v.string()),
+        message: v.optional(v.string()),
+        timestamp: v.number(),
+        paymentId: v.optional(v.string()), // HitPay ID or Manual REF
+        status: v.string(), // 'completed', 'pending'
+        type: v.string(), // 'hitpay', 'manual'
+    }),
+});

@@ -1,6 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { ConvexProvider, ConvexReactClient } from "convex/react";
 import App from './App';
+
+const convexUrl = import.meta.env.VITE_CONVEX_URL;
+
+// Fail gracefully or show clear error if Convex is not configured
+if (!convexUrl) {
+  console.warn("VITE_CONVEX_URL is not defined. Please run `npx convex dev`.");
+}
+
+const convex = new ConvexReactClient(convexUrl || "https://placeholder-url.convex.cloud");
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -10,6 +20,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <ConvexProvider client={convex}>
+      <App />
+    </ConvexProvider>
   </React.StrictMode>
 );

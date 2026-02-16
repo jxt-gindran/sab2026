@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef } from "react";
 import "ol/ol.css"; // Import OpenLayers styles
 import Map from "ol/Map";

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Linkedin, Heart, ShieldCheck } from 'lucide-react';
+import { Facebook, Instagram, ShieldCheck } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -79,9 +79,6 @@ const Footer: React.FC = () => {
               </a>
               <a href="https://www.instagram.com/sepedaamalborneo" target="_blank" rel="noreferrer" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1">
                 <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1">
-                <Linkedin className="h-5 w-5" />
               </a>
             </div>
             <p className="mt-8 text-xs text-brand-slate leading-relaxed">

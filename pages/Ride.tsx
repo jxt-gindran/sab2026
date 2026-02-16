@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, Users, TrendingUp, Quote, ArrowRight, UserPlus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, Quote, UserPlus } from 'lucide-react';
 import ridersData from '../data/riders.json';
 import RegistrationModal from '../components/RegistrationModal';
 import { BorneoRouteMap } from '../components/BorneoRouteMap';
 import RiderStoryModal from '../components/RiderStoryModal';
-import { ChevronDown, ChevronUp } from 'lucide-react'; // For FAQ if accordion, or just static
 
 const Ride: React.FC = () => {
   const [isRegOpen, setIsRegOpen] = useState(false);
@@ -78,41 +78,12 @@ const Ride: React.FC = () => {
             <p className="text-brand-slate font-medium">Sponsor a champion and help them reach their fundraising goal.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {riders.map((rider) => (
-              <div key={rider.id} className="group bg-white rounded-[2.5rem] p-6 border border-brand-grey/20 hover:border-brand-cyan/50 hover:shadow-2xl transition-all">
-                <div className="aspect-square rounded-[2rem] overflow-hidden mb-6 relative">
-                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                </div>
-
-                <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{rider.name}</h3>
-
-                <div className="mb-6">
-                  <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
-                    <span>Raised: <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
-                    <span>Goal: <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
-                  </div>
-                  <div className="w-full h-3 bg-brand-pale/50 rounded-full overflow-hidden p-0.5">
-                    <div className="h-full bg-brand-orange rounded-full shadow-sm" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => setSelectedRider(rider)}
-                    className="w-full text-center py-4 rounded-xl border border-brand-grey/30 text-brand-navy font-black uppercase tracking-widest text-xs hover:bg-brand-navy hover:text-white transition-colors"
-                  >
-                    Read Story
-                  </button>
-                  <a
-                    href={`#/donate?rider=${rider.id}`}
-                    className="block w-full text-center py-4 rounded-xl border-2 border-brand-orange text-brand-orange font-black uppercase tracking-widest text-xs hover:bg-brand-orange hover:text-white transition-colors"
-                  >
-                    Donate to Me
-                  </a>
-                </div>
-              </div>
-            ))}
+          <div className="text-center py-24 bg-brand-pale rounded-[3rem] border border-brand-pale">
+            <UserPlus className="h-16 w-16 text-brand-orange mx-auto mb-6 opacity-50" />
+            <h3 className="text-3xl font-black text-brand-navy mb-4 font-heading">Rider profiles coming soon.</h3>
+            <p className="text-xl text-brand-slate font-medium max-w-xl mx-auto">
+              Our champions are gearing up. Check back later to see who is riding for the cause.
+            </p>
           </div>
         </div>
       </section >

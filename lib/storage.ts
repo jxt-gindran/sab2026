@@ -2,8 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import ridersData from '../data/riders.json';
 
-// In Vercel environment, only /tmp is writable.
-// In local environment, we can write to data/db.json but let's stick to /tmp for consistency or mock
+// ⚠️ WARNING: EPHEMERAL STORAGE
+// In Vercel's serverless environment, /tmp is wiped on every cold start and redeployment.
+// This means all donation records will be LOST periodically.
+// TODO: Migrate to a persistent database (e.g., Vercel KV, Supabase, PlanetScale, or Firebase).
+// This file-based storage is only suitable for development/testing.
 const DB_PATH = process.env.VERCEL ? '/tmp/db.json' : path.join(process.cwd(), 'data', 'db_local.json');
 
 // Interface

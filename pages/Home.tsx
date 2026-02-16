@@ -1,4 +1,3 @@
-// CI/CD Trigger Check
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -7,47 +6,9 @@ import {
   ArrowRight,
   TrendingUp,
   Map,
-  Users,
-  CheckCircle2,
-  Calendar,
-  MapPin,
-  Stethoscope
+  MapPin
 } from 'lucide-react';
-
-const RIDERS = [
-  {
-    id: 1,
-    name: 'Dr. Ahmad Rizal',
-    role: 'Paediatric Surgeon',
-    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=300&h=300&auto=format&fit=crop',
-    goal: 50000,
-    raised: 38500
-  },
-  {
-    id: 2,
-    name: 'Sarah Chen',
-    role: 'Endurance Cyclist',
-    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=300&h=300&auto=format&fit=crop',
-    goal: 30000,
-    raised: 12400
-  },
-  {
-    id: 3,
-    name: 'Lt. Murali Kumar',
-    role: 'Retired Officer',
-    image: 'https://images.unsplash.com/photo-1544191136-11f8149e634e?q=80&w=300&h=300&auto=format&fit=crop',
-    goal: 25000,
-    raised: 24800
-  },
-  {
-    id: 4,
-    name: 'Elena Tan',
-    role: 'Triathlete',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=300&h=300&auto=format&fit=crop',
-    goal: 15000,
-    raised: 8200
-  }
-];
+import ridersData from '../data/riders.json';
 
 const TIMELINE = [
   { year: '2022', title: 'Cycle for Cancer', raised: 'RM 230k' },
@@ -59,7 +20,7 @@ const TIMELINE = [
 const Home: React.FC = () => {
   const scrollContainer = useRef<HTMLDivElement>(null);
   const [raisedAmount, setRaisedAmount] = useState('RM 1.2M');
-  const [ridersList, setRidersList] = useState(RIDERS);
+  const [ridersList, setRidersList] = useState(ridersData.slice(0, 4));
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
@@ -486,9 +447,9 @@ const Home: React.FC = () => {
             >
               Donate to General Fund
             </Link>
-            <button className="w-full sm:w-auto bg-transparent border-2 border-brand-cyan text-brand-cyan hover:bg-brand-cyan hover:text-brand-navy text-lg font-black px-12 py-6 rounded-[2rem] transition-all uppercase tracking-widest" onClick={() => window.location.href = '/ride'}>
+            <Link to="/ride" className="w-full sm:w-auto bg-transparent border-2 border-brand-cyan text-brand-cyan hover:bg-brand-cyan hover:text-brand-navy text-lg font-black px-12 py-6 rounded-[2rem] transition-all uppercase tracking-widest">
               Register as a Cyclist
-            </button>
+            </Link>
           </div>
         </div>
       </section>

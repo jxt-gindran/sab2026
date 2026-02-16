@@ -1,5 +1,4 @@
 
-import { addDonation } from '../lib/storage';
 
 // Simple helper for robust response
 const sendJson = (res: any, status: number, data: any) => {
@@ -51,6 +50,7 @@ export default async function handler(req: any, res: any) {
         params.append('reference_number', reference || `REF-${Date.now()}`);
         params.append('redirect_url', 'https://sab2026.vercel.app/#/donate');
         params.append('purpose', purpose || 'Donation');
+        params.append('webhook', `https://${req.headers.host}/api/webhook`);
 
         // Optional fields
         if (email) params.append('email', email);

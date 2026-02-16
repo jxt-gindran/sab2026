@@ -16,7 +16,7 @@ import {
   Lock,
   Flag
 } from 'lucide-react';
-import { GoGear } from 'react-icons/go';
+
 import ridersData from '../data/riders.json';
 
 const RIDERS = ridersData.map(r => ({
@@ -38,7 +38,7 @@ const Donate: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [selectedRider, setSelectedRider] = useState<number | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'CARD' | 'FPX' | 'PAYPAL' | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'HITPAY' | 'TRANSFER' | null>(null);
   const [copied, setCopied] = useState(false);
 
   // Form State
@@ -50,15 +50,25 @@ const Donate: React.FC = () => {
   // Check if a rider was passed in the URL (e.g. from Home page)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const riderId = params.get('rider');
-    if (riderId) {
-      setSelectedRider(parseInt(riderId));
-    }
+    // const riderId = params.get('rider');
+    // if (riderId) {
+    //   setSelectedRider(parseInt(riderId));
+    // }
     const beneficiary = params.get('beneficiary');
     // Logic for beneficiary handling if needed (currently rider focused)
   }, [location]);
 
-  const nextStep = () => setStep(s => Math.min(s + 1, 4));
+  const nextStep = () => {
+    if (step === 2 && (!donorName.trim() || !donorEmail.trim())) {
+      alert('Please fill in your name and email address.');
+      return;
+    }
+    if (step === 2 && !/\S+@\S+\.\S+/.test(donorEmail)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    setStep(s => Math.min(s + 1, 4));
+  };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
   const totalAmount = selectedAmount || parseFloat(customAmount) || 0;
@@ -110,7 +120,7 @@ const Donate: React.FC = () => {
               <div className={`h-10 w-10 rounded-full flex items-center justify-center font-black text-sm transition-all shadow-lg
                 ${step >= i ? 'bg-brand-navy text-white scale-110' : 'bg-white text-slate-300 border border-slate-200'}
               `}>
-                {step > i ? <CheckCircle2 className="h-5 w-5" /> : <GoGear className="h-6 w-6" />}
+                {step > i ? <CheckCircle2 className="h-5 w-5" /> : i}
               </div>
               {i < 4 && (
                 <div
@@ -202,6 +212,36 @@ const Donate: React.FC = () => {
                   <p className="text-brand-slate font-medium mb-12">We need your details for the official tax receipt (LHDN).</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    {/* BENEFICIARY SELECTION - HIDDEN FOR NOW (General Fund Only) */}
+                    <div className="hidden">
+                      <label className="block text-brand-navy font-bold mb-4 uppercase tracking-widest text-xs">Who are you supporting?</label>
+                      <div className="grid grid-cols-1 gap-4">
+                        <button
+                          onClick={() => setSelectedRider(null)}
+                          className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${selectedRider === null ? 'border-brand-orange bg-brand-orange/5' : 'border-brand-pale hover:border-brand-orange/50'}`}
+                        >
+                          <div className="h-12 w-12 rounded-full bg-brand-navy flex items-center justify-center text-white">
+                            <Heart size={20} />
+                          </div>
+                          <div className="text-left">
+                            <div className="font-bold text-brand-navy">General Fund</div>
+                            <div className="text-xs text-brand-slate">Support the mission directly</div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-brand-pale/30 p-6 rounded-2xl border border-brand-pale mb-8">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-full bg-brand-navy flex items-center justify-center text-white shrink-0">
+                          <Heart size={20} />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-brand-slate uppercase tracking-widest mb-1">Beneficiary</div>
+                          <div className="font-black text-brand-navy text-lg">General Fund (SAB2026)</div>
+                        </div>
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name (as per IC)</label>
                       <input
@@ -264,7 +304,7 @@ const Donate: React.FC = () => {
                     ].map(method => (
                       <button
                         key={method.id}
-                        onClick={() => setPaymentMethod(method.id as any)}
+                        onClick={() => setPaymentMethod(method.id as 'HITPAY' | 'TRANSFER')}
                         className={`w-full flex items-center justify-between p-8 rounded-3xl border-4 transition-all
                           ${paymentMethod === method.id
                             ? 'border-brand-navy bg-brand-navy text-white shadow-2xl shadow-brand-navy/30'
@@ -433,10 +473,10 @@ const Donate: React.FC = () => {
                                         purpose: 'Manual Transfer Receipt Upload'
                                       })
                                     });
-                                    alert("Receipt uploaded! Your donation of RM " + totalAmount + " has been recorded. Thank you!");
+                                    alert("Thank you! Your donation of RM " + totalAmount + " has been recorded.\n\nPlease also email your receipt to foundation@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
                                   } catch (err) {
                                     console.error(err);
-                                    alert("Receipt uploaded, but could not update stats automatically.");
+                                    alert("Please email your receipt to foundation@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
                                   }
                                 }
                               }}

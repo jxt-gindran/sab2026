@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -39,6 +39,15 @@ const App: React.FC = () => {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="*" element={
+              <div className="min-h-screen bg-white flex items-center justify-center px-4">
+                <div className="text-center">
+                  <h1 className="text-8xl font-black text-brand-navy mb-4 font-heading">404</h1>
+                  <p className="text-xl text-brand-slate mb-8">This page doesn't exist.</p>
+                  <Link to="/" className="bg-brand-orange text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-navy transition-all">Go Home</Link>
+                </div>
+              </div>
+            } />
           </Routes>
         </main>
         <Footer />

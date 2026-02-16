@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Heart, TrendingUp, Users, Calendar, ArrowUpRight, X } from 'lucide-react';
-import { GoGear } from "react-icons/go";
+import { Link } from 'react-router-dom';
+import { TrendingUp, Users, ArrowUpRight, X, History } from 'lucide-react';
 
 const TIMELINE = [
   {
@@ -111,7 +111,7 @@ const Legacy: React.FC = () => {
                   {/* Timeline Dot (Updated to GoGear icon) */}
                   <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-12 h-12 rounded-full border-4 border-brand-cyan bg-white z-10 shadow-lg">
                     <span className="text-brand-navy flex items-center justify-center">
-                      <GoGear size={24} />
+                      <History size={24} />
                     </span>
                   </div>
 
@@ -162,9 +162,9 @@ const Legacy: React.FC = () => {
 
           <div className="text-center mt-24">
             <p className="text-brand-slate font-medium mb-6">Be part of history.</p>
-            <a href="#/donate" className="inline-flex items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-brand-orange/90 transition-all uppercase tracking-widest text-sm group">
+            <Link to="/donate" className="inline-flex items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-brand-orange/90 transition-all uppercase tracking-widest text-sm group">
               Make your mark <ArrowUpRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>

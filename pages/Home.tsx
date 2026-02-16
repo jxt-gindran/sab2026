@@ -6,7 +6,8 @@ import {
   ArrowRight,
   TrendingUp,
   Map,
-  MapPin
+  MapPin,
+  PlayCircle
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -107,8 +108,8 @@ const Home: React.FC = () => {
                     onClick={() => setIsVideoOpen(true)}
                     className="flex items-center gap-2 px-8 py-5 rounded-full bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-sm backdrop-blur-md border border-white/20 transition-all hover:scale-105"
                   >
-                    Past Highlights 🎥
-                    <ArrowRight className="h-4 w-4 text-brand-cyan" />
+                    Past Highlights
+                    <PlayCircle className="h-4 w-4 text-brand-cyan" />
                   </button>
                 )}
               </div>

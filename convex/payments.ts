@@ -25,7 +25,8 @@ export const createLink = action({
         params.append("amount", args.amount.toString());
         params.append("currency", "MYR");
         params.append("reference_number", args.reference);
-        params.append("redirect_url", process.env.SITE_URL + "/#/donate" || "http://localhost:3000/#/donate");
+        const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+        params.append("redirect_url", `${siteUrl}/#/donate`);
         params.append("purpose", args.purpose);
         params.append("name", args.name);
         params.append("email", args.email);

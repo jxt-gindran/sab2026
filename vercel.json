@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/hitpay",
-            "destination": "https://gregarious-fish-792.convex.site/hitpay"
+            "destination": "https://cloudless-dragon-854.convex.site/hitpay"
         },
         {
             "source": "/api/(.*)",

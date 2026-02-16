@@ -23,6 +23,14 @@ const TIMELINE = [
 const Home: React.FC = () => {
   const scrollContainer = useRef<HTMLDivElement>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Dynamic Stats from Convex
   const totalRaised = useQuery(api.donations.getTotal) || 0;
@@ -122,7 +130,7 @@ const Home: React.FC = () => {
           </div>
 
           {/* DESKTOP VIDEO REVEAL (Appears to the right) */}
-          {isVideoOpen && (
+          {isVideoOpen && isDesktop && (
             <div className="hidden lg:flex justify-end items-center animate-scale-in relative pr-12">
               <button
                 onClick={() => setIsVideoOpen(false)}
@@ -150,7 +158,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* MOBILE VIDEO MODAL (Full screen overlay, only for smaller screens) */}
-      {isVideoOpen && (
+      {isVideoOpen && !isDesktop && (
         <div className="lg:hidden fixed inset-0 z-[100] flex items-center justify-center bg-brand-navy/95 backdrop-blur-xl animate-fade-in p-6">
           <button
             onClick={() => setIsVideoOpen(false)}

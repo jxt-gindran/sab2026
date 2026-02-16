@@ -410,6 +410,11 @@ const Home: React.FC = () => {
               <div key={rider.id} className="bg-white rounded-[2rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all group">
                 <div className="h-64 w-full rounded-2xl overflow-hidden mb-6 relative">
                   <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute top-4 right-4 z-20">
+                    <span className="bg-brand-orange text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
+                      Coming Soon
+                    </span>
+                  </div>
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-brand-navy/90 to-transparent">
                     <div className="text-white font-black text-xl font-heading">{rider.name}</div>
                     <div className="text-brand-cyan text-[10px] font-bold uppercase tracking-widest">{rider.role}</div>
@@ -426,9 +431,9 @@ const Home: React.FC = () => {
                   </div>
                 </div>
 
-                <Link to={`/donate?rider=${rider.id}`} className="block w-full text-center border-2 border-brand-orange bg-white text-brand-orange font-black py-4 rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm uppercase tracking-widest">
-                  Donate to Me
-                </Link>
+                <div className="block w-full text-center border-2 border-brand-grey text-brand-grey font-black py-4 rounded-xl text-sm uppercase tracking-widest cursor-not-allowed">
+                  Coming Soon
+                </div>
               </div>
             ))}
           </div>

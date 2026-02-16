@@ -8,6 +8,8 @@ import {
   Map,
   MapPin
 } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import ridersData from '../data/riders.json';
 
 const TIMELINE = [
@@ -19,27 +21,15 @@ const TIMELINE = [
 
 const Home: React.FC = () => {
   const scrollContainer = useRef<HTMLDivElement>(null);
-  const [raisedAmount, setRaisedAmount] = useState('RM 1.2M');
-  const [ridersList, setRidersList] = useState(ridersData.slice(0, 4));
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
-  useEffect(() => {
-    // Fetch dynamic stats
-    fetch('/api/stats').then(res => res.json()).then(data => {
-      if (data && typeof data.totalRaised === 'number') {
-        const base = 1200000;
-        const total = base + data.totalRaised;
-        setRaisedAmount(`RM ${(total / 1000000).toFixed(3)}M`);
-      }
-    }).catch(err => console.error(err));
+  // Dynamic Stats from Convex
+  const totalRaised = useQuery(api.donations.getTotal) || 0;
+  const baseAmount = 1200000;
+  const currentTotal = baseAmount + totalRaised;
+  const raisedDisplay = `RM ${(currentTotal / 1000000).toFixed(3)}M`;
 
-    // Fetch riders update
-    fetch('/api/riders').then(res => res.json()).then(data => {
-      if (Array.isArray(data)) {
-        setRidersList(data.slice(0, 4));
-      }
-    }).catch(console.error);
-  }, []);
+  const ridersList = ridersData.slice(0, 4);
 
   // JSON-LD Schema
   const schemaData = {
@@ -195,7 +185,7 @@ const Home: React.FC = () => {
           <div className="bg-white rounded-[2rem] shadow-2xl border border-brand-grey/20 p-8 md:p-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {[
-                { label: 'Raised', value: raisedAmount, icon: TrendingUp },
+                { label: 'Raised', value: raisedDisplay, icon: TrendingUp },
                 { label: 'Cycled', value: '3,900 KM', icon: Map },
                 { label: 'Tax Relief', value: '100%', icon: ShieldCheck },
                 { label: 'Charities', value: '2 Lifelines', icon: Heart }

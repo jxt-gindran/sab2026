@@ -75,9 +75,10 @@ const Donate: React.FC = () => {
         alert('Please enter a valid phone number (e.g. +60123456789).');
         return;
       }
-      // IC Validation if present (optional but recommended for receipt)
-      if (donorIC.trim() && donorIC.trim().length < 6) {
-        alert('Please enter a valid IC / Passport Number.');
+      // IC Validation - Mandatory for tax exemption receipt
+      const icClean = donorIC.replace(/[\s-]/g, '');
+      if (!icClean || icClean.length < 6) {
+        alert('Please enter a valid IC / Passport Number for your official tax receipt.');
         return;
       }
     }

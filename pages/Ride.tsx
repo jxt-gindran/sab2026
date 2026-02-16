@@ -11,12 +11,6 @@ const Ride: React.FC = () => {
   const [selectedRider, setSelectedRider] = useState<any | null>(null);
   const [riders, setRiders] = useState(ridersData);
 
-  useEffect(() => {
-    fetch('/api/riders').then(res => res.json()).then(data => {
-      if (Array.isArray(data)) setRiders(data);
-    }).catch(console.error);
-  }, []);
-
   return (
     <div className="bg-white min-h-screen">
 

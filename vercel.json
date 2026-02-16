@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/hitpay",
+            "destination": "https://gregarious-fish-792.convex.site/hitpay"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/$1"
         },

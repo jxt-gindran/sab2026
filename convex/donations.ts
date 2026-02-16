@@ -1,6 +1,7 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
+// Public mutation for manual entry (always pending verification)
 export const add = mutation({
     args: {
         amount: v.number(),
@@ -8,14 +9,50 @@ export const add = mutation({
         name: v.string(),
         email: v.optional(v.string()),
         message: v.optional(v.string()),
-        paymentId: v.optional(v.string()),
-        status: v.string(),
-        type: v.string(),
+        reference: v.optional(v.string()), // For manual ref match
     },
     handler: async (ctx, args) => {
         return await ctx.db.insert("donations", {
-            ...args,
+            amount: args.amount,
+            riderId: args.riderId,
+            name: args.name,
+            email: args.email,
+            message: args.message,
+            paymentId: args.reference,
             timestamp: Date.now(),
+            status: 'pending',
+            type: 'manual',
+        });
+    },
+});
+
+// Internal mutation for webhook to record verified payment
+export const recordPayment = internalMutation({
+    args: {
+        amount: v.number(),
+        paymentId: v.string(),
+        name: v.string(),
+        email: v.optional(v.string()),
+        riderId: v.optional(v.number()),
+        status: v.string(),
+        type: v.string(),
+        message: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        // Check if existing pending donation with same paymentId/ref exists?
+        // For now, just insert new record or update?
+        // HitPay ref is unique.
+        // We'll just insert a completed record.
+        return await ctx.db.insert("donations", {
+            amount: args.amount,
+            riderId: args.riderId,
+            name: args.name,
+            email: args.email,
+            message: args.message,
+            paymentId: args.paymentId,
+            timestamp: Date.now(),
+            status: args.status,
+            type: args.type,
         });
     },
 });

@@ -17,6 +17,9 @@ import {
   Flag
 } from 'lucide-react';
 
+import { useAction, useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
+
 import ridersData from '../data/riders.json';
 
 const IMPACT_TIERS = [
@@ -34,6 +37,10 @@ const Donate: React.FC = () => {
   const [selectedRider, setSelectedRider] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'HITPAY' | 'TRANSFER' | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Convex Hooks
+  const createPaymentLink = useAction(api.payments.createLink);
+  const addDonation = useMutation(api.donations.add);
 
   // Form State
   const [donorName, setDonorName] = useState('');
@@ -53,13 +60,26 @@ const Donate: React.FC = () => {
   }, [location]);
 
   const nextStep = () => {
-    if (step === 2 && (!donorName.trim() || !donorEmail.trim())) {
-      alert('Please fill in your name and email address.');
-      return;
-    }
-    if (step === 2 && !/\S+@\S+\.\S+/.test(donorEmail)) {
-      alert('Please enter a valid email address.');
-      return;
+    if (step === 2) {
+      if (!donorName.trim() || !donorEmail.trim() || !donorPhone.trim()) {
+        alert('Name, Email, and Phone Number are mandatory.');
+        return;
+      }
+      if (!/\S+@\S+\.\S+/.test(donorEmail)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+      // Simple phone validation (e.g. +60 or 01...)
+      const phoneClean = donorPhone.replace(/[\s-]/g, '');
+      if (phoneClean.length < 9 || phoneClean.length > 15 || !/^\+?\d+$/.test(phoneClean)) {
+        alert('Please enter a valid phone number (e.g. +60123456789).');
+        return;
+      }
+      // IC Validation if present (optional but recommended for receipt)
+      if (donorIC.trim() && donorIC.trim().length < 6) {
+        alert('Please enter a valid IC / Passport Number.');
+        return;
+      }
     }
     setStep(s => Math.min(s + 1, 4));
   };
@@ -340,23 +360,18 @@ const Donate: React.FC = () => {
                         id="hitpay-btn"
                         onClick={async () => {
                           try {
-                            const response = await fetch('/api/payment', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                amount: totalAmount,
-                                name: donorName,
-                                email: donorEmail,
-                                reference: 'SAB-' + Date.now(),
-                                riderId: selectedRider,
-                                purpose: `Donation for SAB2026 (Fund: ${selectedRider ? `Rider: ${ridersData.find(r => r.id === selectedRider)?.name}` : 'General'})`
-                              })
+                            const result = await createPaymentLink({
+                              amount: totalAmount,
+                              name: donorName,
+                              email: donorEmail,
+                              purpose: `Donation for SAB2026 (Fund: General)`,
+                              reference: 'SAB-' + Date.now()
                             });
-                            const data = await response.json();
-                            if (data.url) {
-                              window.location.href = data.url;
+
+                            if (result && result.url) {
+                              window.location.href = result.url;
                             } else {
-                              alert('Payment initialization failed: ' + (data.message || 'Unknown error'));
+                              alert('Payment initialization failed. Please try again.');
                             }
                           } catch (e) {
                             alert('Error connecting to payment server. Please try again.');
@@ -416,8 +431,19 @@ const Donate: React.FC = () => {
                           </button>
                         </div>
 
-                        {/* Updated Upload Receipt Section */}
                         <div className="space-y-4">
+                          <button
+                            onClick={() => {
+                              // Manual WhatsApp logic
+                              const text = encodeURIComponent(`Hi MMA Foundation, I have made a manual transfer of RM ${totalAmount} for SAB2026.\n\nName: ${donorName}\nPhone: ${donorPhone}\nEmail: ${donorEmail}\nRef: SAB2026\n\nPlease find my receipt attached.`);
+                              window.open(`https://wa.me/60122296678?text=${text}`, '_blank');
+                            }}
+                            className="w-full bg-[#25D366] text-white font-black py-4 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-[#128C7E] uppercase tracking-widest text-sm mb-4"
+                          >
+                            <Flag className="h-5 w-5" />
+                            Send Receipt via WhatsApp
+                          </button>
+
                           <div className="relative group">
                             <input
                               type="file"
@@ -425,19 +451,13 @@ const Donate: React.FC = () => {
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                               onChange={async (e) => {
                                 if (e.target.files?.[0]) {
-                                  // Simplified Manual Donation Recording
                                   try {
-                                    await fetch('/api/donations', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({
-                                        amount: totalAmount,
-                                        name: donorName,
-                                        email: donorEmail,
-                                        reference: 'Manual Transfer',
-                                        riderId: selectedRider,
-                                        purpose: 'Manual Transfer Receipt Upload'
-                                      })
+                                    await addDonation({
+                                      amount: totalAmount,
+                                      name: donorName,
+                                      email: donorEmail,
+                                      message: 'Manual Transfer Receipt Upload',
+                                      reference: 'Manual-' + Date.now()
                                     });
                                     alert("Thank you! Your donation of RM " + totalAmount + " has been recorded.\n\nPlease also email your receipt to foundation@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
                                   } catch (err) {
@@ -449,7 +469,7 @@ const Donate: React.FC = () => {
                             />
                             <div className="w-full bg-brand-cyan text-brand-navy font-black py-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 group-hover:bg-brand-navy group-hover:text-white uppercase tracking-widest text-sm">
                               <Flag className="h-5 w-5" />
-                              Click to Upload Receipt
+                              Click to Upload Receipt (Email)
                             </div>
                           </div>
                           <p className="text-[10px] text-center text-slate-400 font-black uppercase tracking-widest">PDF, JPG, or PNG (Max 5MB)</p>

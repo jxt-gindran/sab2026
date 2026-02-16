@@ -78,21 +78,21 @@ const Ride: React.FC = () => {
             <p className="text-brand-slate font-medium">Sponsor a champion and help them reach their fundraising goal.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {riders.map((rider: any) => (
-              <div key={rider.id} className="group bg-white rounded-[2.5rem] p-6 border border-brand-grey/20 hover:border-brand-cyan/50 transition-all opacity-80">
-                <div className="aspect-square rounded-[2rem] overflow-hidden mb-6 relative grayscale">
-                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-brand-navy/30 flex items-center justify-center">
-                    <span className="bg-brand-orange text-white text-xs font-black px-6 py-2 rounded-full uppercase tracking-widest shadow-2xl rotate-12">
+              <div key={rider.id} className="group bg-white rounded-[2.5rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all">
+                <div className="aspect-square rounded-[2rem] overflow-hidden mb-6 relative">
+                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute top-4 right-4 z-20">
+                    <span className="bg-brand-orange text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
                       Coming Soon
                     </span>
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-black text-brand-navy/50 mb-4 font-heading">{rider.name}</h3>
+                <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{rider.name}</h3>
 
-                <div className="mb-6 opacity-30">
+                <div className="mb-6">
                   <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
                     <span>Raised: <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
                     <span>Goal: <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
@@ -102,9 +102,9 @@ const Ride: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="w-full text-center py-4 rounded-xl border border-brand-grey/30 text-brand-grey font-black uppercase tracking-widest text-xs cursor-not-allowed">
-                  Profiles Coming Soon
-                </div>
+                <Link to="/donate" className="block w-full text-center border-2 border-brand-orange bg-white text-brand-orange font-black py-4 rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm uppercase tracking-widest">
+                  Donate to Mission
+                </Link>
               </div>
             ))}
           </div>

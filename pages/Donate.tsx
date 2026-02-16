@@ -19,12 +19,6 @@ import {
 
 import ridersData from '../data/riders.json';
 
-const RIDERS = ridersData.map(r => ({
-  id: r.id,
-  name: r.name,
-  role: r.role
-}));
-
 const IMPACT_TIERS = [
   { amount: 50, label: "Care Bundle", description: "Essential hygiene kits for recovery." },
   { amount: 150, label: "Immune Support", description: "Diagnostic tests for deficiency." },
@@ -183,23 +177,14 @@ const Donate: React.FC = () => {
                   </div>
 
                   <div className="pt-8 border-t border-slate-100">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Support a specific Rider (Optional)</h3>
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Supporting:</h3>
                     <div className="flex flex-wrap gap-4">
                       <button
                         onClick={() => setSelectedRider(null)}
-                        className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${!selectedRider ? 'bg-brand-navy text-white shadow-lg' : 'bg-slate-50 text-slate-500 hover:bg-slate-200'}`}
+                        className="px-6 py-3 rounded-xl font-bold text-xs bg-brand-navy text-white shadow-lg uppercase tracking-widest transition-all"
                       >
-                        General Fund
+                        General Fund (SAB2026)
                       </button>
-                      {RIDERS.map(rider => (
-                        <button
-                          key={rider.id}
-                          onClick={() => setSelectedRider(rider.id)}
-                          className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${selectedRider === rider.id ? 'bg-brand-navy text-white shadow-lg' : 'bg-slate-50 text-slate-500 hover:bg-slate-200'}`}
-                        >
-                          {rider.name}
-                        </button>
-                      ))}
                     </div>
                   </div>
                 </div>
@@ -212,25 +197,6 @@ const Donate: React.FC = () => {
                   <p className="text-brand-slate font-medium mb-12">We need your details for the official tax receipt (LHDN).</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    {/* BENEFICIARY SELECTION - HIDDEN FOR NOW (General Fund Only) */}
-                    <div className="hidden">
-                      <label className="block text-brand-navy font-bold mb-4 uppercase tracking-widest text-xs">Who are you supporting?</label>
-                      <div className="grid grid-cols-1 gap-4">
-                        <button
-                          onClick={() => setSelectedRider(null)}
-                          className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${selectedRider === null ? 'border-brand-orange bg-brand-orange/5' : 'border-brand-pale hover:border-brand-orange/50'}`}
-                        >
-                          <div className="h-12 w-12 rounded-full bg-brand-navy flex items-center justify-center text-white">
-                            <Heart size={20} />
-                          </div>
-                          <div className="text-left">
-                            <div className="font-bold text-brand-navy">General Fund</div>
-                            <div className="text-xs text-brand-slate">Support the mission directly</div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-
                     <div className="bg-brand-pale/30 p-6 rounded-2xl border border-brand-pale mb-8">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-full bg-brand-navy flex items-center justify-center text-white shrink-0">
@@ -540,7 +506,7 @@ const Donate: React.FC = () => {
                   <div className="flex justify-between items-end border-b border-white/10 pb-4">
                     <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Sponsoring</span>
                     <span className="text-sm font-black text-brand-cyan tracking-wider text-right max-w-[150px]">
-                      {selectedRider ? RIDERS.find(r => r.id === selectedRider)?.name : 'General Medical Fund'}
+                      General Medical Fund
                     </span>
                   </div>
                 </div>

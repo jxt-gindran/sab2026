@@ -1,12 +1,12 @@
 [
     {
         "id": 1,
-        "name": "Dr. Ahmad Rizal",
-        "role": "Paediatric Surgeon",
-        "image": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=400&h=500&auto=format&fit=crop",
-        "story": "As a surgeon, I see the immediate need for care. This ride is my way of ensuring every child gets their chance at health.",
+        "name": "Champion Coming Soon",
+        "role": "SAB 2026 Cyclist",
+        "image": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=400&h=500&auto=format&fit=crop",
+        "story": "Rider story and local impact details will be announced soon.",
         "goal": 10000,
-        "raised": 4500,
+        "raised": 0,
         "social": {
             "facebook": "#",
             "instagram": "#",
@@ -15,12 +15,12 @@
     },
     {
         "id": 2,
-        "name": "Sarah Chen",
-        "role": "Endurance Cyclist",
-        "image": "https://images.unsplash.com/photo-1544191136-11f8149e634e?q=80&w=400&h=500&auto=format&fit=crop",
-        "story": "Endurance is more than just miles; it's the heart to keep going for those who can't.",
-        "goal": 8000,
-        "raised": 3200,
+        "name": "Champion Coming Soon",
+        "role": "SAB 2026 Cyclist",
+        "image": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=400&h=500&auto=format&fit=crop",
+        "story": "Rider story and local impact details will be announced soon.",
+        "goal": 10000,
+        "raised": 0,
         "social": {
             "facebook": "#",
             "instagram": "#",
@@ -29,12 +29,26 @@
     },
     {
         "id": 3,
-        "name": "Lt. Murali Kumar",
-        "role": "Retired Officer",
-        "image": "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=400&h=500&auto=format&fit=crop",
-        "story": "Service never ends. Today, I serve the children of Malaysia through the pedals of my bike.",
-        "goal": 5000,
-        "raised": 2100,
+        "name": "Champion Coming Soon",
+        "role": "SAB 2026 Cyclist",
+        "image": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=400&h=500&auto=format&fit=crop",
+        "story": "Rider story and local impact details will be announced soon.",
+        "goal": 10000,
+        "raised": 0,
+        "social": {
+            "facebook": "#",
+            "instagram": "#",
+            "linkedin": "#"
+        }
+    },
+    {
+        "id": 4,
+        "name": "Champion Coming Soon",
+        "role": "SAB 2026 Cyclist",
+        "image": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=400&h=500&auto=format&fit=crop",
+        "story": "Rider story and local impact details will be announced soon.",
+        "goal": 10000,
+        "raised": 0,
         "social": {
             "facebook": "#",
             "instagram": "#",

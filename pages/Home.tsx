@@ -431,9 +431,9 @@ const Home: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="block w-full text-center border-2 border-brand-grey text-brand-grey font-black py-4 rounded-xl text-sm uppercase tracking-widest cursor-not-allowed">
-                  Coming Soon
-                </div>
+                <Link to="/donate" className="block w-full text-center border-2 border-brand-orange bg-white text-brand-orange font-black py-4 rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm uppercase tracking-widest">
+                  Donate to Mission
+                </Link>
               </div>
             ))}
           </div>

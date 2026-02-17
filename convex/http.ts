@@ -79,13 +79,29 @@ http.route({
         if (status === 'completed') {
             await ctx.runMutation(internal.donations.recordPayment, {
                 amount: parseFloat(amount) || 0,
-                riderId: undefined,
                 name: payer_name || payer_email || 'HitPay Donor',
                 email: payer_email,
                 paymentId: payment_id,
                 status: 'completed',
                 type: 'hitpay',
                 message: `Via HitPay (ref: ${reference_number || 'N/A'})`
+            });
+
+            // Send Emails (Fire & Forget)
+            if (payer_email) {
+                await ctx.scheduler.runAfter(0, internal.email.sendThankYou, {
+                    email: payer_email,
+                    name: payer_name || 'Donor',
+                    amount: parseFloat(amount) || 0,
+                    ref: payment_id
+                });
+            }
+
+            await ctx.scheduler.runAfter(0, internal.email.sendAdminHitPayNotification, {
+                name: payer_name || 'Anonymous',
+                amount: parseFloat(amount) || 0,
+                ref: payment_id,
+                email: payer_email
             });
         }
 

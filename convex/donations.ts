@@ -1,5 +1,6 @@
 import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 // Public mutation for manual entry (always pending verification)
 export const add = mutation({
@@ -8,11 +9,12 @@ export const add = mutation({
         riderId: v.optional(v.number()),
         name: v.string(),
         email: v.optional(v.string()),
+        phone: v.string(), // Required for WhatsApp contact
         message: v.optional(v.string()),
         reference: v.optional(v.string()), // For manual ref match
     },
     handler: async (ctx, args) => {
-        return await ctx.db.insert("donations", {
+        const id = await ctx.db.insert("donations", {
             amount: args.amount,
             riderId: args.riderId,
             name: args.name,
@@ -22,7 +24,18 @@ export const add = mutation({
             timestamp: Date.now(),
             status: 'pending',
             type: 'manual',
+            phone: args.phone,
         });
+
+        // Notify Admin (Fire & Forget)
+        await ctx.scheduler.runAfter(0, internal.email.sendAdminManualNotification, {
+            name: args.name,
+            amount: args.amount,
+            phone: args.phone,
+            ref: args.reference
+        });
+
+        return id;
     },
 });
 

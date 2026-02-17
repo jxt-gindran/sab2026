@@ -437,7 +437,7 @@ const Donate: React.FC = () => {
                             onClick={() => {
                               // Manual WhatsApp logic
                               const text = encodeURIComponent(`Hi MMA Foundation, I have made a manual transfer of RM ${totalAmount} for SAB2026.\n\nName: ${donorName}\nPhone: ${donorPhone}\nEmail: ${donorEmail}\nRef: SAB2026\n\nPlease find my receipt attached.`);
-                              window.open(`https://wa.me/60122296678?text=${text}`, '_blank');
+                              window.open(`https://wa.me/60145139470?text=${text}`, '_blank');
                             }}
                             className="w-full bg-[#25D366] text-white font-black py-4 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-[#128C7E] uppercase tracking-widest text-sm mb-4"
                           >
@@ -457,6 +457,7 @@ const Donate: React.FC = () => {
                                       amount: totalAmount,
                                       name: donorName,
                                       email: donorEmail,
+                                      phone: donorPhone,
                                       message: 'Manual Transfer Receipt Upload',
                                       reference: 'Manual-' + Date.now()
                                     });

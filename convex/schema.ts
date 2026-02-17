@@ -12,6 +12,7 @@ export default defineSchema({
         paymentId: v.optional(v.string()), // HitPay ID or Manual REF
         status: v.string(), // 'completed', 'pending'
         type: v.string(), // 'hitpay', 'manual'
+        phone: v.optional(v.string())
     })
         .index("by_status", ["status"])
         .index("by_paymentId", ["paymentId"]),

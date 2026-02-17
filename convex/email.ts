@@ -6,7 +6,7 @@ import { internal } from "./_generated/api";
 
 // Initialize Resend with API Key from Env
 // Make sure to set RESEND_API_KEY in Convex Dashboard
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ADMIN_EMAIL = "sab.mma.org.my@gmail.com"; // Replace with actual admin email
 const FROM_EMAIL = "SAB2026 Support <onboarding@resend.dev>"; // Update with your verified domain later
@@ -24,6 +24,8 @@ export const sendThankYou = internalAction({
             console.log("Skipping email: No RESEND_API_KEY set");
             return;
         }
+
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
         try {
             await resend.emails.send({
@@ -68,6 +70,7 @@ export const sendAdminHitPayNotification = internalAction({
     },
     handler: async (ctx, args) => {
         if (!process.env.RESEND_API_KEY) return;
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
         try {
             await resend.emails.send({
@@ -101,6 +104,7 @@ export const sendAdminManualNotification = internalAction({
     },
     handler: async (ctx, args) => {
         if (!process.env.RESEND_API_KEY) return;
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
         try {
             await resend.emails.send({

@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, UserPlus, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, UserPlus, Heart, Loader2 } from 'lucide-react';
 
 interface RegistrationModalProps {
     isOpen: boolean;
@@ -7,6 +7,13 @@ interface RegistrationModalProps {
 }
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }) => {
+    const [iframeLoaded, setIframeLoaded] = useState(false);
+
+    // Reset loading state when modal reopens
+    React.useEffect(() => {
+        if (isOpen) setIframeLoaded(false);
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (
@@ -71,7 +78,14 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                         </p>
                     </div>
 
-                    <div className="w-full h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200">
+                    <div className="w-full h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 relative">
+                        {/* Loading Indicator */}
+                        {!iframeLoaded && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 z-10">
+                                <Loader2 className="h-10 w-10 text-brand-cyan animate-spin mb-4" />
+                                <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Loading Registration Form...</p>
+                            </div>
+                        )}
                         <iframe
                             src="https://docs.google.com/forms/d/e/1FAIpQLSdegK8dnkEAvIzY8n2p1KHDy8VryiGw7mRewrA4z9jHtYNkGQ/viewform?embedded=true"
                             width="100%"
@@ -80,6 +94,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                             marginHeight={0}
                             marginWidth={0}
                             title="Registration Form"
+                            onLoad={() => setIframeLoaded(true)}
                         >
                             Loading…
                         </iframe>

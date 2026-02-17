@@ -13,6 +13,7 @@ import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import ThankYou from './pages/ThankYou';
+import PaymentCancelled from './pages/PaymentCancelled';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -41,6 +42,7 @@ const App: React.FC = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="*" element={
               <div className="min-h-screen bg-white flex items-center justify-center px-4">
                 <div className="text-center">

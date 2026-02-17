@@ -75,10 +75,10 @@ const Donate: React.FC = () => {
         alert('Please enter a valid phone number (e.g. +60123456789).');
         return;
       }
-      // IC Validation - Mandatory for tax exemption receipt
+      // IC Validation - Optional but validate format if provided
       const icClean = donorIC.replace(/[\s-]/g, '');
-      if (!icClean || icClean.length < 6) {
-        alert('Please enter a valid IC / Passport Number for your official tax receipt.');
+      if (icClean && icClean.length < 6) {
+        alert('Please enter a valid IC / Passport Number (at least 6 characters).');
         return;
       }
     }
@@ -230,7 +230,7 @@ const Donate: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name (as per IC)</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name (as per IC) <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         value={donorName}
@@ -240,7 +240,7 @@ const Donate: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address <span className="text-red-500">*</span></label>
                       <input
                         type="email"
                         value={donorEmail}
@@ -250,7 +250,7 @@ const Donate: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number <span className="text-red-500">*</span></label>
                       <input
                         type="tel"
                         value={donorPhone}
@@ -260,12 +260,12 @@ const Donate: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">IC / Passport Number</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">IC / Passport Number <span className="text-slate-300 text-[9px] normal-case">(optional, for tax receipt)</span></label>
                       <input
                         type="text"
                         value={donorIC}
                         onChange={(e) => setDonorIC(e.target.value)}
-                        placeholder="Required for Tax Exemption"
+                        placeholder="Optional — for Tax Exemption Receipt"
                         className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
                       />
                     </div>

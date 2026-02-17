@@ -9,7 +9,7 @@ import {
     Copy,
     Download
 } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 
 // Simple WhatsApp Icon component since Lucide doesn't have it explicitly sometimes or varying
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -31,17 +31,23 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const ThankYou: React.FC = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const [amount, setAmount] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-        // Try to get amount from query params if HitPay sends it (status=completed&amount=...)
+        // HitPay redirects with ?status=completed or ?status=failed/canceled
+        const status = searchParams.get('status');
+        if (status && status !== 'completed') {
+            navigate('/payment-cancelled', { replace: true });
+            return;
+        }
         const amt = searchParams.get('amount');
         if (amt) setAmount(amt);
-    }, [searchParams]);
+    }, [searchParams, navigate]);
 
     const shareUrl = "https://sab.mma.org.my";
-    const shareText = "I just supported the Separuh Amal Borneo 2026 mission to save lives! Join me in making a difference.";
+    const shareText = "I just supported the Sepeda Amal Borneo 2026 mission to save lives! Join me in making a difference.";
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareUrl);

@@ -84,7 +84,7 @@ const Home: React.FC = () => {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/assets/images/male-working-as-paediatrician.jpg"
+            src="/assets/images/hero-compressed.webp"
             alt="SAB 2026 Medical Mission"
             className="w-full h-full object-cover"
           />

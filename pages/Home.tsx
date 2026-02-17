@@ -360,7 +360,7 @@ const Home: React.FC = () => {
               {/* Background Image */}
               <div className="absolute inset-0 z-0">
                 <img
-                  src="/assets/images/KK-miri.png"
+                  src="/assets/images/map-route.webp"
                   alt="Kota Kinabalu to Miri Route"
                   className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[2000ms]"
                 />

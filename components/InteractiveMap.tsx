@@ -20,7 +20,7 @@ const InteractiveMap: React.FC = () => {
         <div className="relative w-full aspect-[16/9] bg-brand-navy rounded-3xl overflow-hidden shadow-2xl border border-brand-cyan/20 group">
             {/* Background Image */}
             <img
-                src="/assets/images/KK-miri.png"
+                src="/assets/images/map-route.webp"
                 alt="Route Map"
                 className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[2000ms]"
             />

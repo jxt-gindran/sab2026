@@ -12,7 +12,7 @@ const Mission: React.FC = () => {
           {/* Image Left (Mobile Top) */}
           <div className="relative h-[50vh] lg:h-auto">
             <img
-              src="/assets/images/surgeon-holding-childs-hand.jpg"
+              src="/assets/images/surgeon-hand.webp"
               alt="Surgeon holding child's hand"
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -52,7 +52,7 @@ const Mission: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border border-brand-grey/20 order-2 lg:order-1">
               <img
-                src="/assets/images/pediatric-surgery.jpg"
+                src="/assets/images/pediatric-surgery.webp"
                 alt="Paediatric Surgery"
                 className="w-full h-full object-cover"
               />
@@ -133,7 +133,7 @@ const Mission: React.FC = () => {
             </div>
             <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border border-brand-grey/20">
               <img
-                src="/assets/images/immune%20deficiency%20care.jpg"
+                src="/assets/images/immune-care.webp"
                 alt="Immune Deficiency Care"
                 className="w-full h-full object-cover"
               />

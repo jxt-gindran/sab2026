@@ -4,6 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/nadi-sab/',
+  build: {
+    outDir: '../dist/nadi-sab',
+    emptyOutDir: true,
+  },
   plugins: [
     react(),
     tailwindcss(),

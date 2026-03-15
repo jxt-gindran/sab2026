@@ -1,5 +1,5 @@
 "use node";
-import { action, internalAction } from "./_generated/server";
+import { action } from "./_generated/server";
 import { v } from "convex/values";
 
 export const createLink = action({
@@ -10,7 +10,7 @@ export const createLink = action({
         purpose: v.string(),
         reference: v.string()
     },
-    handler: async (ctx, args) => {
+    handler: async (_, args) => {
         const apiKey = process.env.HITPAY_API_KEY;
         if (!apiKey) {
             throw new Error("Server Config Error: Missing HITPAY_API_KEY");

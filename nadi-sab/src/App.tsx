@@ -32,7 +32,7 @@ function DashboardHome() {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/nadi-sab">
         <div className="min-h-screen font-sans text-brand-slate">
           <Routes>
             <Route path="/login" element={<Login />} />

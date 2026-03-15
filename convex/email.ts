@@ -1,8 +1,7 @@
 "use node";
 import { Resend } from "resend";
-import { action, internalAction } from "./_generated/server";
+import { internalAction } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 
 // Initialize Resend with API Key from Env
 // Make sure to set RESEND_API_KEY in Convex Dashboard
@@ -19,7 +18,7 @@ export const sendThankYou = internalAction({
         amount: v.number(),
         ref: v.string(),
     },
-    handler: async (ctx, args) => {
+    handler: async (_, args) => {
         if (!process.env.RESEND_API_KEY) {
             console.log("Skipping email: No RESEND_API_KEY set");
             return;
@@ -68,7 +67,7 @@ export const sendAdminHitPayNotification = internalAction({
         ref: v.string(),
         email: v.optional(v.string())
     },
-    handler: async (ctx, args) => {
+    handler: async (_, args) => {
         if (!process.env.RESEND_API_KEY) return;
         const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -102,7 +101,7 @@ export const sendAdminManualNotification = internalAction({
         phone: v.string(),
         ref: v.optional(v.string())
     },
-    handler: async (ctx, args) => {
+    handler: async (_, args) => {
         if (!process.env.RESEND_API_KEY) return;
         const resend = new Resend(process.env.RESEND_API_KEY);
 

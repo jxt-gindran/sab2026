@@ -8,7 +8,7 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || "nadi-sab-2026-admin";
 // Check if token is valid
 export const verifyAdmin = query({
     args: { token: v.string() },
-    handler: async (ctx, args) => {
+    handler: async (_, args) => {
         return args.token === ADMIN_SECRET;
     },
 });

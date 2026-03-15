@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npx convex codegen && vite build",
+    "build": "npx convex codegen && vite build && cd nadi-sab && npm install --legacy-peer-deps && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {

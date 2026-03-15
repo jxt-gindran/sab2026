@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuth } from '../components/AuthContext';
-import { Image as ImageIcon, Type, Save, Plus, Edit2, UploadCloud } from 'lucide-react';
-import { Id } from '../../../convex/_generated/dataModel';
+import { Image as ImageIcon, Type, Save, Plus, UploadCloud } from 'lucide-react';
 
 export default function Content() {
   const { token } = useAuth();

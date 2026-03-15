@@ -5,6 +5,10 @@
             "destination": "https://limitless-dragon-854.convex.site/hitpay"
         },
         {
+            "source": "/nadi-sab/(.*)",
+            "destination": "/nadi-sab/index.html"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/$1"
         },

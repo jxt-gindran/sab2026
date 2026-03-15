@@ -12,8 +12,22 @@ export default defineSchema({
         paymentId: v.optional(v.string()), // HitPay ID or Manual REF
         status: v.string(), // 'completed', 'pending'
         type: v.string(), // 'hitpay', 'manual'
-        phone: v.optional(v.string())
+        phone: v.optional(v.string()),
+        icNumber: v.optional(v.string())
     })
         .index("by_status", ["status"])
         .index("by_paymentId", ["paymentId"]),
+    
+    settings: defineTable({
+        key: v.string(),
+        value: v.string(),
+        isSecret: v.boolean(),
+    }).index("by_key", ["key"]),
+
+    content: defineTable({
+        page: v.string(),
+        section: v.string(),
+        type: v.string(), // "text", "image", "html"
+        value: v.string(),
+    }).index("by_page_section", ["page", "section"]),
 });

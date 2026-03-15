@@ -82,6 +82,7 @@ http.route({
                 name: payer_name || payer_email || 'HitPay Donor',
                 email: payer_email,
                 paymentId: payment_id,
+                reference: reference_number,
                 status: 'completed',
                 type: 'hitpay',
                 message: `Via HitPay (ref: ${reference_number || 'N/A'})`

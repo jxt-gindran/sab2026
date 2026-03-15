@@ -9,11 +9,14 @@ export const add = mutation({
         riderId: v.optional(v.number()),
         name: v.string(),
         email: v.optional(v.string()),
-        phone: v.string(), // Required for WhatsApp contact
+        phone: v.optional(v.string()), // Required for WhatsApp contact, optional for HitPay initially
         message: v.optional(v.string()),
-        reference: v.optional(v.string()), // For manual ref match
+        reference: v.optional(v.string()), // For manual ref match or hitpay reference
+        icNumber: v.optional(v.string()),
+        type: v.optional(v.string()), // 'hitpay' or 'manual'
     },
     handler: async (ctx, args) => {
+        const type = args.type || 'manual';
         const id = await ctx.db.insert("donations", {
             amount: args.amount,
             riderId: args.riderId,
@@ -23,17 +26,20 @@ export const add = mutation({
             paymentId: args.reference,
             timestamp: Date.now(),
             status: 'pending',
-            type: 'manual',
+            type: type,
             phone: args.phone,
+            icNumber: args.icNumber,
         });
 
         // Notify Admin (Fire & Forget)
-        await ctx.scheduler.runAfter(0, internal.email.sendAdminManualNotification, {
-            name: args.name,
-            amount: args.amount,
-            phone: args.phone,
-            ref: args.reference
-        });
+        if (type === 'manual') {
+            await ctx.scheduler.runAfter(0, internal.email.sendAdminManualNotification, {
+                name: args.name,
+                amount: args.amount,
+                phone: args.phone || '',
+                ref: args.reference
+            });
+        }
 
         return id;
     },
@@ -43,7 +49,8 @@ export const add = mutation({
 export const recordPayment = internalMutation({
     args: {
         amount: v.number(),
-        paymentId: v.string(),
+        paymentId: v.string(), // Actual HitPay payment_id
+        reference: v.optional(v.string()), // Our generated SAB reference
         name: v.string(),
         email: v.optional(v.string()),
         riderId: v.optional(v.number()),
@@ -52,6 +59,29 @@ export const recordPayment = internalMutation({
         message: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
+        // First try to find by reference (this is what we saved in addDonation as paymentId)
+        if (args.reference) {
+            const existing = await ctx.db
+                .query("donations")
+                .withIndex("by_paymentId", q => q.eq("paymentId", args.reference))
+                .first();
+
+            if (existing) {
+                if (existing.status === 'completed') {
+                    console.warn(`[recordPayment] Duplicate execution for reference ${args.reference} — skipping`);
+                    return existing._id;
+                }
+
+                // Update existing record
+                await ctx.db.patch(existing._id, {
+                    status: args.status,
+                    paymentId: args.paymentId, // Replace reference with actual payment_id
+                    message: args.message ? (existing.message ? existing.message + " | " + args.message : args.message) : existing.message,
+                });
+                return existing._id;
+            }
+        }
+
         // Idempotency: skip if this paymentId was already recorded
         if (args.paymentId) {
             const existing = await ctx.db
@@ -64,6 +94,7 @@ export const recordPayment = internalMutation({
             }
         }
 
+        // Fallback: create a new record if reference not found (e.g. legacy or skipped addDonation)
         return await ctx.db.insert("donations", {
             amount: args.amount,
             riderId: args.riderId,

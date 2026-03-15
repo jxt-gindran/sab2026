@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #0F172A;
+  --color-brand-cyan: #00AEEF;
+  --color-brand-orange: #F97316;
+  --color-brand-slate: #334155;
+  --color-brand-pale: #F1F5F9;
+  --color-brand-grey: #64748B;
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "Outfit", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-brand-pale);
+  color: var(--color-brand-navy);
+}

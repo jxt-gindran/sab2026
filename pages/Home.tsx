@@ -40,6 +40,11 @@ const Home: React.FC = () => {
 
   const ridersList = ridersData.slice(0, 4);
 
+  // CMS Content
+  const contentData = useQuery(api.admin.getContent) || [];
+  const getText = (section: string, defaultText: string) => 
+    contentData.find(c => c.page === 'home' && c.section === section)?.value || defaultText;
+
   // JSON-LD Schema
   const schemaData = {
     "@context": "https://schema.org",
@@ -95,11 +100,11 @@ const Home: React.FC = () => {
         <div className={`relative z-10 max-w-7xl mx-auto px-4 py-20 mt-16 grid items-center gap-12 transition-all duration-700 ${isVideoOpen ? 'lg:grid-cols-2 text-left' : 'grid-cols-1 text-center'}`}>
           <div className={`animate-fade-in ${isVideoOpen ? 'lg:items-start' : 'items-center'} flex flex-col`}>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-[1.1] font-heading text-white transition-all">
-              Pedal for Care, <br />
-              <span className="text-brand-cyan">Ride for Hope.</span>
+              {getText('hero_title_line1', 'Pedal for Care,')} <br />
+              <span className="text-brand-cyan">{getText('hero_title_line2', 'Ride for Hope.')}</span>
             </h1>
             <h2 className={`text-lg md:text-2xl font-medium text-brand-pale mb-10 leading-relaxed transition-all ${isVideoOpen ? 'max-w-xl' : 'max-w-3xl mx-auto'}`}>
-              Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.
+              {getText('hero_subtitle', "Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.")}
             </h2>
 
             <div className={`flex flex-col gap-6 w-full ${isVideoOpen ? 'lg:items-start' : 'items-center'}`}>

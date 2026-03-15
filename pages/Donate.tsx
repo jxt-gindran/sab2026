@@ -361,12 +361,27 @@ const Donate: React.FC = () => {
                         id="hitpay-btn"
                         onClick={async () => {
                           try {
+                            const ref = 'SAB-' + Date.now();
+                            try {
+                              await addDonation({
+                                amount: totalAmount,
+                                name: donorName,
+                                email: donorEmail,
+                                phone: donorPhone,
+                                icNumber: donorIC,
+                                type: 'hitpay',
+                                reference: ref
+                              });
+                            } catch (err) {
+                              console.error('Failed to create pending record:', err);
+                            }
+
                             const result = await createPaymentLink({
                               amount: totalAmount,
                               name: donorName,
                               email: donorEmail,
                               purpose: `Donation for SAB2026 (Fund: General)`,
-                              reference: 'SAB-' + Date.now()
+                              reference: ref
                             });
 
                             if (result && result.url) {
@@ -458,6 +473,8 @@ const Donate: React.FC = () => {
                                       name: donorName,
                                       email: donorEmail,
                                       phone: donorPhone,
+                                      icNumber: donorIC,
+                                      type: 'manual',
                                       message: 'Manual Transfer Receipt Upload',
                                       reference: 'Manual-' + Date.now()
                                     });

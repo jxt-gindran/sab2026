@@ -127,7 +127,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                 let parsedCoordinates: [number, number][] = [];
                 let parsedElevations: { dist: number, ele: number, lon: number, lat: number }[] = [];
 
-                if (fetchUrl.toLowerCase().endsWith('.gpx')) {
+                if (activeRoute.fileName && activeRoute.fileName.toLowerCase().endsWith('.gpx')) {
                     // GPX PARSING (Includes Elevation! + Extract geometries natively)
                     const gpxFormat = new GPX();
                     const features = gpxFormat.readFeatures(fileText, { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:4326' }); // Read raw lon/lats first for distance math

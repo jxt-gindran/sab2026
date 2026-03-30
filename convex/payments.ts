@@ -8,7 +8,8 @@ export const createLink = action({
         name: v.string(),
         email: v.string(),
         purpose: v.string(),
-        reference: v.string()
+        reference: v.string(),
+        siteUrl: v.string()
     },
     handler: async (_, args) => {
         const apiKey = process.env.HITPAY_API_KEY;
@@ -25,8 +26,7 @@ export const createLink = action({
         params.append("amount", args.amount.toString());
         params.append("currency", "MYR");
         params.append("reference_number", args.reference);
-        const siteUrl = process.env.SITE_URL || "http://localhost:3000";
-        params.append("redirect_url", `${siteUrl}/#/thank-you`);
+        params.append("redirect_url", `${args.siteUrl}/#/thank-you`);
         params.append("purpose", args.purpose);
         params.append("name", args.name);
         params.append("email", args.email);

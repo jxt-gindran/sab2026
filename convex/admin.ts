@@ -13,7 +13,16 @@ export const verifyAdmin = query({
     },
 });
 
-// Settings Management
+// Public read of non-secret settings (e.g. donation goal)
+export const getPublicSettings = query({
+    args: {},
+    handler: async (ctx) => {
+        const all = await ctx.db.query("settings").collect();
+        return all.filter(s => !s.isSecret);
+    },
+});
+
+// Settings Management (admin only)
 export const getSettings = query({
     args: { token: v.string() },
     handler: async (ctx, args) => {
@@ -78,6 +87,14 @@ export const generateUploadUrl = mutation({
 export const getImageUrl = query({
     args: { storageId: v.id("_storage") },
     handler: async (ctx, args) => {
+        return await ctx.storage.getUrl(args.storageId);
+    },
+});
+
+export const getImageUrlMutation = mutation({
+    args: { token: v.string(), storageId: v.id("_storage") },
+    handler: async (ctx, args) => {
+        if (args.token !== ADMIN_SECRET) throw new Error("Unauthorized");
         return await ctx.storage.getUrl(args.storageId);
     },
 });

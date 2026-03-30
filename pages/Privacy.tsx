@@ -71,7 +71,7 @@ const Privacy: React.FC = () => {
                                 53000 Kuala Lumpur, Malaysia.
                             </a>
                         </p>
-                        <p className="text-brand-orange font-bold">Email: <a href="mailto:foundation@mma.org.my" className="underline hover:text-brand-navy">foundation@mma.org.my</a></p>
+                        <p className="text-brand-orange font-bold">Email: <a href="mailto:sab2026@mma.org.my" className="underline hover:text-brand-navy">sab2026@mma.org.my</a></p>
                         <p className="text-brand-orange font-bold">Phone: <a href="tel:+60340411375" className="underline hover:text-brand-navy">+603-4041 1375</a></p>
                     </div>
                 </div>

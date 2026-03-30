@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Quote, UserPlus } from 'lucide-react';
-import ridersData from '../data/riders.json';
+import { MapPin, Quote, UserPlus, User, Heart } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import RegistrationModal from '../components/RegistrationModal';
 import { BorneoRouteMap } from '../components/BorneoRouteMap';
 import RiderStoryModal from '../components/RiderStoryModal';
@@ -9,21 +10,46 @@ import RiderStoryModal from '../components/RiderStoryModal';
 const Ride: React.FC = () => {
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [selectedRider, setSelectedRider] = useState<any | null>(null);
-  const [riders, setRiders] = useState(ridersData);
+  const [activeTab, setActiveTab] = useState<string>('Cyclist');
+
+  const allCyclists = useQuery(api.cyclists.listAll) || [];
+  const cyclists = allCyclists.filter((c: any) => !c.isArchived);
+
+  // Derive unique roles
+  const uniqueRoles = Array.from(new Set(cyclists.map((c: any) => c.role || 'Cyclist')));
+  const hasMultipleRoles = uniqueRoles.length > 1;
+
+  // Sync activeTab if the default 'Cyclist' isn't available
+  useEffect(() => {
+    if (uniqueRoles.length > 0 && !uniqueRoles.includes(activeTab)) {
+      setActiveTab(uniqueRoles[0]);
+    }
+  }, [uniqueRoles, activeTab]);
+
+  const displayedCyclists = cyclists.filter((c: any) => (c.role || 'Cyclist') === activeTab);
 
   return (
     <div className="bg-white min-h-screen">
 
       {/* 1. EVENT HERO */}
-      <section className="bg-brand-navy text-white relative overflow-hidden pt-32 pb-24">
+      <section className="relative text-white overflow-hidden pt-32 pb-24">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/assets/images/sabcyclist.jpg"
+            alt="The Ride"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-brand-navy/80 mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/50 to-transparent"></div>
+        </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
             26 July - 1 August 2026
           </div>
           <h1 className="text-5xl md:text-8xl font-black font-heading leading-tight mb-8">
-            The Journey: <br />
-            <span className="text-brand-orange">SAB2026.</span>
+            The <span className="text-brand-orange">Ride.</span>
           </h1>
           <div className="flex items-center justify-center gap-3 text-xl text-brand-pale font-medium mb-16">
             <MapPin className="h-5 w-5 text-brand-cyan" />
@@ -34,8 +60,8 @@ const Ride: React.FC = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 border-t border-white/10 pt-16">
             {[
               { label: 'Days', value: '6' },
-              { label: 'Distance', value: '660 KM' },
-              { label: 'Elevation', value: '8,000 M' },
+              { label: 'Distance', value: '680 KM' },
+              { label: 'Territories', value: '4' },
               { label: 'Cyclists', value: '20' },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
@@ -70,37 +96,76 @@ const Ride: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-black text-brand-navy mb-4 font-heading">Support a Rider.</h2>
             <p className="text-brand-slate font-medium">Sponsor a champion and help them reach their fundraising goal.</p>
+
+            {hasMultipleRoles && (
+              <div className="flex flex-wrap justify-center gap-4 mt-8">
+                {uniqueRoles.map(role => (
+                  <button
+                    key={role}
+                    onClick={() => setActiveTab(role)}
+                    className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest transition-all ${
+                      activeTab === role
+                        ? 'bg-brand-orange text-white shadow-lg'
+                        : 'bg-slate-100 text-brand-slate hover:bg-slate-200'
+                    }`}
+                  >
+                    {role === 'Cyclist' ? 'Cyclists' : role}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {riders.map((rider: any) => (
-              <div key={rider.id} className="group bg-white rounded-[2.5rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all">
-                <div className="aspect-square rounded-[2rem] overflow-hidden mb-6 relative">
-                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            {displayedCyclists.map((rider: any) => (
+              <div key={rider._id} className="group bg-white rounded-[2.5rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all flex flex-col">
+                <div className="aspect-square rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 flex items-center justify-center">
+                  {rider.profileUrl ? (
+                    <img src={rider.profileUrl} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <User className="h-16 w-16 text-slate-300" />
+                  )}
                   <div className="absolute top-4 right-4 z-20">
                     <span className="bg-brand-orange text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-                      Coming Soon
+                      {rider.role}
                     </span>
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{rider.name}</h3>
+                <div className="flex-grow">
+                  <h3 className="text-2xl font-black text-brand-navy mb-2 font-heading leading-tight">{rider.name}</h3>
+                </div>
 
-                <div className="mb-6">
+                <div className="mt-4 mb-6">
                   <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
                     <span>Raised: <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
                     <span>Goal: <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
                   </div>
                   <div className="w-full h-3 bg-brand-pale/50 rounded-full overflow-hidden p-0.5">
-                    <div className="h-full bg-brand-orange rounded-full shadow-sm" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
+                    <div className="h-full bg-brand-orange rounded-full shadow-sm transition-all duration-1000" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
                   </div>
                 </div>
 
-                <Link to="/donate" className="block w-full text-center border-2 border-brand-orange bg-white text-brand-orange font-black py-4 rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm uppercase tracking-widest">
-                  Donate to Mission
-                </Link>
+                <div className="flex gap-2">
+                  <Link to={`/riders/${encodeURIComponent(rider.shareSlug)}`} className="flex-grow text-center bg-brand-navy text-white font-black py-4 rounded-xl hover:bg-brand-cyan hover:text-brand-navy transition-all text-sm uppercase tracking-widest">
+                    View Profile
+                  </Link>
+                  <Link to={`/donate?cyclist=${encodeURIComponent(rider.shareSlug)}`} className="px-4 py-4 border-2 border-brand-orange bg-white text-brand-orange font-black rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm shrink-0">
+                    <Heart className="h-4 w-4" />
+                  </Link>
+                </div>
               </div>
             ))}
+            
+            {displayedCyclists.length === 0 && (
+              <div className="md:col-span-2 lg:col-span-4 bg-white rounded-[2.5rem] p-12 text-center border border-slate-100">
+                <div className="h-20 w-20 bg-brand-pale mx-auto rounded-full flex items-center justify-center mb-6">
+                  <UserPlus className="h-10 w-10 text-brand-navy" />
+                </div>
+                <h3 className="text-3xl font-black text-brand-navy mb-4 font-heading">The Roster is Forming.</h3>
+                <p className="text-brand-slate font-medium text-lg max-w-2xl mx-auto">We are actively selecting the riders who will take on the 680km challenge across Borneo. Stay tuned as we announce our champions soon.</p>
+              </div>
+            )}
           </div>
         </div>
       </section >

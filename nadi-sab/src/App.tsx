@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Layout from './components/Layout';
 import Settings from './pages/Settings';
 import Content from './pages/Content';
+import Cyclists from './pages/Cyclists';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -43,6 +44,7 @@ const App: React.FC = () => {
             }>
               <Route index element={<DashboardHome />} />
               <Route path="content" element={<Content />} />
+              <Route path="cyclists" element={<Cyclists />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

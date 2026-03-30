@@ -6,7 +6,7 @@ import { internal } from "./_generated/api";
 export const add = mutation({
     args: {
         amount: v.number(),
-        riderId: v.optional(v.number()),
+        riderId: v.optional(v.string()),
         name: v.string(),
         email: v.optional(v.string()),
         phone: v.optional(v.string()), // Required for WhatsApp contact, optional for HitPay initially
@@ -53,7 +53,7 @@ export const recordPayment = internalMutation({
         reference: v.optional(v.string()), // Our generated SAB reference
         name: v.string(),
         email: v.optional(v.string()),
-        riderId: v.optional(v.number()),
+        riderId: v.optional(v.string()),
         status: v.string(),
         type: v.string(),
         message: v.optional(v.string()),

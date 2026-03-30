@@ -7,11 +7,13 @@ import {
   TrendingUp,
   Map,
   MapPin,
-  PlayCircle
+  PlayCircle,
+  User
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import ridersData from '../data/riders.json';
+import { BorneoRouteMap } from '../components/BorneoRouteMap';
 
 const TIMELINE = [
   { year: '2022', title: 'Cycle for Cancer', raised: 'RM 230k' },
@@ -35,10 +37,34 @@ const Home: React.FC = () => {
   // Dynamic Stats from Convex
   const totalRaised = useQuery(api.donations.getTotal) || 0;
   const baseAmount = 1200000;
-  const currentTotal = baseAmount + totalRaised;
-  const raisedDisplay = `RM ${(currentTotal / 1000000).toFixed(3)}M`;
 
-  const ridersList = ridersData.slice(0, 4);
+  // Admin settings
+  const allSettings = useQuery(api.admin.getPublicSettings) || [];
+  const manualRaised = allSettings.find((s: { key: string; value: string }) => s.key === 'raised_amount');
+  const goalSetting  = allSettings.find((s: { key: string; value: string }) => s.key === 'donation_goal');
+
+  // Use manual override if set, otherwise fall back to DB total + base
+  const currentTotal = manualRaised ? parseFloat(manualRaised.value) : baseAmount + totalRaised;
+  const donationGoal = goalSetting ? parseFloat(goalSetting.value) : 2000000;
+  const donationPercent = Math.min((currentTotal / donationGoal) * 100, 100);
+
+  // Smart formatter: no unnecessary decimals, K / M suffix
+  const formatRM = (n: number) => {
+    if (n >= 1_000_000) {
+      const v = n / 1_000_000;
+      return `RM ${Number.isInteger(v) ? v : v.toFixed(1)}M`;
+    }
+    if (n >= 1_000) {
+      const v = Math.round(n / 1_000);
+      return `RM ${v}K`;
+    }
+    return `RM ${Math.round(n).toLocaleString()}`;
+  };
+
+  const raisedDisplay = formatRM(currentTotal);
+  const goalDisplay   = formatRM(donationGoal);
+
+  const featuredCyclists = useQuery(api.cyclists.listFeatured) || [];
 
   // CMS Content
   const contentData = useQuery(api.admin.getContent) || [];
@@ -97,29 +123,29 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"></div>
         </div>
 
-        <div className={`relative z-10 max-w-7xl mx-auto px-4 py-20 mt-16 grid items-center gap-12 transition-all duration-700 ${isVideoOpen ? 'lg:grid-cols-2 text-left' : 'grid-cols-1 text-center'}`}>
+        <div className={`relative z-10 max-w-7xl mx-auto px-4 py-12 mt-16 grid items-center gap-8 md:gap-12 transition-all duration-700 ${isVideoOpen ? 'lg:grid-cols-2 text-left' : 'grid-cols-1 text-center'}`}>
           <div className={`animate-fade-in ${isVideoOpen ? 'lg:items-start' : 'items-center'} flex flex-col`}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-[1.1] font-heading text-white transition-all">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-4 md:mb-6 tracking-tighter leading-[1.1] font-heading text-white transition-all">
               {getText('hero_title_line1', 'Pedal for Care,')} <br />
               <span className="text-brand-cyan">{getText('hero_title_line2', 'Ride for Hope.')}</span>
             </h1>
-            <h2 className={`text-lg md:text-2xl font-medium text-brand-pale mb-10 leading-relaxed transition-all ${isVideoOpen ? 'max-w-xl' : 'max-w-3xl mx-auto'}`}>
+            <h2 className={`text-base md:text-lg lg:text-2xl font-medium text-brand-pale mb-8 md:mb-10 leading-relaxed transition-all ${isVideoOpen ? 'max-w-xl' : 'max-w-3xl mx-auto'}`}>
               {getText('hero_subtitle', "Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.")}
             </h2>
 
-            <div className={`flex flex-col gap-6 w-full ${isVideoOpen ? 'lg:items-start' : 'items-center'}`}>
-              <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className={`flex flex-col gap-4 md:gap-6 w-full ${isVideoOpen ? 'lg:items-start' : 'items-center'}`}>
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 <Link
                   to="/donate"
-                  className="bg-brand-orange hover:bg-white hover:text-brand-orange text-white text-xl font-black px-12 py-5 rounded-full shadow-[0_0_30px_rgba(255,127,50,0.4)] hover:shadow-xl transition-all hover:-translate-y-1 animate-pulse flex items-center gap-3 uppercase tracking-widest"
+                  className="w-full sm:w-auto text-center bg-brand-orange hover:bg-white hover:text-brand-orange text-white text-base sm:text-xl font-black px-8 sm:px-12 py-4 sm:py-5 rounded-full shadow-[0_0_30px_rgba(255,127,50,0.4)] hover:shadow-xl transition-all hover:-translate-y-1 animate-pulse flex items-center justify-center gap-3 uppercase tracking-widest"
                 >
-                  Save a Life Now <ArrowRight className="h-6 w-6" />
+                  Save a Life Now <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Link>
 
                 {!isVideoOpen && (
                   <button
                     onClick={() => setIsVideoOpen(true)}
-                    className="flex items-center gap-2 px-8 py-5 rounded-full bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-sm backdrop-blur-md border border-white/20 transition-all hover:scale-105"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-4 sm:py-5 rounded-full bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-sm backdrop-blur-md border border-white/20 transition-all hover:scale-105"
                   >
                     Past Highlights
                     <PlayCircle className="h-4 w-4 text-brand-cyan" />
@@ -129,7 +155,7 @@ const Home: React.FC = () => {
 
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-pale/60">
                 <ShieldCheck className="h-4 w-4" />
-                <span>Organized by MMA Foundation | Tax Exempt</span>
+                <span>Organized by Malaysian Medical Association | Tax Exempt</span>
               </div>
             </div>
           </div>
@@ -194,23 +220,85 @@ const Home: React.FC = () => {
       )}
 
       {/* 3. IMPACT STATS STRIP (Social Proof) */}
-      <section className="py-12 bg-white relative z-20 -mt-10 mx-4 md:mx-0">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-white rounded-[2rem] shadow-2xl border border-brand-grey/20 p-8 md:p-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <section className="py-8 md:py-12 bg-white relative z-20 -mt-6 md:-mt-10 mx-2 md:mx-0">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-2xl border border-brand-grey/20 p-6 sm:p-8 md:p-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
               {[
-                { label: 'Raised', value: raisedDisplay, icon: TrendingUp },
+                { label: 'Raised', value: 'RM 1.2M', icon: TrendingUp },
                 { label: 'Cycled', value: '3,900 KM', icon: Map },
                 { label: 'Tax Relief', value: '100%', icon: ShieldCheck },
-                { label: 'Charities', value: '2 Lifelines', icon: Heart }
-              ].map((stat, i) => (
-                <div key={i} className="text-center md:text-left flex flex-col items-center md:items-start group">
-                  <stat.icon className="h-8 w-8 text-brand-cyan mb-3 group-hover:scale-110 transition-transform" />
-                  <div className="text-3xl lg:text-4xl font-black text-brand-navy tracking-tight font-heading">{stat.value}</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-brand-slate/60 group-hover:text-brand-orange transition-colors">{stat.label}</div>
-                </div>
+                { label: 'Charities', value: '5 Beneficiary', icon: Heart }
+              ].map((stat, i) => {
+                const isSpecial = stat.value === '5 Beneficiary';
+                return (
+                  <div key={i} className="text-center md:text-left flex flex-col items-center md:items-start group w-full">
+                    <stat.icon className="h-8 w-8 text-brand-cyan mb-3 group-hover:scale-110 transition-transform" />
+                    {isSpecial ? (
+                      <div className="flex flex-col lg:flex-row lg:items-baseline gap-0 lg:gap-2 text-brand-navy">
+                        <span className="text-3xl sm:text-4xl lg:text-4xl font-black tracking-tight font-heading leading-tight">5</span>
+                        <span className="text-2xl sm:text-3xl xl:text-3xl font-black tracking-tight font-heading leading-tight">Beneficiary</span>
+                      </div>
+                    ) : (
+                      <div className="text-3xl sm:text-4xl lg:text-4xl font-black text-brand-navy tracking-tight font-heading leading-tight break-words max-w-full">
+                        {stat.value}
+                      </div>
+                    )}
+                    <div className="text-[10px] font-black uppercase tracking-widest text-brand-slate/60 group-hover:text-brand-orange transition-colors mt-1">{stat.label}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DONATION THERMOMETER */}
+      <section className="py-16 bg-brand-navy">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <div className="text-brand-cyan font-black text-xs uppercase tracking-[0.3em] mb-2">Fundraising Progress</div>
+            <h2 className="text-3xl md:text-4xl font-black text-white font-heading">Together, We Ride Towards {goalDisplay}</h2>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
+            {/* Labels */}
+            <div className="flex justify-between items-end mb-3">
+              <div>
+                <div className="text-brand-cyan font-black text-2xl font-heading">{raisedDisplay}</div>
+                <div className="text-white/50 text-xs font-bold uppercase tracking-widest">Raised so far</div>
+              </div>
+              <div className="text-right">
+                <div className="text-white font-black text-2xl font-heading">{goalDisplay}</div>
+                <div className="text-white/50 text-xs font-bold uppercase tracking-widest">Goal</div>
+              </div>
+            </div>
+
+            {/* Thermometer Bar */}
+            <div className="w-full h-8 bg-white/10 rounded-full overflow-hidden relative">
+              <div
+                className="h-full rounded-full transition-all duration-1000 relative overflow-hidden"
+                style={{ width: `${donationPercent}%`, background: 'linear-gradient(90deg, #00AEEF, #F97316)' }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+              </div>
+              {/* Milestone markers */}
+              {[25, 50, 75].map(m => (
+                <div key={m} className="absolute top-0 bottom-0 w-0.5 bg-white/20" style={{ left: `${m}%` }} />
               ))}
             </div>
+
+            <div className="flex justify-between text-white/30 text-[10px] font-bold uppercase tracking-widest mt-2">
+              <span>0%</span>
+              <span className="text-brand-orange font-black text-sm">{donationPercent.toFixed(1)}% Funded</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link to="/donate" className="inline-block bg-brand-orange text-white font-black px-10 py-4 rounded-full hover:bg-brand-cyan hover:text-brand-navy transition-all shadow-xl uppercase tracking-widest text-sm">
+              Donate Now
+            </Link>
           </div>
         </div>
       </section>
@@ -260,7 +348,7 @@ const Home: React.FC = () => {
 
             {/* The Why */}
             <div>
-              <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm animate-fade-in">Our Core Mission</div>
+              <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm animate-fade-in">Our Core Mission 2026</div>
               <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-6 tracking-tighter font-heading">Two Causes. <br />One Lifeline.</h2>
               <p className="text-lg text-brand-slate font-medium mb-8 leading-relaxed">
                 Sepeda Amal Borneo is more than a cycling event; it is a movement. We ride to turn awareness into action, ensuring that no child is denied medical care due to lack of funds.
@@ -286,7 +374,7 @@ const Home: React.FC = () => {
                         See How We Help <ArrowRight className="h-3 w-3" />
                       </Link>
                       <Link to="/donate?beneficiary=MAPS" className="text-[10px] font-black text-brand-orange uppercase tracking-widest hover:text-brand-navy transition-colors flex items-center gap-1">
-                        Donate Directly →
+                        Donate Now →
                       </Link>
                     </div>
                   </div>
@@ -309,7 +397,7 @@ const Home: React.FC = () => {
                         See How We Help <ArrowRight className="h-3 w-3" />
                       </Link>
                       <Link to="/donate?beneficiary=MyPOPI" className="text-[10px] font-black text-brand-orange uppercase tracking-widest hover:text-brand-navy transition-colors flex items-center gap-1">
-                        Donate Directly →
+                        Donate Now →
                       </Link>
                     </div>
                   </div>
@@ -362,13 +450,9 @@ const Home: React.FC = () => {
             <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">The Challenge</div>
             <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-8 tracking-tighter font-heading">Kota Kinabalu to Miri.</h2>
             <div className="max-w-5xl mx-auto rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden text-white border border-brand-cyan/20 group">
-              {/* Background Image */}
-              <div className="absolute inset-0 z-0">
-                <img
-                  src="/assets/images/map-route.webp"
-                  alt="Kota Kinabalu to Miri Route"
-                  className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-[2000ms]"
-                />
+              {/* Background Map */}
+              <div className="absolute inset-0 z-0 pointer-events-none">
+                <BorneoRouteMap className="w-full h-full opacity-60 group-hover:scale-105 transition-transform duration-[2000ms]" />
                 <div className="absolute inset-0 bg-brand-navy/60 mix-blend-multiply"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"></div>
               </div>
@@ -376,7 +460,7 @@ const Home: React.FC = () => {
               {/* Content */}
               <div className="relative z-10">
                 <MapPin className="h-16 w-16 text-brand-cyan mx-auto mb-6 animate-bounce" />
-                <h3 className="text-5xl md:text-6xl font-black mb-4 font-heading tracking-tight">660 KM</h3>
+                <h3 className="text-5xl md:text-6xl font-black mb-4 font-heading tracking-tight text-white drop-shadow-[0_0_15px_rgba(12,223,237,0.8)]">680 KM</h3>
                 <p className="text-brand-pale font-medium text-xl max-w-2xl mx-auto leading-relaxed">
                   A high-endurance cross-country expedition across the rugged heart of Borneo.
                 </p>
@@ -410,36 +494,54 @@ const Home: React.FC = () => {
             ref={scrollContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-8"
           >
-            {ridersList.map((rider) => (
-              <div key={rider.id} className="bg-white rounded-[2rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all group">
-                <div className="h-64 w-full rounded-2xl overflow-hidden mb-6 relative">
-                  <img src={rider.image} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            {featuredCyclists.map((rider) => (
+              <div key={rider._id} className="bg-white rounded-[2rem] p-6 border border-brand-grey/20 hover:border-brand-orange/50 hover:shadow-xl transition-all group flex flex-col">
+                <div className="h-64 w-full rounded-2xl overflow-hidden mb-6 relative bg-slate-100 flex items-center justify-center">
+                  {rider.profileUrl ? (
+                    <img src={rider.profileUrl} alt={rider.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <User className="h-16 w-16 text-slate-300" />
+                  )}
                   <div className="absolute top-4 right-4 z-20">
                     <span className="bg-brand-orange text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-                      Coming Soon
+                      {rider.role}
                     </span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-brand-navy/90 to-transparent">
-                    <div className="text-white font-black text-xl font-heading">{rider.name}</div>
-                    <div className="text-brand-cyan text-[10px] font-bold uppercase tracking-widest">{rider.role}</div>
+                    <div className="text-white font-black text-xl font-heading leading-tight">{rider.name}</div>
                   </div>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-4 flex-grow">
                   <div className="flex justify-between text-[10px] font-black text-brand-slate uppercase tracking-widest mb-2">
                     <span>Raised: RM {rider.raised.toLocaleString()}</span>
                     <span className="text-brand-navy">Goal: RM {rider.goal.toLocaleString()}</span>
                   </div>
                   <div className="w-full h-3 bg-brand-pale/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-orange rounded-full bg-chain-fill" style={{ width: `${(rider.raised / rider.goal) * 100}%` }}></div>
+                    <div className="h-full bg-brand-orange rounded-full bg-chain-fill" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
                   </div>
                 </div>
 
-                <Link to="/donate" className="block w-full text-center border-2 border-brand-orange bg-white text-brand-orange font-black py-4 rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm uppercase tracking-widest">
-                  Donate to Mission
-                </Link>
+                <div className="flex gap-2">
+                  <Link to={`/riders/${encodeURIComponent(rider.shareSlug)}`} className="flex-grow text-center bg-brand-navy text-white font-black py-3 rounded-xl hover:bg-brand-cyan hover:text-brand-navy transition-all text-sm uppercase tracking-widest">
+                    View Profile
+                  </Link>
+                  <Link to={`/donate?cyclist=${encodeURIComponent(rider.shareSlug)}`} className="px-4 py-3 border-2 border-brand-orange bg-white text-brand-orange font-black rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm">
+                    <Heart className="h-4 w-4" />
+                  </Link>
+                </div>
               </div>
             ))}
+            
+            {featuredCyclists.length === 0 && (
+              <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-white rounded-[2rem] p-12 text-center border border-slate-100">
+                <div className="h-16 w-16 bg-brand-pale mx-auto rounded-full flex items-center justify-center mb-4">
+                  <User className="h-8 w-8 text-brand-navy" />
+                </div>
+                <h3 className="text-2xl font-black text-brand-navy mb-2">Cyclists Registration Ongoing</h3>
+                <p className="text-brand-slate font-medium">We are currently vetting and onboarding our elite riders for SAB 2026. Check back soon to see their profiles.</p>
+              </div>
+            )}
           </div>
 
         </div>
@@ -463,21 +565,17 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. CORPORATE TRUST STRIP (New) */}
+      {/* 8. CORPORATE TRUST STRIP */}
       <section className="py-16 bg-slate-50 border-t border-brand-pale">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h3 className="text-sm font-black text-brand-slate/40 mb-10 uppercase tracking-[0.3em]">Our Partners in Hope</h3>
           <div className="flex flex-wrap justify-center items-center gap-12 lg:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-            {/* Logos */}
             <div className="h-48 w-96 flex items-center justify-center">
               <img src="/assets/logos/MMA_logo.png" alt="MMA" className="max-h-full max-w-full object-contain" />
             </div>
             <div className="h-48 w-96 flex items-center justify-center">
               <img src="/assets/logos/MMAF_logo.png" alt="MMAF" className="max-h-full max-w-full object-contain" />
             </div>
-
-            {/* Placeholders */}
-            <div className="h-24 px-10 bg-brand-pale/20 rounded-xl flex items-center justify-center font-bold text-slate-400 text-sm uppercase tracking-widest border border-brand-pale">Global Sponsor</div>
           </div>
           <Link to="/contact" className="inline-block mt-12 text-[10px] font-black text-brand-orange hover:text-brand-navy border-b-2 border-brand-orange hover:border-brand-navy pb-1 transition-all uppercase tracking-widest">
             Become a Corporate Partner →

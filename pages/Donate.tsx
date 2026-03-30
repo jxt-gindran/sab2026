@@ -17,7 +17,7 @@ import {
   Flag
 } from 'lucide-react';
 
-import { useAction, useMutation } from 'convex/react';
+import { useAction, useMutation, useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 
 import ridersData from '../data/riders.json';
@@ -34,13 +34,15 @@ const Donate: React.FC = () => {
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
-  const [selectedRider, setSelectedRider] = useState<number | null>(null);
+  const [selectedRider, setSelectedRider] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'HITPAY' | 'TRANSFER' | null>(null);
   const [copied, setCopied] = useState(false);
 
   // Convex Hooks
   const createPaymentLink = useAction(api.payments.createLink);
   const addDonation = useMutation(api.donations.add);
+  const allCyclists = useQuery(api.cyclists.listAll) || [];
+  const cyclists = allCyclists.filter((c: any) => !c.isArchived);
 
   // Form State
   const [donorName, setDonorName] = useState('');
@@ -48,16 +50,15 @@ const Donate: React.FC = () => {
   const [donorPhone, setDonorPhone] = useState('');
   const [donorIC, setDonorIC] = useState('');
 
-  // Check if a rider was passed in the URL (e.g. from Home page)
+  // Check if a rider was passed in the URL (e.g. from Home page or Share link)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    // const riderId = params.get('rider');
-    // if (riderId) {
-    //   setSelectedRider(parseInt(riderId));
-    // }
-    const beneficiary = params.get('beneficiary');
-    // Logic for beneficiary handling if needed (currently rider focused)
-  }, [location]);
+    const slug = params.get('cyclist');
+    if (slug && cyclists.length > 0) {
+      const match = cyclists.find((c: any) => c.shareSlug === slug);
+      if (match) setSelectedRider(match._id);
+    }
+  }, [location, cyclists]);
 
   const nextStep = () => {
     if (step === 2) {
@@ -95,91 +96,78 @@ const Donate: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white py-24 px-4 font-sans text-brand-slate">
+    <div className="min-h-screen bg-white pt-20 pb-12 px-4 font-sans text-brand-slate">
 
       {/* 💳 DONATION WIZARD CONTAINER */}
       <div className="max-w-5xl mx-auto animate-fade-in">
 
         {/* HOW YOUR DONATION WORKS (Transparency Layer) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 border-b border-brand-pale pb-12">
-          <div className="flex flex-col items-center text-center group">
-            <div className="h-16 w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-6 text-brand-navy group-hover:bg-brand-cyan group-hover:text-brand-navy transition-colors">
-              <Grab className="h-8 w-8" />
+        <div className="grid grid-cols-3 gap-4 mb-10 border-b border-brand-pale pb-10">
+          {[
+            { icon: Grab, title: 'Select a Cause', desc: 'General Fund or a specific Rider.' },
+            { icon: Lock, title: '100% Secure', desc: 'Direct to MMA Foundation (Tax Exempt).' },
+            { icon: Flag, title: 'Get Receipt', desc: 'LHDN-compliant tax receipt instantly.' },
+          ].map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="flex flex-col items-center text-center group">
+              <div className="h-10 w-10 md:h-16 md:w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-3 md:mb-6 text-brand-navy group-hover:bg-brand-cyan transition-colors">
+                <Icon className="h-5 w-5 md:h-8 md:w-8" />
+              </div>
+              <div className="font-black text-brand-navy uppercase tracking-widest text-[9px] md:text-xs mb-1">{title}</div>
+              <div className="text-[10px] md:text-sm text-brand-slate font-medium hidden sm:block">{desc}</div>
             </div>
-            <div className="font-black text-brand-navy uppercase tracking-widest text-xs mb-2">Select a Cause</div>
-            <div className="text-sm text-brand-slate font-medium max-w-xs">Choose to support the General Fund or a specific Rider.</div>
-          </div>
-
-          <div className="flex flex-col items-center text-center group">
-            <div className="h-16 w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-6 text-brand-navy group-hover:bg-brand-cyan group-hover:text-brand-navy transition-colors">
-              <Lock className="h-8 w-8" />
-            </div>
-            <div className="font-black text-brand-navy uppercase tracking-widest text-xs mb-2">100% Secure</div>
-            <div className="text-sm text-brand-slate font-medium max-w-xs">Funds go directly to the MMA Foundation (Tax Exempt).</div>
-          </div>
-
-          <div className="flex flex-col items-center text-center group">
-            <div className="h-16 w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-6 text-brand-navy group-hover:bg-brand-cyan group-hover:text-brand-navy transition-colors">
-              <Flag className="h-8 w-8" />
-            </div>
-            <div className="font-black text-brand-navy uppercase tracking-widest text-xs mb-2">Receive Receipt</div>
-            <div className="text-sm text-brand-slate font-medium max-w-xs">Get your LHDN-compliant tax exemption receipt instantly.</div>
-          </div>
+          ))}
         </div>
 
         {/* Progress Stepper */}
-
-        <div className="flex items-center justify-between mb-12 px-8 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-8 px-2 sm:px-8 max-w-2xl mx-auto">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex items-center group">
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center font-black text-sm transition-all shadow-lg
+            <div key={i} className="flex items-center">
+              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center font-black text-xs md:text-sm transition-all shadow-md
                 ${step >= i ? 'bg-brand-navy text-white scale-110' : 'bg-white text-slate-300 border border-slate-200'}
               `}>
-                {step > i ? <CheckCircle2 className="h-5 w-5" /> : i}
+                {step > i ? <CheckCircle2 className="h-4 w-4" /> : i}
               </div>
               {i < 4 && (
                 <div
-                  className={`h-3 w-12 mx-2 md:w-24 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
-                  style={{
-                    backgroundImage: `repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 6px)`
-                  }}
+                  className={`h-2 w-6 sm:w-12 md:w-24 mx-1 sm:mx-2 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
+                  style={{ backgroundImage: `repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 6px)` }}
                 />
               )}
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* MAIN FORM PANEL */}
           <div className="lg:col-span-8">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-brand-navy/5 p-10 md:p-14 border border-brand-grey/20 min-h-[600px] flex flex-col relative overflow-hidden">
+            <div className="bg-white rounded-[2rem] shadow-2xl shadow-brand-navy/5 p-6 sm:p-10 md:p-14 border border-brand-grey/20 min-h-[500px] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-brand-cyan"></div>
 
               {/* STEP 1: AMOUNT & BENEFICIARY */}
               {step === 1 && (
                 <div className="animate-fade-in flex-grow">
-                  <h2 className="text-4xl font-black text-brand-navy mb-4 tracking-tighter leading-none font-heading">Choose Your Impact.</h2>
-                  <p className="text-brand-slate font-medium mb-12">Select an amount or enter your own. Every ringgit counts towards a life-saving surgery.</p>
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">Choose Your Impact.</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">Select an amount or enter your own. Every ringgit counts towards a life-saving surgery.</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
                     {IMPACT_TIERS.map((tier) => (
                       <button
                         key={tier.amount}
                         onClick={() => { setSelectedAmount(tier.amount); setCustomAmount(''); }}
-                        className={`text-left p-6 rounded-3xl border-4 transition-all group relative overflow-hidden
+                        className={`text-left p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-4 transition-all group relative overflow-hidden
                           ${selectedAmount === tier.amount
                             ? 'border-brand-cyan bg-brand-navy'
                             : 'border-slate-50 bg-slate-50 hover:border-brand-cyan/30'
                           }`}
                       >
-                        <div className={`text-3xl font-black mb-1 font-heading ${selectedAmount === tier.amount ? 'text-brand-cyan' : 'text-brand-navy'}`}>
+                        <div className={`text-xl sm:text-3xl font-black mb-1 font-heading ${selectedAmount === tier.amount ? 'text-brand-cyan' : 'text-brand-navy'}`}>
                           RM {tier.amount}
                         </div>
-                        <div className={`font-black uppercase tracking-widest text-[10px] mb-3 ${selectedAmount === tier.amount ? 'text-white/60' : 'text-slate-400'}`}>
+                        <div className={`font-black uppercase tracking-widest text-[9px] sm:text-[10px] mb-1 sm:mb-3 ${selectedAmount === tier.amount ? 'text-white/60' : 'text-slate-400'}`}>
                           {tier.label}
                         </div>
-                        <p className={`text-xs leading-relaxed font-medium ${selectedAmount === tier.amount ? 'text-brand-pale' : 'text-slate-500'}`}>
+                        <p className={`text-[10px] sm:text-xs leading-relaxed font-medium hidden sm:block ${selectedAmount === tier.amount ? 'text-brand-pale' : 'text-slate-500'}`}>
                           {tier.description}
                         </p>
                       </button>
@@ -197,15 +185,34 @@ const Donate: React.FC = () => {
                     />
                   </div>
 
-                  <div className="pt-8 border-t border-slate-100">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Supporting:</h3>
-                    <div className="flex flex-wrap gap-4">
+                  <div className="pt-6 border-t border-slate-100">
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Supporting:</h3>
+                    <div className="flex flex-wrap gap-2 sm:gap-4">
                       <button
                         onClick={() => setSelectedRider(null)}
-                        className="px-6 py-3 rounded-xl font-bold text-xs bg-brand-navy text-white shadow-lg uppercase tracking-widest transition-all"
+                        className={`px-6 py-3 rounded-xl font-bold text-xs shadow-lg uppercase tracking-widest transition-all ${
+                          selectedRider === null 
+                            ? 'bg-brand-navy text-white scale-105' 
+                            : 'bg-white text-brand-navy border border-slate-200 hover:border-brand-cyan'
+                        }`}
                       >
                         General Fund (SAB2026)
                       </button>
+                      
+                      {cyclists.map((c: any) => (
+                        <button
+                          key={c._id}
+                          onClick={() => setSelectedRider(c._id)}
+                          className={`px-6 py-3 flex items-center gap-3 rounded-xl font-bold text-xs shadow-lg uppercase tracking-widest transition-all ${
+                            selectedRider === c._id 
+                              ? 'bg-brand-cyan text-brand-navy scale-105' 
+                              : 'bg-white text-slate-500 border border-slate-200 hover:border-brand-cyan'
+                          }`}
+                        >
+                          {c.profileUrl && <img src={c.profileUrl} alt={c.name} className="w-6 h-6 rounded-full object-cover" />}
+                          {c.name}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -214,18 +221,20 @@ const Donate: React.FC = () => {
               {/* STEP 2: PERSONAL INFO */}
               {step === 2 && (
                 <div className="animate-fade-in flex-grow">
-                  <h2 className="text-4xl font-black text-brand-navy mb-4 tracking-tighter leading-none font-heading">Who's building hope?</h2>
-                  <p className="text-brand-slate font-medium mb-12">We need your details for the official tax receipt (LHDN).</p>
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">Who's building hope?</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">We need your details for the official tax receipt (LHDN).</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div className="bg-brand-pale/30 p-6 rounded-2xl border border-brand-pale mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-6">
+                    <div className="bg-brand-pale/30 p-4 sm:p-6 rounded-2xl border border-brand-pale mb-0 md:mb-8">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-full bg-brand-navy flex items-center justify-center text-white shrink-0">
                           <Heart size={20} />
                         </div>
                         <div>
                           <div className="text-xs font-bold text-brand-slate uppercase tracking-widest mb-1">Beneficiary</div>
-                          <div className="font-black text-brand-navy text-lg">General Fund (SAB2026)</div>
+                          <div className="font-black text-brand-navy text-lg">
+                            {selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General Fund (SAB2026)' : 'General Fund (SAB2026)'}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -281,8 +290,8 @@ const Donate: React.FC = () => {
               {/* STEP 3: PAYMENT METHOD */}
               {step === 3 && (
                 <div className="animate-fade-in flex-grow">
-                  <h2 className="text-4xl font-black text-brand-navy mb-4 tracking-tighter leading-none font-heading">The Final Step.</h2>
-                  <p className="text-brand-slate font-medium mb-12">Select your preferred payment method via our secure HitPay gateway.</p>
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">The Final Step.</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">Select your preferred payment method via our secure HitPay gateway.</p>
 
                   <div className="space-y-4 mb-10">
                     {[
@@ -292,22 +301,22 @@ const Donate: React.FC = () => {
                       <button
                         key={method.id}
                         onClick={() => setPaymentMethod(method.id as 'HITPAY' | 'TRANSFER')}
-                        className={`w-full flex items-center justify-between p-8 rounded-3xl border-4 transition-all
+                        className={`w-full flex items-center justify-between p-4 sm:p-8 rounded-2xl sm:rounded-3xl border-4 transition-all
                           ${paymentMethod === method.id
                             ? 'border-brand-navy bg-brand-navy text-white shadow-2xl shadow-brand-navy/30'
                             : 'border-slate-50 bg-slate-50 hover:border-brand-cyan/20 text-brand-navy'
                           }`}
                       >
-                        <div className="flex items-center gap-6">
-                          <div className={`h-16 w-16 rounded-2xl flex items-center justify-center ${paymentMethod === method.id ? 'bg-brand-cyan text-brand-navy' : 'bg-white text-brand-cyan'}`}>
-                            <method.icon className="h-8 w-8" />
+                        <div className="flex items-center gap-3 sm:gap-6">
+                          <div className={`h-10 w-10 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${paymentMethod === method.id ? 'bg-brand-cyan text-brand-navy' : 'bg-white text-brand-cyan'}`}>
+                            <method.icon className="h-5 w-5 sm:h-8 sm:w-8" />
                           </div>
                           <div className="text-left">
-                            <div className="text-xl font-black font-heading">{method.name}</div>
-                            <div className={`text-xs font-bold uppercase tracking-widest opacity-60`}>{method.subtitle}</div>
+                            <div className="text-base sm:text-xl font-black font-heading">{method.name}</div>
+                            <div className="text-[9px] sm:text-xs font-bold uppercase tracking-widest opacity-60">{method.subtitle}</div>
                           </div>
                         </div>
-                        <ChevronRight className={`h-6 w-6 ${paymentMethod === method.id ? 'text-brand-cyan' : 'text-slate-300'}`} />
+                        <ChevronRight className={`h-5 w-5 shrink-0 ${paymentMethod === method.id ? 'text-brand-cyan' : 'text-slate-300'}`} />
                       </button>
                     ))}
                   </div>
@@ -370,18 +379,21 @@ const Donate: React.FC = () => {
                                 phone: donorPhone,
                                 icNumber: donorIC,
                                 type: 'hitpay',
-                                reference: ref
+                                reference: ref,
+                                riderId: selectedRider || undefined
                               });
                             } catch (err) {
                               console.error('Failed to create pending record:', err);
                             }
 
+                            const beneficiaryName = selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General' : 'General';
                             const result = await createPaymentLink({
                               amount: totalAmount,
                               name: donorName,
                               email: donorEmail,
-                              purpose: `Donation for SAB2026 (Fund: General)`,
-                              reference: ref
+                              purpose: `Donation for SAB2026 (Fund: ${beneficiaryName})`,
+                              reference: ref,
+                              siteUrl: window.location.origin
                             });
 
                             if (result && result.url) {
@@ -407,7 +419,7 @@ const Donate: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="max-w-xl mx-auto animate-fade-in">
+                    <div className="max-w-5xl mx-auto animate-fade-in px-0">
                       {/* Manual Transfer View */}
                       <div className="h-24 w-24 bg-brand-cyan rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce-slow shadow-xl">
                         <CheckCircle2 className="h-12 w-12 text-brand-navy" />
@@ -423,14 +435,14 @@ const Donate: React.FC = () => {
                       </div>
 
                       <div className="bg-slate-50 rounded-[2rem] p-10 border border-slate-100 text-left shadow-inner">
-                        <div className="grid grid-cols-2 gap-8 mb-8">
+                        <div className="grid grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
                           <div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bank Name</div>
-                            <div className="text-lg font-black text-brand-navy leading-tight">UOB Malaysia</div>
+                            <div className="text-base sm:text-lg font-black text-brand-navy leading-tight">UOB Malaysia</div>
                           </div>
                           <div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Account Holder</div>
-                            <div className="text-lg font-black text-brand-navy leading-tight">MMA Foundation</div>
+                            <div className="text-base sm:text-lg font-black text-brand-navy leading-tight">MMA Foundation</div>
                           </div>
                         </div>
 
@@ -449,9 +461,25 @@ const Donate: React.FC = () => {
 
                         <div className="space-y-4">
                           <button
-                            onClick={() => {
-                              // Manual WhatsApp logic
-                              const text = encodeURIComponent(`Hi MMA Foundation, I have made a manual transfer of RM ${totalAmount} for SAB2026.\n\nName: ${donorName}\nPhone: ${donorPhone}\nEmail: ${donorEmail}\nRef: SAB2026\n\nPlease find my receipt attached.`);
+                            onClick={async () => {
+                              try {
+                                const ref = 'SAB-MAN-' + Date.now();
+                                await addDonation({
+                                  amount: totalAmount,
+                                  name: donorName,
+                                  email: donorEmail,
+                                  phone: donorPhone,
+                                  icNumber: donorIC,
+                                  type: 'manual',
+                                  reference: ref,
+                                  riderId: selectedRider || undefined
+                                });
+                              } catch (err) {
+                                console.error('Failed to create pending manual record:', err);
+                              }
+
+                              const beneficiaryName = selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General' : 'General';
+                              const text = encodeURIComponent(`Hi MMA Foundation, I have made a manual transfer of RM ${totalAmount} for SAB2026.\n\nName: ${donorName}\nPhone: ${donorPhone}\nEmail: ${donorEmail}\nBeneficiary: ${beneficiaryName}\nRef: SAB2026\n\nPlease find my receipt attached.`);
                               window.open(`https://wa.me/60145139470?text=${text}`, '_blank');
                             }}
                             className="w-full bg-[#25D366] text-white font-black py-4 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-[#128C7E] uppercase tracking-widest text-sm mb-4"
@@ -478,10 +506,10 @@ const Donate: React.FC = () => {
                                       message: 'Manual Transfer Receipt Upload',
                                       reference: 'Manual-' + Date.now()
                                     });
-                                    alert("Thank you! Your donation of RM " + totalAmount + " has been recorded.\n\nPlease also email your receipt to foundation@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
+                                    alert("Thank you! Your donation of RM " + totalAmount + " has been recorded.\n\nPlease also email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
                                   } catch (err) {
                                     console.error(err);
-                                    alert("Please email your receipt to foundation@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
+                                    alert("Please email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
                                   }
                                 }
                               }}
@@ -500,7 +528,7 @@ const Donate: React.FC = () => {
               )}
 
               {/* ACTION BUTTONS */}
-              <div className="mt-10 flex items-center justify-between pt-10 border-t border-slate-50">
+              <div className="mt-6 sm:mt-10 flex items-center justify-between pt-6 sm:pt-10 border-t border-slate-50">
                 {step > 1 && step < 4 && (
                   <button
                     onClick={prevStep}
@@ -516,7 +544,7 @@ const Donate: React.FC = () => {
                   <button
                     onClick={nextStep}
                     disabled={step === 1 && totalAmount === 0}
-                    className={`ml-auto flex items-center gap-3 bg-brand-navy text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-brand-navy/20
+                    className={`ml-auto flex items-center gap-3 bg-brand-navy text-white px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-brand-navy/20
                       ${step === 1 && totalAmount === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-cyan hover:text-brand-navy hover:-translate-y-1'}
                     `}
                   >

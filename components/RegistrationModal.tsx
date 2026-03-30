@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { X, UserPlus, Heart, Loader2 } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X, UserPlus, AlertTriangle, ExternalLink, Heart } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 
 interface RegistrationModalProps {
     isOpen: boolean;
@@ -7,12 +10,10 @@ interface RegistrationModalProps {
 }
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }) => {
-    const [iframeLoaded, setIframeLoaded] = useState(false);
-
-    // Reset loading state when modal reopens
-    React.useEffect(() => {
-        if (isOpen) setIframeLoaded(false);
-    }, [isOpen]);
+    const navigate = useNavigate();
+    const settings = useQuery(api.admin.getPublicSettings) || [];
+    const isFull = settings.find(s => s.key === 'registration_status')?.value === 'full';
+    const formUrl = settings.find(s => s.key === 'registration_form_url')?.value || '';
 
     if (!isOpen) return null;
 
@@ -25,17 +26,24 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
             />
 
             {/* Modal */}
-            <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl relative z-10 overflow-hidden animate-scale-in border border-slate-100 flex flex-col max-h-[90vh]">
+            <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl relative z-10 overflow-hidden animate-scale-in border border-slate-100">
 
                 {/* Header Visual */}
-                <div className="h-48 bg-brand-navy relative overflow-hidden flex-shrink-0">
+                <div className={`h-48 relative overflow-hidden flex-shrink-0 ${isFull ? 'bg-slate-800' : 'bg-brand-navy'}`}>
                     <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-brand-cyan/20 blur-3xl rounded-full" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-                        <div className="bg-brand-cyan p-4 rounded-2xl mb-4 shadow-xl">
-                            <UserPlus className="h-8 w-8 text-brand-navy" />
+                        <div className={`p-4 rounded-2xl mb-4 shadow-xl ${isFull ? 'bg-red-500' : 'bg-brand-cyan'}`}>
+                            {isFull
+                                ? <AlertTriangle className="h-8 w-8 text-white" />
+                                : <UserPlus className="h-8 w-8 text-brand-navy" />
+                            }
                         </div>
-                        <h2 className="text-3xl font-black text-white tracking-tighter">Join the Movement.</h2>
-                        <p className="text-brand-cyan/80 font-black text-xs uppercase tracking-[0.3em]">Become an SAB 2026 Champion</p>
+                        <h2 className="text-3xl font-black text-white tracking-tighter">
+                            {isFull ? 'Registration Closed.' : 'Join the Movement.'}
+                        </h2>
+                        <p className="text-brand-cyan/80 font-black text-xs uppercase tracking-[0.3em]">
+                            {isFull ? 'All Cyclist Slots Are Filled' : 'Become an SAB 2026 Champion'}
+                        </p>
                     </div>
                     <button
                         onClick={onClose}
@@ -46,59 +54,79 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                 </div>
 
                 {/* Content */}
-                <div className="p-10 overflow-y-auto">
-                    <div className="space-y-8 mb-10">
-                        <div className="flex gap-6">
-                            <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-navy flex-shrink-0 font-black">1</div>
-                            <div>
-                                <h4 className="font-black text-brand-navy text-lg mb-1">Official Registration</h4>
-                                <p className="text-slate-500 font-medium">Fill out the official MMA SAB 2026 participation form via Google Forms.</p>
+                <div className="p-10">
+                    {isFull ? (
+                        /* FULL STATE */
+                        <div className="text-center">
+                            <div className="bg-red-50 border border-red-100 rounded-2xl p-8 mb-8">
+                                <p className="text-slate-600 font-medium text-lg leading-relaxed mb-2">
+                                    Thank you for your interest in SAB 2026.
+                                </p>
+                                <p className="text-slate-500 font-medium">
+                                    All cyclist slots have been filled for this year's event. Stay tuned for future announcements.
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                <button
+                                    onClick={() => { onClose(); navigate('/donate'); }}
+                                    className="block w-full text-center bg-brand-orange text-white font-black py-4 rounded-2xl hover:bg-brand-cyan hover:text-brand-navy transition-all uppercase tracking-widest text-sm shadow-lg"
+                                >
+                                    Support a Cyclist Instead
+                                </button>
+                                <button
+                                    onClick={onClose}
+                                    className="block w-full text-center border-2 border-slate-200 text-slate-400 font-black py-4 rounded-2xl hover:border-brand-navy hover:text-brand-navy transition-all uppercase tracking-widest text-sm"
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
-                        <div className="flex gap-6">
-                            <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-navy flex-shrink-0 font-black">2</div>
-                            <div>
-                                <h4 className="font-black text-brand-navy text-lg mb-1">Health & Safety</h4>
-                                <p className="text-slate-500 font-medium">Provide your medical clearance and endurance experience for the 660km ride.</p>
+                    ) : formUrl ? (
+                        /* OPEN WITH FORM LINK */
+                        <div className="text-center">
+                            <div className="space-y-6 mb-8 text-left">
+                                {[
+                                    { n: '1', title: 'Official Registration', desc: 'Fill out the official MMA SAB 2026 participation form.' },
+                                    { n: '2', title: 'Health & Safety', desc: 'Provide medical clearance and endurance experience for the 680km ride.' },
+                                    { n: '3', title: 'Fundraising Page', desc: 'Once verified, we will create your custom Champion profile on this site.' },
+                                ].map(s => (
+                                    <div key={s.n} className="flex gap-4">
+                                        <div className="h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-brand-navy flex-shrink-0 font-black text-sm border border-slate-200">{s.n}</div>
+                                        <div>
+                                            <h4 className="font-black text-brand-navy mb-0.5">{s.title}</h4>
+                                            <p className="text-slate-500 font-medium text-sm">{s.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-start gap-3 mb-8">
+                                <Heart className="h-4 w-4 text-brand-orange flex-shrink-0 mt-0.5" />
+                                <p className="text-xs font-bold text-slate-500 leading-relaxed uppercase tracking-wider">
+                                    Minimum fundraising commitment: RM 3,000. Subject to medical review.
+                                </p>
+                            </div>
+                            <a
+                                href={formUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 w-full bg-brand-cyan text-brand-navy font-black py-5 rounded-2xl hover:bg-brand-orange hover:text-white transition-all uppercase tracking-widest text-sm shadow-lg"
+                            >
+                                <ExternalLink className="h-4 w-4" />
+                                Open Registration Form
+                            </a>
                         </div>
-                        <div className="flex gap-6">
-                            <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-navy flex-shrink-0 font-black">3</div>
-                            <div>
-                                <h4 className="font-black text-brand-navy text-lg mb-1">Fundraising Page</h4>
-                                <p className="text-slate-500 font-medium">Once verified, we will create your custom "Champion" profile on this site.</p>
-                            </div>
+                    ) : (
+                        /* OPEN BUT NO FORM URL SET YET */
+                        <div className="text-center">
+                            <p className="text-slate-500 font-medium mb-6">Registration form coming soon. Stay tuned!</p>
+                            <button
+                                onClick={onClose}
+                                className="border-2 border-brand-navy text-brand-navy font-black px-8 py-4 rounded-2xl hover:bg-brand-navy hover:text-white transition-all uppercase tracking-widest text-sm"
+                            >
+                                Close
+                            </button>
                         </div>
-                    </div>
-
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-start gap-4 mb-10">
-                        <Heart className="h-5 w-5 text-brand-coral flex-shrink-0 mt-1" />
-                        <p className="text-xs font-bold text-slate-500 leading-relaxed uppercase tracking-wider">
-                            Note: Participation is subject to medical review and slot availability. All riders commit to a minimum fundraising target of RM 3,000.
-                        </p>
-                    </div>
-
-                    <div className="w-full h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 relative">
-                        {/* Loading Indicator */}
-                        {!iframeLoaded && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 z-10">
-                                <Loader2 className="h-10 w-10 text-brand-cyan animate-spin mb-4" />
-                                <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Loading Registration Form...</p>
-                            </div>
-                        )}
-                        <iframe
-                            src="https://docs.google.com/forms/d/e/1FAIpQLSdegK8dnkEAvIzY8n2p1KHDy8VryiGw7mRewrA4z9jHtYNkGQ/viewform?embedded=true"
-                            width="100%"
-                            height="100%"
-                            frameBorder="0"
-                            marginHeight={0}
-                            marginWidth={0}
-                            title="Registration Form"
-                            onLoad={() => setIframeLoaded(true)}
-                        >
-                            Loading…
-                        </iframe>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

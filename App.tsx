@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -14,6 +14,7 @@ import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import ThankYou from './pages/ThankYou';
 import PaymentCancelled from './pages/PaymentCancelled';
+import CyclistProfile from './pages/CyclistProfile';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -25,7 +26,7 @@ const ScrollToTop = () => {
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         <ScrollToTop />
         <Navbar />
@@ -43,6 +44,7 @@ const App: React.FC = () => {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+            <Route path="/riders/:slug" element={<CyclistProfile />} />
             <Route path="*" element={
               <div className="min-h-screen bg-white flex items-center justify-center px-4">
                 <div className="text-center">
@@ -56,7 +58,7 @@ const App: React.FC = () => {
         </main>
         <Footer />
       </div>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 

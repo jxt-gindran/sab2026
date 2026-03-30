@@ -11,6 +11,7 @@ import { Feature } from "ol";
 import { LineString } from "ol/geom";
 import { Style, Stroke } from "ol/style";
 import Overlay from "ol/Overlay";
+import { defaults as defaultInteractions } from "ol/interaction";
 import { Flag, Trophy, MapPin, Compass } from "lucide-react";
 
 // --- 1. DATA ---
@@ -156,7 +157,11 @@ const stops = [
     { id: "stop-miri", name: "Miri", lng: 113.990089, lat: 4.399726, type: "finish", desc: "Finale" },
 ];
 
-export function BorneoRouteMap() {
+interface BorneoRouteMapProps {
+    className?: string;
+}
+
+export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<Map | null>(null);
 
@@ -184,7 +189,7 @@ export function BorneoRouteMap() {
         });
 
         // 3. Initialize Map
-        const initialZoom = window.innerWidth < 768 ? 6.5 : 8.5; // Responsive Zoom (6.5 mobile / 8.5 desktop) - 5 is too zoomed out for partial route visibility
+        const initialZoom = window.innerWidth < 768 ? 6.5 : 7.8; // Set lower zoom level for desktop to see more context
 
         const map = new Map({
             target: mapRef.current,
@@ -199,7 +204,7 @@ export function BorneoRouteMap() {
                 routeLayer,
             ],
             view: new View({
-                center: fromLonLat([115.0, 5.2]), // Center of Borneo Route
+                center: fromLonLat([115.4, 5.2]), // Adjusted Center of Borneo Route (moved slightly east to center route)
                 zoom: initialZoom,
                 minZoom: 5, // Allow zooming out further on mobile
                 maxZoom: 10,
@@ -207,6 +212,7 @@ export function BorneoRouteMap() {
                 rotation: 0, // Point North
             }),
             controls: [], // Remove default controls for cleaner look
+            interactions: [], // Lock map from zooming and panning
         });
 
         // 4. Add Overlays (Markers)
@@ -232,7 +238,7 @@ export function BorneoRouteMap() {
     }, []);
 
     return (
-        <div className="relative w-full h-[360px] md:h-[550px] rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100">
+        <div className={className ? `relative overflow-hidden ${className}` : "relative w-full h-[360px] md:h-[550px] rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
 
             {/* MAP CONTAINER */}
             {/* Deep Space Blue Theme: Adjusted filters for better contrast */}

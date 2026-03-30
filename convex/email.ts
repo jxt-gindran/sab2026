@@ -7,8 +7,8 @@ import { v } from "convex/values";
 // Make sure to set RESEND_API_KEY in Convex Dashboard
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
-const ADMIN_EMAIL = "sab.mma.org.my@gmail.com"; // Replace with actual admin email
-const FROM_EMAIL = "SAB2026 Support <onboarding@resend.dev>"; // Update with your verified domain later
+const ADMIN_EMAIL = "sab2026@mma.org.my";
+const FROM_EMAIL = "SAB2026 Support <sab2026@mma.org.my>"; // Update with your verified domain later
 
 // 1. Send Thank You Email to Donor (HitPay Success)
 export const sendThankYou = internalAction({

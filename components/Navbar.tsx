@@ -21,6 +21,7 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
+    { name: 'Home', path: '/' },
     { name: 'The Mission', path: '/mission' },
     { name: 'Our Legacy', path: '/legacy' },
     { name: 'The Ride', path: '/ride' },
@@ -48,24 +49,14 @@ const Navbar: React.FC = () => {
           <div className="flex items-center justify-between h-20">
 
             {/* Logo / Brand */}
-            <Link to="/" className="flex-shrink-0 flex items-center gap-5 group" onClick={() => window.scrollTo(0, 0)}>
-              <div className="relative">
-                <div className="h-20 w-20 bg-brand-navy rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500 overflow-hidden relative">
-
-                  <img
-                    src="/assets/logos/SAB%20Logo_%20Light.png"
-                    alt="SAB"
-                    className="absolute inset-0 h-full w-full object-contain z-10 p-1.5"
-                    onError={(e) => (e.currentTarget.style.display = 'none')}
-                  />
-                </div>
-              </div>
-              <div className={`flex flex-col border-l-2 pl-5 ${isScrolled || !isDarkHeroPage ? 'border-brand-pale' : 'border-white/30'}`}>
-                <span className={`font-black text-2xl tracking-tighter leading-none ${logoTextClass}`}>SEPEDA AMAL</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-base font-black text-brand-cyan tracking-widest">BORNEO</span>
-                  <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full">2026</span>
-                </div>
+            <Link to="/" className="flex-shrink-0 group py-2" onClick={() => window.scrollTo(0, 0)}>
+              <div className="h-16 w-16 md:h-20 md:w-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-500 relative">
+                <img
+                  src={isScrolled || !isDarkHeroPage ? '/assets/logos/SABFavicon.png' : '/assets/logos/SAB%20Logo_%20Light.png'}
+                  alt="SAB"
+                  className="absolute inset-0 h-full w-full object-contain z-10"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
               </div>
             </Link>
 
@@ -82,15 +73,17 @@ const Navbar: React.FC = () => {
                   </Link>
                 ))}
 
-                {/* Secondary Action: Register (Ghost) */}
+                {/* Secondary Action: Register (Ghost — Full) */}
                 <button
                   onClick={() => setIsRegOpen(true)}
-                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:-translate-y-1 active:scale-95 ${isScrolled || !isDarkHeroPage
-                    ? 'border-brand-cyan text-brand-cyan hover:bg-brand-cyan hover:text-brand-navy'
-                    : 'border-white/50 text-white hover:bg-white hover:text-brand-navy'
-                    }`}
+                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:-translate-y-1 active:scale-95 group/reg relative overflow-hidden ${
+                    isScrolled || !isDarkHeroPage
+                      ? 'border-brand-slate/40 text-brand-slate/60 hover:border-red-400 hover:text-red-500'
+                      : 'border-white/30 text-white/60 hover:border-red-400 hover:text-red-400'
+                  }`}
                 >
-                  Register to Ride
+                  <span className="group-hover/reg:hidden">Register to Ride</span>
+                  <span className="hidden group-hover/reg:inline">Registration Full</span>
                 </button>
 
                 {/* Primary Action: Donate (Solid) */}

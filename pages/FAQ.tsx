@@ -53,7 +53,7 @@ const FAQ: React.FC = () => {
                         />
                         <FAQItem
                             question="Can I donate offline or via cheque?"
-                            answer="Yes. Please contact the MMA Foundation directly at +603-4041 1375 or email foundation@mma.org.my for bank transfer details or cheque instructions."
+                            answer="Yes. Please contact the MMA Foundation directly at +603-4041 1375 or email sab2026@mma.org.my for bank transfer details or cheque instructions."
                         />
                         <FAQItem
                             question="Will I receive a receipt?"

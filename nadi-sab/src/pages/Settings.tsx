@@ -62,6 +62,109 @@ export default function Settings() {
         </div>
       </div>
 
+      {/* ── PINNED CONTROL CARDS ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+        {/* Card 1: Raised Amount */}
+        <div className="bg-gradient-to-br from-brand-navy to-brand-slate rounded-3xl p-6 border border-white/10 shadow-xl">
+          <p className="text-brand-cyan font-black text-xs uppercase tracking-widest mb-1">💰 Amount Raised (Manual Override)</p>
+          <p className="text-white font-black text-xl font-heading mb-1">
+            {settings.find(s => s.key === 'raised_amount')?.value
+              ? `RM ${parseFloat(settings.find(s => s.key === 'raised_amount')!.value).toLocaleString()}`
+              : 'Auto from donations DB'}
+          </p>
+          <p className="text-white/40 text-xs mb-4">Overrides the live donation total on the thermometer. Leave blank to use live data.</p>
+          <div className="flex items-center gap-2">
+            <input type="number" placeholder="e.g. 1500000" id="raised-input"
+              className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none" />
+            <button onClick={async () => {
+              const input = document.getElementById('raised-input') as HTMLInputElement;
+              if (!token) return;
+              await updateSetting({ token, key: 'raised_amount', value: input.value, isSecret: false });
+              input.value = ''; alert('Raised amount updated!');
+            }} className="h-10 px-4 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+              <Save className="h-4 w-4" /> Save
+            </button>
+          </div>
+        </div>
+
+        {/* Card 2: Donation Goal */}
+        <div className="bg-gradient-to-br from-brand-navy to-brand-slate rounded-3xl p-6 border border-white/10 shadow-xl">
+          <p className="text-brand-cyan font-black text-xs uppercase tracking-widest mb-1">📊 Fundraising Goal (Thermometer Target)</p>
+          <p className="text-white font-black text-xl font-heading mb-1">
+            {settings.find(s => s.key === 'donation_goal')?.value
+              ? `RM ${parseFloat(settings.find(s => s.key === 'donation_goal')!.value).toLocaleString()}`
+              : 'Not set — defaults to RM 2,000,000'}
+          </p>
+          <p className="text-white/40 text-xs mb-4">Controls the 100% target on the public homepage thermometer.</p>
+          <div className="flex items-center gap-2">
+            <input type="number" placeholder="e.g. 2000000" id="goal-quick-input"
+              className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none" />
+            <button onClick={async () => {
+              const input = document.getElementById('goal-quick-input') as HTMLInputElement;
+              if (!token || !input.value) return;
+              await updateSetting({ token, key: 'donation_goal', value: input.value, isSecret: false });
+              input.value = ''; alert('Goal updated!');
+            }} className="h-10 px-4 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+              <Save className="h-4 w-4" /> Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Card 3: Registration Settings */}
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 mb-8 border border-white/10 shadow-xl">
+        <p className="text-brand-orange font-black text-xs uppercase tracking-widest mb-4">🚴 Cyclist Registration Settings</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Status toggle */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Registration Status</p>
+            <div className="flex gap-3">
+              {['open', 'full'].map(status => {
+                const current = settings.find(s => s.key === 'registration_status')?.value || 'open';
+                const isActive = current === status;
+                return (
+                  <button key={status} onClick={async () => {
+                    if (!token) return;
+                    await updateSetting({ token, key: 'registration_status', value: status, isSecret: false });
+                  }}
+                    className={`flex-1 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${
+                      isActive
+                        ? status === 'full' ? 'bg-red-500 text-white shadow-lg' : 'bg-green-500 text-white shadow-lg'
+                        : 'bg-white/10 text-white/40 hover:bg-white/20'
+                    }`}>
+                    {status === 'open' ? '✅ Open' : '🔒 Full'}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-white/30 text-xs mt-2">Controls what users see when they click "Register to Ride".</p>
+          </div>
+          {/* Form URL */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Google Form URL</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="url"
+                id="form-url-input"
+                defaultValue={settings.find(s => s.key === 'registration_form_url')?.value || ''}
+                placeholder="https://docs.google.com/forms/..."
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0"
+              />
+              <button onClick={async () => {
+                const input = document.getElementById('form-url-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'registration_form_url', value: input.value, isSecret: false });
+                alert('Form URL saved!');
+              }} className="h-10 px-4 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+            <p className="text-white/30 text-xs mt-2">Shown as a button when registration is Open. Ignored when Full.</p>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
         <div className="p-6 border-b border-slate-100 bg-slate-50">
           <h2 className="text-sm font-black uppercase tracking-widest text-brand-navy">Current Configurations</h2>

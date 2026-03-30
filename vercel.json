@@ -5,12 +5,19 @@
             "destination": "https://limitless-dragon-854.convex.site/hitpay"
         },
         {
-            "source": "/nadi-sab/(.*)",
+            "source": "/nadi-sab/:path*",
             "destination": "/nadi-sab/index.html"
         },
         {
-            "source": "/api/(.*)",
-            "destination": "/api/$1"
+            "source": "/riders/:slug",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "user-agent",
+                    "value": "(?i).*(facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Pinterest|TelegramBot|Slackbot|Discordbot).*"
+                }
+            ],
+            "destination": "/api/og-rider?slug=:slug"
         },
         {
             "source": "/(.*)",

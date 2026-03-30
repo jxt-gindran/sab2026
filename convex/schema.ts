@@ -43,4 +43,21 @@ export default defineSchema({
         type: v.string(), // "text", "image", "html"
         value: v.string(),
     }).index("by_page_section", ["page", "section"]),
+
+    routeMap: defineTable({
+        fileName: v.string(),
+        storageId: v.id("_storage"),
+        fileUrl: v.string(),
+        isActive: v.boolean(),
+        uploadedAt: v.number()
+    }).index("by_active", ["isActive"]),
+
+    mapMarkers: defineTable({
+        name: v.string(),
+        lat: v.number(),
+        lng: v.number(),
+        type: v.string(), // "start", "stop", "finish"
+        description: v.optional(v.string()),
+        orderIndex: v.number(), // to keep them correctly sorted along the route
+    }).index("by_order", ["orderIndex"]),
 });

@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Home, Settings, FileText, LogOut, Menu, Users } from 'lucide-react';
+import { Home, Settings, FileText, LogOut, Menu, Users, Map } from 'lucide-react';
 
 export default function Layout() {
   const { logout } = useAuth();
@@ -9,6 +9,7 @@ export default function Layout() {
     { to: '/', icon: Home, label: 'Dashboard' },
     { to: '/content', icon: FileText, label: 'Content CMS' },
     { to: '/cyclists', icon: Users, label: 'Cyclist Profiles' },
+    { to: '/maps', icon: Map, label: 'Route & Maps' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
 

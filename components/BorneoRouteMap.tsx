@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import "ol/ol.css"; // Import OpenLayers styles
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import "ol/ol.css";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -8,178 +8,42 @@ import { fromLonLat } from "ol/proj";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { Feature } from "ol";
-import { LineString } from "ol/geom";
-import { Style, Stroke } from "ol/style";
+import { LineString, Point } from "ol/geom";
+import { Style, Stroke, Circle as CircleStyle, Fill } from "ol/style";
 import Overlay from "ol/Overlay";
-import { defaults as defaultInteractions } from "ol/interaction";
-import { Flag, Trophy, MapPin, Compass } from "lucide-react";
-
-// --- 1. DATA ---
-const routeDataRaw: [number, number][] = [
-    [116.05, 5.92], [116.05, 5.93], [116.06, 5.92], [116.06, 5.93], [116.07, 5.93],
-    [116.08, 5.94], [116.09, 5.94], [116.09, 5.95], [116.09, 5.96], [116.1, 5.96],
-    [116.1, 5.97], [116.11, 5.97], [116.11, 5.98], [116.12, 5.98], [116.12, 5.99],
-    [116.12, 6], [116.13, 6], [116.13, 6.01], [116.14, 6.01], [116.14, 6.02],
-    [116.15, 6.03], [116.15, 6.04], [116.16, 6.04], [116.16, 6.05], [116.17, 6.05],
-    [116.17, 6.06], [116.18, 6.06], [116.18, 6.07], [116.19, 6.08], [116.19, 6.09],
-    [116.2, 6.09], [116.2, 6.1], [116.2, 6.11], [116.21, 6.11], [116.21, 6.12],
-    [116.21, 6.13], [116.22, 6.13], [116.22, 6.14], [116.22, 6.15], [116.23, 6.15],
-    [116.24, 6.15], [116.25, 6.15], [116.25, 6.14], [116.26, 6.14], [116.27, 6.14],
-    [116.28, 6.14], [116.29, 6.14], [116.29, 6.15], [116.3, 6.15], [116.31, 6.15],
-    [116.32, 6.14], [116.32, 6.13], [116.33, 6.13], [116.34, 6.13], [116.35, 6.13],
-    [116.35, 6.12], [116.34, 6.12], [116.34, 6.11], [116.35, 6.11], [116.36, 6.11],
-    [116.37, 6.11], [116.37, 6.12], [116.38, 6.12], [116.39, 6.12], [116.4, 6.12],
-    [116.4, 6.11], [116.41, 6.11], [116.42, 6.11], [116.42, 6.1], [116.43, 6.1],
-    [116.43, 6.09], [116.44, 6.09], [116.44, 6.08], [116.44, 6.07], [116.44, 6.06],
-    [116.45, 6.06], [116.45, 6.05], [116.46, 6.05], [116.46, 6.04], [116.45, 6.04],
-    [116.46, 6.03], [116.47, 6.02], [116.48, 6.01], [116.49, 6.01], [116.49, 6.02],
-    [116.5, 6.02], [116.51, 6.02], [116.51, 6.01], [116.52, 6.01], [116.53, 6.01],
-    [116.53, 6], [116.54, 6.01], [116.54, 6], [116.55, 6], [116.55, 5.99],
-    [116.56, 5.99], [116.56, 5.98], [116.57, 5.98], [116.57, 5.99], [116.58, 5.99],
-    [116.58, 5.98], [116.59, 5.98], [116.59, 5.97], [116.6, 5.97], [116.6, 5.96],
-    [116.61, 5.96], [116.61, 5.95], [116.62, 5.95], [116.63, 5.95], [116.64, 5.95],
-    [116.64, 5.94], [116.65, 5.94], [116.66, 5.94], [116.66, 5.95], [116.67, 5.95],
-    [116.67, 5.96], [116.67, 5.94], [116.66, 5.93], [116.66, 5.92], [116.65, 5.92],
-    [116.65, 5.91], [116.64, 5.91], [116.63, 5.91], [116.63, 5.9], [116.62, 5.9],
-    [116.61, 5.9], [116.61, 5.89], [116.6, 5.89], [116.6, 5.88], [116.59, 5.88],
-    [116.59, 5.87], [116.58, 5.87], [116.57, 5.87], [116.56, 5.87], [116.56, 5.86],
-    [116.55, 5.86], [116.55, 5.87], [116.54, 5.87], [116.53, 5.86], [116.53, 5.87],
-    [116.52, 5.86], [116.52, 5.87], [116.51, 5.86], [116.5, 5.86], [116.5, 5.85],
-    [116.5, 5.84], [116.49, 5.84], [116.49, 5.83], [116.5, 5.83], [116.49, 5.82],
-    [116.49, 5.81], [116.48, 5.82], [116.48, 5.81], [116.48, 5.8], [116.47, 5.8],
-    [116.47, 5.79], [116.46, 5.79], [116.46, 5.78], [116.45, 5.77], [116.45, 5.76],
-    [116.44, 5.76], [116.44, 5.75], [116.43, 5.75], [116.42, 5.75], [116.43, 5.74],
-    [116.42, 5.74], [116.42, 5.73], [116.42, 5.72], [116.41, 5.72], [116.4, 5.71],
-    [116.39, 5.71], [116.39, 5.7], [116.38, 5.7], [116.38, 5.69], [116.37, 5.68],
-    [116.37, 5.67], [116.36, 5.67], [116.36, 5.66], [116.35, 5.66], [116.35, 5.65],
-    [116.34, 5.65], [116.34, 5.64], [116.33, 5.63], [116.33, 5.62], [116.32, 5.62],
-    [116.31, 5.62], [116.31, 5.61], [116.3, 5.61], [116.31, 5.6], [116.3, 5.6],
-    [116.3, 5.59], [116.29, 5.59], [116.29, 5.58], [116.28, 5.58], [116.28, 5.57],
-    [116.28, 5.56], [116.27, 5.56], [116.27, 5.55], [116.27, 5.54], [116.28, 5.54],
-    [116.28, 5.53], [116.28, 5.52], [116.27, 5.52], [116.28, 5.51], [116.28, 5.5],
-    [116.28, 5.49], [116.29, 5.49], [116.28, 5.48], [116.28, 5.47], [116.27, 5.47],
-    [116.26, 5.47], [116.26, 5.46], [116.26, 5.45], [116.25, 5.45], [116.24, 5.44],
-    [116.24, 5.43], [116.22, 5.41], [116.21, 5.4], [116.2, 5.39], [116.2, 5.38],
-    [116.19, 5.38], [116.19, 5.37], [116.18, 5.37], [116.17, 5.36], [116.17, 5.35],
-    [116.16, 5.35], [116.16, 5.34], [116.16, 5.33], [116.15, 5.33], [116.15, 5.32],
-    [116.14, 5.32], [116.13, 5.32], [116.12, 5.32], [116.12, 5.33], [116.11, 5.33],
-    [116.1, 5.33], [116.09, 5.33], [116.09, 5.32], [116.08, 5.32], [116.08, 5.31],
-    [116.08, 5.3], [116.07, 5.3], [116.06, 5.3], [116.05, 5.3], [116.04, 5.3],
-    [116.04, 5.29], [116.03, 5.29], [116.02, 5.29], [116.01, 5.29], [116.01, 5.28],
-    [116, 5.28], [116, 5.27], [116.01, 5.27], [116.01, 5.26], [116.01, 5.25],
-    [116, 5.24], [115.99, 5.23], [115.99, 5.22], [115.98, 5.22], [115.98, 5.21],
-    [115.98, 5.2], [115.98, 5.19], [115.97, 5.19], [115.97, 5.18], [115.97, 5.17],
-    [115.96, 5.17], [115.96, 5.16], [115.96, 5.15], [115.96, 5.14], [115.95, 5.14],
-    [115.95, 5.13], [115.94, 5.12], [115.94, 5.11], [115.94, 5.1], [115.95, 5.1],
-    [115.95, 5.09], [115.95, 5.08], [115.95, 5.07], [115.95, 5.06], [115.95, 5.05],
-    [115.94, 5.05], [115.94, 5.04], [115.93, 5.04], [115.93, 5.03], [115.93, 5.02],
-    [115.92, 5.02], [115.91, 5.02], [115.92, 5.01], [115.92, 5], [115.91, 5],
-    [115.9, 5], [115.89, 5], [115.88, 5], [115.87, 5], [115.87, 5.01],
-    [115.86, 5], [115.86, 5.01], [115.85, 5.01], [115.84, 5.01], [115.83, 5.01],
-    [115.82, 5.01], [115.82, 5], [115.81, 5], [115.8, 5], [115.79, 5],
-    [115.78, 5], [115.77, 4.99], [115.76, 4.99], [115.76, 4.98], [115.76, 4.97],
-    [115.75, 4.97], [115.74, 4.97], [115.73, 4.97], [115.72, 4.97], [115.71, 4.97],
-    [115.7, 4.97], [115.69, 4.97], [115.69, 4.96], [115.68, 4.97], [115.68, 4.96],
-    [115.67, 4.96], [115.66, 4.96], [115.66, 4.95], [115.65, 4.95], [115.65, 4.94],
-    [115.64, 4.95], [115.63, 4.95], [115.63, 4.96], [115.63, 4.97], [115.63, 4.98],
-    [115.62, 4.98], [115.61, 4.98], [115.61, 4.99], [115.6, 4.99], [115.6, 5],
-    [115.59, 5], [115.59, 4.99], [115.58, 4.99], [115.58, 5], [115.57, 5],
-    [115.57, 4.99], [115.56, 4.99], [115.56, 5], [115.55, 5], [115.55, 4.99],
-    [115.55, 4.98], [115.54, 4.98], [115.53, 4.98], [115.52, 4.98], [115.52, 4.97],
-    [115.51, 4.97], [115.51, 4.96], [115.52, 4.96], [115.52, 4.95], [115.52, 4.94],
-    [115.51, 4.94], [115.51, 4.93], [115.5, 4.93], [115.49, 4.93], [115.48, 4.93],
-    [115.47, 4.93], [115.47, 4.92], [115.47, 4.91], [115.46, 4.91], [115.46, 4.9],
-    [115.46, 4.89], [115.45, 4.89], [115.45, 4.88], [115.45, 4.87], [115.44, 4.87],
-    [115.44, 4.86], [115.43, 4.86], [115.43, 4.85], [115.43, 4.84], [115.44, 4.84],
-    [115.45, 4.84], [115.45, 4.83], [115.45, 4.82], [115.44, 4.82], [115.44, 4.81],
-    [115.43, 4.81], [115.42, 4.81], [115.42, 4.8], [115.41, 4.8], [115.41, 4.81],
-    [115.41, 4.82], [115.4, 4.82], [115.41, 4.83], [115.4, 4.84], [115.41, 4.84],
-    [115.41, 4.85], [115.4, 4.85], [115.4, 4.86], [115.39, 4.86], [115.39, 4.85],
-    [115.38, 4.85], [115.37, 4.84], [115.36, 4.85], [115.35, 4.85], [115.35, 4.84],
-    [115.34, 4.84], [115.33, 4.84], [115.33, 4.83], [115.32, 4.83], [115.32, 4.82],
-    [115.31, 4.82], [115.3, 4.82], [115.29, 4.82], [115.29, 4.81], [115.29, 4.8],
-    [115.28, 4.8], [115.28, 4.79], [115.27, 4.78], [115.27, 4.77], [115.26, 4.77],
-    [115.25, 4.77], [115.25, 4.78], [115.24, 4.78], [115.24, 4.79], [115.23, 4.79],
-    [115.22, 4.79], [115.21, 4.79], [115.21, 4.78], [115.2, 4.77], [115.19, 4.76],
-    [115.18, 4.76], [115.17, 4.76], [115.17, 4.75], [115.16, 4.75], [115.16, 4.74],
-    [115.15, 4.73], [115.14, 4.73], [115.13, 4.73], [115.12, 4.73], [115.12, 4.72],
-    [115.11, 4.72], [115.11, 4.71], [115.1, 4.71], [115.09, 4.71], [115.08, 4.71],
-    [115.07, 4.71], [115.06, 4.71], [115.06, 4.7], [115.05, 4.7], [115.05, 4.69],
-    [115.04, 4.69], [115.03, 4.69], [115.02, 4.69], [115.01, 4.69], [115.01, 4.7],
-    [115.01, 4.71], [115.01, 4.72], [115.01, 4.73], [115.02, 4.73], [115.02, 4.74],
-    [115.02, 4.75], [115.02, 4.76], [115.02, 4.77], [115.01, 4.76], [115.01, 4.75],
-    [115, 4.75], [115, 4.74], [115, 4.73], [114.99, 4.73], [114.99, 4.72],
-    [114.99, 4.71], [114.99, 4.7], [114.98, 4.7], [114.98, 4.69], [114.98, 4.68],
-    [114.98, 4.67], [114.98, 4.66], [114.97, 4.66], [114.97, 4.65], [114.96, 4.65],
-    [114.96, 4.66], [114.95, 4.66], [114.94, 4.66], [114.93, 4.66], [114.93, 4.65],
-    [114.92, 4.64], [114.91, 4.63], [114.9, 4.63], [114.9, 4.64], [114.89, 4.64],
-    [114.89, 4.65], [114.88, 4.65], [114.87, 4.64], [114.86, 4.64], [114.86, 4.65],
-    [114.85, 4.65], [114.84, 4.65], [114.83, 4.66], [114.82, 4.66], [114.81, 4.66],
-    [114.81, 4.67], [114.81, 4.68], [114.81, 4.69], [114.8, 4.69], [114.8, 4.7],
-    [114.8, 4.71], [114.8, 4.72], [114.8, 4.73], [114.81, 4.73], [114.81, 4.74],
-    [114.82, 4.74], [114.82, 4.75], [114.82, 4.76], [114.82, 4.77], [114.81, 4.77],
-    [114.8, 4.77], [114.8, 4.76], [114.79, 4.76], [114.79, 4.75], [114.78, 4.75],
-    [114.77, 4.75], [114.76, 4.75], [114.76, 4.76], [114.75, 4.76], [114.75, 4.75],
-    [114.74, 4.75], [114.74, 4.74], [114.73, 4.74], [114.73, 4.73], [114.73, 4.72],
-    [114.73, 4.71], [114.73, 4.7], [114.72, 4.7], [114.72, 4.69], [114.72, 4.68],
-    [114.71, 4.68], [114.71, 4.69], [114.7, 4.69], [114.69, 4.69], [114.68, 4.69],
-    [114.68, 4.7], [114.68, 4.71], [114.67, 4.71], [114.67, 4.72], [114.67, 4.73],
-    [114.66, 4.73], [114.67, 4.74], [114.66, 4.74], [114.66, 4.75], [114.67, 4.75],
-    [114.66, 4.76], [114.65, 4.76], [114.65, 4.77], [114.64, 4.76], [114.64, 4.75],
-    [114.63, 4.75], [114.62, 4.75], [114.6, 4.74], [114.59, 4.74], [114.58, 4.74],
-    [114.58, 4.73], [114.58, 4.72], [114.58, 4.71], [114.57, 4.7], [114.56, 4.69],
-    [114.55, 4.69], [114.55, 4.68], [114.54, 4.68], [114.53, 4.67], [114.52, 4.67],
-    [114.52, 4.66], [114.52, 4.65], [114.51, 4.65], [114.5, 4.65], [114.49, 4.65],
-    [114.48, 4.65], [114.47, 4.65], [114.46, 4.65], [114.45, 4.64], [114.44, 4.64],
-    [114.43, 4.63], [114.42, 4.63], [114.41, 4.62], [114.4, 4.62], [114.38, 4.61],
-    [114.37, 4.6], [114.36, 4.6], [114.34, 4.6], [114.33, 4.6], [114.33, 4.59],
-    [114.32, 4.59], [114.31, 4.59], [114.3, 4.59], [114.29, 4.58], [114.28, 4.58],
-    [114.25, 4.58], [114.24, 4.58], [114.23, 4.58], [114.23, 4.57], [114.22, 4.57],
-    [114.22, 4.56], [114.21, 4.56], [114.2, 4.56], [114.19, 4.55], [114.19, 4.56],
-    [114.18, 4.56], [114.18, 4.57], [114.18, 4.58], [114.17, 4.58], [114.16, 4.58],
-    [114.15, 4.58], [114.14, 4.58], [114.13, 4.58], [114.11, 4.58], [114.1, 4.58],
-    [114.09, 4.58], [114.08, 4.58], [114.08, 4.59], [114.07, 4.59], [114.07, 4.58],
-    [114.07, 4.57], [114.07, 4.56], [114.07, 4.55], [114.06, 4.55], [114.06, 4.54],
-    [114.05, 4.52], [114.05, 4.51], [114.04, 4.51], [114.04, 4.5], [114.04, 4.48],
-    [114.04, 4.47], [114.04, 4.46], [114.04, 4.45], [114.04, 4.44], [114.04, 4.43],
-    [114.04, 4.42], [114.03, 4.42], [114.02, 4.41], [114.02, 4.4], [114.02, 4.39],
-    [114.01, 4.39], [114.01, 4.38], [114.01, 4.37], [114.01, 4.36], [114.01, 4.35],
-    [114, 4.35], [114, 4.34], [113.99, 4.34], [113.99, 4.33], [113.98, 4.33]
-];
-
-const stops = [
-    { id: "stop-kk", name: "Kota Kinabalu", lng: 116.075137, lat: 5.981812, type: "start", desc: "Flag Off" },
-    { id: "stop-ranau", name: "Ranau", lng: 116.662989, lat: 5.951372, type: "stop", desc: "115km" },
-    { id: "stop-keningau", name: "Keningau", lng: 116.157808, lat: 5.32521, type: "stop", desc: "150km" },
-    { id: "stop-lawas", name: "Lawas", lng: 115.406978, lat: 4.859269, type: "stop", desc: "66km" },
-    { id: "stop-limbang", name: "Limbang", lng: 115.019525, lat: 4.767294, type: "stop", desc: "130km" },
-    { id: "stop-liang", name: "Liang", lng: 114.458605, lat: 4.659467, type: "stop", desc: "90km" },
-    { id: "stop-miri", name: "Miri", lng: 113.990089, lat: 4.399726, type: "finish", desc: "Finale" },
-];
+import GPX from 'ol/format/GPX';
+import { getDistance } from 'ol/sphere';
+import { Flag, Trophy, Compass } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceDot } from 'recharts';
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 interface BorneoRouteMapProps {
     className?: string;
 }
 
 export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
+    // Refs
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<Map | null>(null);
+    const cursorOverlayRef = useRef<Overlay | null>(null);
+
+    // Convex Data
+    const activeRoute = useQuery(api.maps.getActiveRoute);
+    const remoteMarkers = useQuery(api.maps.getMarkers) || [];
+
+    // Local State
+    const [elevationData, setElevationData] = useState<{dist: number, ele: number, lon: number, lat: number}[]>([]);
+    const [hoverPoint, setHoverPoint] = useState<[number, number] | null>(null);
+    const [mapLoaded, setMapLoaded] = useState(false);
 
     useEffect(() => {
-        if (!mapRef.current || mapInstance.current) return;
+        if (!mapRef.current) return;
 
-        // 1. Transform Route Data to Web Mercator
-        const routePoints = routeDataRaw.map((coord) => fromLonLat(coord));
-
-        // 2. Create Route Layer (Electric Aqua Line)
-        const routeFeature = new Feature({
-            geometry: new LineString(routePoints),
-        });
-
+        // 1. Create Route Layer with Empty Source initially
+        const routeSource = new VectorSource();
         const routeLayer = new VectorLayer({
-            source: new VectorSource({
-                features: [routeFeature],
-            }),
+            source: routeSource,
             style: new Style({
                 stroke: new Stroke({
                     color: "#0cdfed", // Electric Aqua
@@ -188,8 +52,18 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
             }),
         });
 
-        // 3. Initialize Map
-        const initialZoom = window.innerWidth < 768 ? 6.5 : 7.8; // Set lower zoom level for desktop to see more context
+        // 2. Initialize Map
+        const initialZoom = window.innerWidth < 768 ? 6.5 : 7.8;
+        
+        // Cursor position overlay
+        const cursorElement = document.createElement('div');
+        cursorElement.className = 'w-4 h-4 bg-brand-orange border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 hidden';
+        const cursorOverlay = new Overlay({
+            element: cursorElement,
+            positioning: 'center-center',
+            stopEvent: false
+        });
+        cursorOverlayRef.current = cursorOverlay;
 
         const map = new Map({
             target: mapRef.current,
@@ -199,109 +73,289 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                         url: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
                         attributions: '© OpenStreetMap, © CARTO'
                     }),
-                    className: "bw-map", // Custom class for grayscale filter
+                    className: "bw-map", 
                 }),
                 routeLayer,
             ],
             view: new View({
-                center: fromLonLat([115.4, 5.2]), // Adjusted Center of Borneo Route (moved slightly east to center route)
+                center: fromLonLat([115.4, 5.2]),
                 zoom: initialZoom,
-                minZoom: 5, // Allow zooming out further on mobile
+                minZoom: 5,
                 maxZoom: 10,
                 constrainResolution: true,
-                rotation: 0, // Point North
+                rotation: 0,
             }),
-            controls: [], // Remove default controls for cleaner look
-            interactions: [], // Lock map from zooming and panning
+            controls: [], 
+            interactions: [], 
         });
 
-        // 4. Add Overlays (Markers)
-        stops.forEach((stop) => {
-            const element = document.getElementById(stop.id);
+        map.addOverlay(cursorOverlay);
+        mapInstance.current = map;
+        setMapLoaded(true);
+
+        return () => {
+            map.setTarget(undefined);
+            mapInstance.current = null;
+            setMapLoaded(false);
+            cursorOverlayRef.current = null;
+        };
+    }, []);
+
+    // Effect for fetching and parsing the active route file
+    useEffect(() => {
+        if (!mapInstance.current || activeRoute === undefined) return;
+        
+        const map = mapInstance.current;
+        const routeLayer = map.getLayers().getArray().find(l => l instanceof VectorLayer) as VectorLayer<VectorSource>;
+        if (!routeLayer) return;
+        
+        const routeSource = routeLayer.getSource();
+        if (!routeSource) return;
+
+        // Clear existing geometry
+        routeSource.clear();
+        setElevationData([]);
+
+        // If no route uploaded yet, leave the map blank
+        if (!activeRoute || !activeRoute.fileUrl) return;
+
+        const fetchUrl = activeRoute.fileUrl;
+        
+        fetch(fetchUrl)
+            .then(res => res.text())
+            .then(fileText => {
+                let parsedCoordinates: [number, number][] = [];
+                let parsedElevations: { dist: number, ele: number, lon: number, lat: number }[] = [];
+
+                if (fetchUrl.toLowerCase().endsWith('.gpx')) {
+                    // GPX PARSING (Includes Elevation! + Extract geometries natively)
+                    const gpxFormat = new GPX();
+                    const features = gpxFormat.readFeatures(fileText, { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:4326' }); // Read raw lon/lats first for distance math
+                    
+                    if (features.length > 0) {
+                        const geom = features[0].getGeometry();
+                        if (geom && (geom.getType() === 'LineString' || geom.getType() === 'MultiLineString')) {
+                            // Extract raw coords
+                            const rawCoords = geom.getType() === 'LineString' 
+                                ? (geom as LineString).getCoordinates() 
+                                : (geom as any).getLineString(0).getCoordinates();
+                            
+                            let cumulativeDistance = 0;
+                            for(let i=0; i<rawCoords.length; i++) {
+                                // RawCoords from GPX format usually returns [lon, lat, ele, time]
+                                const lon = rawCoords[i][0];
+                                const lat = rawCoords[i][1];
+                                const ele = rawCoords[i][2] !== undefined ? rawCoords[i][2] : 0;
+                                
+                                if (i > 0) {
+                                    cumulativeDistance += getDistance([rawCoords[i-1][0], rawCoords[i-1][1]], [lon, lat]) / 1000;
+                                }
+                                
+                                // Subsample slightly if very dense (e.g. 11k points down to 2-3k for chart rendering speed)
+                                if (i % 2 === 0 || i === rawCoords.length - 1) {
+                                    parsedElevations.push({ dist: Number(cumulativeDistance.toFixed(2)), ele: Number(ele.toFixed(0)), lon, lat });
+                                }
+                                parsedCoordinates.push([lon, lat]);
+                            }
+                        }
+                    }
+                } else {
+                    // CSV PARSING FALLBACK (No elevation)
+                    const lines = fileText.split('\n');
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        const parts = line.split(',');
+                        if (parts.length >= 2) {
+                            const lat = parseFloat(parts[0].trim());
+                            const lon = parseFloat(parts[1].trim());
+                            if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+                                parsedCoordinates.push([lon, lat]);
+                            }
+                        }
+                    }
+                }
+
+                if (parsedCoordinates.length > 0) {
+                    const routePoints = parsedCoordinates.map((coord) => fromLonLat(coord));
+                    const routeFeature = new Feature({
+                        geometry: new LineString(routePoints),
+                    });
+                    routeSource.addFeature(routeFeature);
+                    
+                    if (parsedElevations.length > 0) {
+                        setElevationData(parsedElevations);
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load map coordinates:", err);
+            });
+
+    }, [activeRoute, mapLoaded]);
+
+    // Effect for dynamically managing map overlays (stop markers)
+    useEffect(() => {
+        if (!mapInstance.current || !mapLoaded) return;
+        const map = mapInstance.current;
+
+        // We clean up existing dynamic overlays first 
+        // Note: we don't remove the cursorOverlay which is managed separately
+        const overlaysToRemove = map.getOverlays().getArray().filter(o => o !== cursorOverlayRef.current);
+        overlaysToRemove.forEach(o => map.removeOverlay(o));
+
+        remoteMarkers.forEach(stop => {
+            const element = document.getElementById(`stop-${stop._id}`);
             if (element) {
                 const overlay = new Overlay({
                     element: element,
                     position: fromLonLat([stop.lng, stop.lat]),
                     positioning: "bottom-center",
-                    stopEvent: false, // Allow clicking map through marker
+                    stopEvent: false, 
                 });
                 map.addOverlay(overlay);
             }
         });
 
-        mapInstance.current = map;
+    }, [remoteMarkers, mapLoaded]);
 
-        return () => {
-            map.setTarget(undefined);
-            mapInstance.current = null;
-        };
-    }, []);
+    // Effect to pin the moving dot on the map when hovering the chart
+    useEffect(() => {
+        if (cursorOverlayRef.current && hoverPoint) {
+            cursorOverlayRef.current.setPosition(fromLonLat(hoverPoint));
+            cursorOverlayRef.current.getElement()?.classList.remove('hidden');
+        } else if (cursorOverlayRef.current) {
+            cursorOverlayRef.current.getElement()?.classList.add('hidden');
+        }
+    }, [hoverPoint]);
+
+    // Formatters for chart tooltips
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+          return (
+            <div className="bg-brand-navy p-3 border border-white/20 rounded-lg shadow-xl text-white">
+              <p className="font-bold text-brand-orange mb-1">{`${payload[0].value} m Altitude`}</p>
+              <p className="text-xs text-brand-slate uppercase tracking-wider">{`${label} km distance`}</p>
+            </div>
+          );
+        }
+        return null;
+    };
 
     return (
-        <div className={className ? `relative overflow-hidden ${className}` : "relative w-full h-[360px] md:h-[550px] rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
+        <div className={className ? `relative flex flex-col ${className}` : "relative flex flex-col w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
 
-            {/* MAP CONTAINER */}
-            {/* Deep Space Blue Theme: Adjusted filters for better contrast */}
-            <div ref={mapRef} className="w-full h-full filter grayscale-[0.2] invert hue-rotate-[180deg] brightness-[0.85] contrast-[1.5] saturate-[1.5]" />
-            {/* Overlay to enforce Deep Brand Navy Tint */}
-            <div className="absolute inset-0 bg-[#013254] mix-blend-overlay opacity-20 pointer-events-none"></div>
+            {/* MAP CONTAINER (Top Half) */}
+            <div className="relative w-full h-[360px] md:h-[450px]">
+                <div ref={mapRef} className="w-full h-full filter grayscale-[0.2] invert hue-rotate-[180deg] brightness-[0.85] contrast-[1.5] saturate-[1.5]" />
+                <div className="absolute inset-0 bg-[#013254] mix-blend-overlay opacity-20 pointer-events-none"></div>
 
-            {/* HIDDEN MARKER ELEMENTS (Projected onto Map by OpenLayers) */}
-            <div className="hidden">
-                {stops.map((stop) => (
-                    <div key={stop.id} id={stop.id} className="relative group cursor-pointer">
-
-                        {/* START MARKER */}
-                        {stop.type === "start" && (
-                            <div className="flex flex-col items-center transform -translate-y-2">
-                                <div className="p-2 bg-[#FF7F32] rounded-full text-white shadow-lg border-2 border-white animate-bounce">
-                                    <Flag className="w-5 h-5 fill-current" />
+                {/* HIDDEN MARKER ELEMENTS (Projected onto Map by OpenLayers) */}
+                <div className="hidden">
+                    {remoteMarkers.map((stop) => (
+                        <div key={stop._id} id={`stop-${stop._id}`} className="relative group cursor-pointer z-20">
+                            {/* START MARKER */}
+                            {stop.type === "start" && (
+                                <div className="flex flex-col items-center transform -translate-y-2">
+                                    <div className="p-2 bg-[#FF7F32] rounded-full text-white shadow-lg border-2 border-white animate-bounce">
+                                        <Flag className="w-5 h-5 fill-current" />
+                                    </div>
+                                    <span className="mt-1 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
+                                        START: {stop.name}
+                                    </span>
                                 </div>
-                                <span className="mt-1 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
-                                    START
-                                </span>
-                            </div>
-                        )}
+                            )}
 
-                        {/* FINISH MARKER */}
-                        {stop.type === "finish" && (
-                            <div className="flex flex-col items-center transform -translate-y-2">
-                                <div className="p-2 bg-[#0cdfed] rounded-full text-[#013254] shadow-lg border-2 border-white animate-pulse">
-                                    <Trophy className="w-5 h-5 fill-current" />
+                            {/* FINISH MARKER */}
+                            {stop.type === "finish" && (
+                                <div className="flex flex-col items-center transform -translate-y-2">
+                                    <div className="p-2 bg-[#0cdfed] rounded-full text-[#013254] shadow-lg border-2 border-white animate-pulse">
+                                        <Trophy className="w-5 h-5 fill-current" />
+                                    </div>
+                                    <span className="mt-1 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
+                                        FINISH: {stop.name}
+                                    </span>
                                 </div>
-                                <span className="mt-1 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
-                                    FINISH: {stop.name}
-                                </span>
-                            </div>
-                        )}
+                            )}
 
-                        {/* PIT STOPS */}
-                        {stop.type === "stop" && (
-                            <div className="group/dot relative flex flex-col items-center">
-                                {/* Dot */}
-                                <div className="w-4 h-4 bg-[#013254] rounded-full border-2 border-white shadow-md hover:scale-150 transition-transform duration-200 z-10" />
-
-                                {/* Town Name Label (Always Visible, White) */}
-                                <div className="mt-1 text-[10px] font-black text-white uppercase tracking-wider drop-shadow-md whitespace-nowrap pointer-events-none">
-                                    {stop.name}
+                            {/* PIT STOPS */}
+                            {stop.type === "stop" && (
+                                <div className="group/dot relative flex flex-col items-center">
+                                    <div className="w-4 h-4 bg-[#013254] rounded-full border-2 border-white shadow-md hover:scale-150 transition-transform duration-200 z-10" />
+                                    <div className="mt-1 text-[10px] font-black text-white uppercase tracking-wider drop-shadow-md whitespace-nowrap pointer-events-none">
+                                        {stop.name}
+                                    </div>
+                                    {stop.description && (
+                                    <div className="absolute bottom-full mb-2 opacity-0 group-hover/dot:opacity-100 transition-opacity bg-white text-[#013254] text-xs p-2 rounded shadow-lg whitespace-nowrap z-50 pointer-events-none">
+                                        <span className="font-bold">{stop.name}</span><br />
+                                        <span className="text-slate-500">{stop.description}</span>
+                                    </div>
+                                    )}
                                 </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
 
-                                {/* Tooltip (Hover) */}
-                                <div className="absolute bottom-full mb-2 opacity-0 group-hover/dot:opacity-100 transition-opacity bg-white text-[#013254] text-xs p-2 rounded shadow-lg whitespace-nowrap z-50 pointer-events-none">
-                                    <span className="font-bold">{stop.name}</span>
-                                    <br />
-                                    <span className="text-slate-500">{stop.desc}</span>
-                                </div>
-                            </div>
-                        )}
+                {/* COMPASS OVERLAY */}
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full border border-slate-200 shadow-lg z-10 pointer-events-none">
+                    <Compass className="w-8 h-8 text-[#013254]" />
+                </div>
+            </div>
+
+            {/* ELEVATION PROFILE CHART (Bottom Half) */}
+            {elevationData.length > 0 && (
+                <div className="w-full bg-brand-navy border-t-2 border-brand-cyan/30 pt-4 pb-2 px-1 text-white relative h-[150px] md:h-[200px]">
+                    <div className="absolute top-2 left-4 text-xs font-bold text-white/50 tracking-widest uppercase flex items-center gap-2 z-10">
+                        Elevation Profile
+                        <span className="inline-block w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
                     </div>
-                ))}
-            </div>
-
-            {/* COMPASS OVERLAY */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full border border-slate-200 shadow-lg z-10 pointer-events-none">
-                <Compass className="w-8 h-8 text-[#013254]" />
-            </div>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                            data={elevationData}
+                            margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
+                            onMouseMove={(e) => {
+                                if (e.activePayload && e.activePayload.length) {
+                                    const point = e.activePayload[0].payload;
+                                    setHoverPoint([point.lon, point.lat]);
+                                }
+                            }}
+                            onMouseLeave={() => setHoverPoint(null)}
+                        >
+                            <defs>
+                                <linearGradient id="colorElevation" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#FF7F32" stopOpacity={0.8}/>
+                                    <stop offset="95%" stopColor="#bf2e1a" stopOpacity={0.4}/>
+                                </linearGradient>
+                            </defs>
+                            <XAxis 
+                                dataKey="dist" 
+                                tick={{fill: '#94a3b8', fontSize: 10}}
+                                tickFormatter={(val) => `${Math.round(val)}km`}
+                                minTickGap={30}
+                                axisLine={false}
+                                tickLine={false}
+                            />
+                            <YAxis 
+                                tick={{fill: '#94a3b8', fontSize: 10}}
+                                axisLine={false}
+                                tickLine={false}
+                                orientation="right"
+                            />
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Area 
+                                type="monotone" 
+                                dataKey="ele" 
+                                stroke="#FF7F32" 
+                                strokeWidth={2}
+                                fillOpacity={1} 
+                                fill="url(#colorElevation)" 
+                                isAnimationActive={!!hoverPoint} // Only animate if not currently dragging
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            )}
         </div>
     );
 }

@@ -36,9 +36,13 @@ export default function MapCMS() {
       // 2. Upload the file
       const result = await fetch(postUrl, {
         method: "POST",
-        headers: { "Content-Type": file.type },
+        headers: { "Content-Type": file.type || "application/octet-stream" },
         body: file,
       });
+
+      if (!result.ok) {
+        throw new Error(`Upload failed with status ${result.status}`);
+      }
       
       const { storageId } = await result.json();
 

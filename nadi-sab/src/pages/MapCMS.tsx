@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { Map, Upload, Trash2, Plus, CheckCircle2, Sliders } from 'lucide-react';
+import { Map as MapIcon, Upload, Trash2, Plus, CheckCircle2, Sliders } from 'lucide-react';
 import { useAuth } from '../components/AuthContext';
+import { BorneoRouteMap } from '../../../components/BorneoRouteMap';
 
 export default function MapCMS() {
   // Routes State
@@ -36,6 +37,14 @@ export default function MapCMS() {
   const handleSettingChange = async (key: string, value: string) => {
       if (!token) return;
       await updateSetting({ token, key, value, isSecret: false });
+  };
+
+  const handleSaveView = async (lng: number, lat: number, zoom: number) => {
+      if (!token) return;
+      await updateSetting({ token, key: 'map_center_lng', value: lng.toString(), isSecret: false });
+      await updateSetting({ token, key: 'map_center_lat', value: lat.toString(), isSecret: false });
+      await updateSetting({ token, key: 'map_zoom', value: zoom.toString(), isSecret: false });
+      alert("Success! The public map anchor coordinates have been updated.");
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -106,7 +115,7 @@ export default function MapCMS() {
       
       <div className="flex items-center gap-4 border-b border-brand-pale pb-6">
         <div className="bg-brand-orange p-3 rounded-2xl text-white">
-          <Map className="h-8 w-8" />
+          <MapIcon className="h-8 w-8" />
         </div>
         <div>
           <h1 className="text-3xl font-black font-heading text-brand-navy">Route & Maps</h1>
@@ -268,7 +277,7 @@ export default function MapCMS() {
               </div>
               
               <div className={`p-2 rounded-lg ${m.type === 'start' ? 'bg-brand-orange text-white' : m.type === 'finish' ? 'bg-brand-cyan text-brand-navy' : 'bg-brand-navy text-white'}`}>
-                <Map className="h-5 w-5" />
+                <MapIcon className="h-5 w-5" />
               </div>
               
               <div className="flex-grow">
@@ -290,6 +299,14 @@ export default function MapCMS() {
              </div>
           )}
         </div>
+      </section>
+
+      {/* MAP PREVIEW & FRAMER */}
+      <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative pt-12 mt-12">
+        <div className="absolute -top-6 left-8 bg-brand-cyan text-brand-navy px-6 py-2 rounded-full font-black text-sm tracking-widest uppercase shadow-lg shadow-brand-cyan/20 border-4 border-white">
+          Active Map Framer
+        </div>
+        <BorneoRouteMap isAdminMode={true} onSaveView={handleSaveView} />
       </section>
 
     </div>

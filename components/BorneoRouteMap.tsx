@@ -4,7 +4,8 @@ import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
-import { fromLonLat } from "ol/proj";
+import { fromLonLat, toLonLat } from "ol/proj";
+import { defaults as defaultInteractions } from "ol/interaction";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { Feature } from "ol";
@@ -28,9 +29,11 @@ const MAP_LAYERS: Record<string, string> = {
 
 interface BorneoRouteMapProps {
     className?: string;
+    isAdminMode?: boolean;
+    onSaveView?: (lng: number, lat: number, zoom: number) => void;
 }
 
-export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
+export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRouteMapProps = {}) {
     // Refs
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<Map | null>(null);
@@ -47,6 +50,9 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
             layer: getSetting('map_layer', 'custom-cyan'),
             brightness: parseInt(getSetting('map_brightness', '85'), 10),
             opacity: parseInt(getSetting('map_opacity', '100'), 10),
+            centerLng: parseFloat(getSetting('map_center_lng', '115.4')),
+            centerLat: parseFloat(getSetting('map_center_lat', '5.2')),
+            zoom: parseFloat(getSetting('map_zoom', window.innerWidth < 768 ? '6.5' : '7.8')),
         };
     }, [publicSettings]);
 
@@ -71,7 +77,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
         });
 
         // 2. Initialize Map
-        const initialZoom = window.innerWidth < 768 ? 6.5 : 7.8;
+        const initialZoom = mapConfig.zoom;
         
         // Cursor position overlay
         const cursorElement = document.createElement('div');
@@ -96,15 +102,15 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                 routeLayer,
             ],
             view: new View({
-                center: fromLonLat([115.4, 5.2]),
+                center: fromLonLat([mapConfig.centerLng, mapConfig.centerLat]),
                 zoom: initialZoom,
-                minZoom: 5,
-                maxZoom: 10,
+                minZoom: 4,
+                maxZoom: 16,
                 constrainResolution: true,
                 rotation: 0,
             }),
             controls: [], 
-            interactions: [], 
+            interactions: isAdminMode ? defaultInteractions() : [], 
         });
 
         map.addOverlay(cursorOverlay);
@@ -335,9 +341,36 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
         <div className={className ? `relative flex flex-col ${className}` : "relative flex flex-col w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
 
             {/* MAP CONTAINER (Full Height) */}
-            <div className="relative w-full h-[360px] md:h-[650px] z-10">
+            <div className={`relative w-full h-[360px] md:h-[650px] z-10 ${isAdminMode ? 'cursor-move' : ''}`}>
                 <div ref={mapRef} className="w-full h-full transition-all duration-1000" style={{ filter: mapFilterStyle }} />
                 <div className="absolute inset-0 bg-[#013254] mix-blend-overlay opacity-20 pointer-events-none"></div>
+
+                {isAdminMode && (
+                    <div className="absolute top-4 left-4 z-40 bg-white/95 backdrop-blur p-5 rounded-2xl shadow-2xl border-4 border-brand-cyan max-w-sm">
+                         <div className="flex items-center gap-2 mb-3">
+                            <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                            <p className="text-xs font-black text-brand-slate uppercase tracking-widest leading-none">Admin View Framer</p>
+                         </div>
+                         <p className="text-sm font-medium text-brand-navy mb-4 leading-relaxed">Zoom and drag the map below to frame the perfect shot. The elevation chart overlay mimics what public users will see covering the bottom area.</p>
+                         <button 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (mapInstance.current && onSaveView) {
+                                    const view = mapInstance.current.getView();
+                                    const center = view.getCenter();
+                                    const zoom = view.getZoom() || 7;
+                                    if (center) {
+                                        const lonLat = toLonLat(center);
+                                        onSaveView(lonLat[0], lonLat[1], zoom);
+                                    }
+                                }
+                            }}
+                            className="w-full flex justify-center items-center bg-brand-navy text-white px-4 py-3 rounded-xl font-bold hover:bg-brand-cyan hover:text-brand-navy transition-colors shadow-lg shadow-brand-navy/20"
+                         >
+                             Save Public Anchor
+                         </button>
+                    </div>
+                )}
 
                 {/* HIDDEN MARKER ELEMENTS (Projected onto Map by OpenLayers) */}
                 <div className="hidden">

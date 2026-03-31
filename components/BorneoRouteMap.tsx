@@ -14,9 +14,17 @@ import Overlay from "ol/Overlay";
 import GPX from 'ol/format/GPX';
 import { getDistance } from 'ol/sphere';
 import { Flag, Trophy, Compass } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceDot } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+
+const MAP_LAYERS: Record<string, string> = {
+    'custom-cyan': 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    'light': 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    'dark': 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    'satellite': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    'terrain': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}',
+};
 
 interface BorneoRouteMapProps {
     className?: string;
@@ -31,6 +39,16 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
     // Convex Data
     const activeRoute = useQuery(api.maps.getActiveRoute);
     const remoteMarkers = useQuery(api.maps.getMarkers) || [];
+    const publicSettings = useQuery(api.admin.getPublicSettings) || [];
+
+    const mapConfig = useMemo(() => {
+        const getSetting = (k: string, def: string) => publicSettings.find(s => s.key === k)?.value || def;
+        return {
+            layer: getSetting('map_layer', 'custom-cyan'),
+            brightness: parseInt(getSetting('map_brightness', '85'), 10),
+            opacity: parseInt(getSetting('map_opacity', '100'), 10),
+        };
+    }, [publicSettings]);
 
     // Local State
     const [elevationData, setElevationData] = useState<{dist: number, ele: number, lon: number, lat: number}[]>([]);
@@ -70,8 +88,8 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
             layers: [
                 new TileLayer({
                     source: new XYZ({
-                        url: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                        attributions: '© OpenStreetMap, © CARTO'
+                        url: MAP_LAYERS[mapConfig.layer] || MAP_LAYERS['custom-cyan'],
+                        attributions: '© OpenStreetMap, © CARTO, © Esri'
                     }),
                     className: "bw-map", 
                 }),
@@ -99,7 +117,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
             setMapLoaded(false);
             cursorOverlayRef.current = null;
         };
-    }, []);
+    }, [mapConfig.layer]); // Re-initialize if the base layer type changes
 
     // Effect for fetching and parsing the active route file
     useEffect(() => {
@@ -305,12 +323,20 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
         return null;
     };
 
+    // Dynamic Visual Filters
+    const mapFilterStyle = useMemo(() => {
+        if (mapConfig.layer === 'custom-cyan') {
+            return `grayscale(0.2) invert(1) hue-rotate(180deg) brightness(${mapConfig.brightness}%) contrast(1.5) saturate(1.5)`;
+        }
+        return `brightness(${mapConfig.brightness}%) contrast(1.1)`;
+    }, [mapConfig]);
+
     return (
         <div className={className ? `relative flex flex-col ${className}` : "relative flex flex-col w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
 
-            {/* MAP CONTAINER (Top Half) */}
-            <div className="relative w-full h-[360px] md:h-[450px]">
-                <div ref={mapRef} className="w-full h-full filter grayscale-[0.2] invert hue-rotate-[180deg] brightness-[0.85] contrast-[1.5] saturate-[1.5]" />
+            {/* MAP CONTAINER (Full Height) */}
+            <div className="relative w-full h-[360px] md:h-[650px] z-10">
+                <div ref={mapRef} className="w-full h-full transition-all duration-1000" style={{ filter: mapFilterStyle }} />
                 <div className="absolute inset-0 bg-[#013254] mix-blend-overlay opacity-20 pointer-events-none"></div>
 
                 {/* HIDDEN MARKER ELEMENTS (Projected onto Map by OpenLayers) */}
@@ -366,14 +392,17 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                 </div>
             </div>
 
-            {/* ELEVATION PROFILE CHART (Bottom Half) */}
+            {/* ELEVATION PROFILE CHART (Bottom Half Absolute Overlay) */}
             {elevationData.length > 0 && (
-                <div className="w-full bg-brand-navy border-t-2 border-brand-cyan/30 pt-4 pb-2 px-1 text-white relative h-[150px] md:h-[200px]">
-                    <div className="absolute top-2 left-4 text-xs font-bold text-white/50 tracking-widest uppercase flex items-center gap-2 z-10">
+                <div 
+                   className="absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-2 px-1 text-white h-[150px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
+                   style={{ backgroundColor: `rgba(1, 50, 84, ${mapConfig.opacity / 100})`, backdropFilter: mapConfig.opacity < 100 ? 'blur(3px)' : 'none' }}
+                >
+                    <div className="absolute top-2 left-4 text-xs font-bold text-white/80 tracking-widest uppercase flex items-center gap-2 z-10 pointer-events-none">
                         Elevation Profile
                         <span className="inline-block w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
                     </div>
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" className="pointer-events-auto">
                         <AreaChart
                             data={elevationData}
                             margin={{ top: 20, right: 0, left: -20, bottom: 0 }}

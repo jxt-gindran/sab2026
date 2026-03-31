@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { Map, Upload, Trash2, Plus, CheckCircle2 } from 'lucide-react';
+import { Map, Upload, Trash2, Plus, CheckCircle2, Sliders } from 'lucide-react';
+import { useAuth } from '../components/AuthContext';
 
 export default function MapCMS() {
   // Routes State
@@ -21,6 +22,21 @@ export default function MapCMS() {
   const addMarker = useMutation(api.maps.addMarker);
   const removeMarker = useMutation(api.maps.removeMarker);
   const updateMarkerOrder = useMutation(api.maps.updateMarkerOrder);
+
+  // Settings Configuration
+  const { token } = useAuth();
+  const publicSettings = useQuery(api.admin.getPublicSettings) || [];
+  const updateSetting = useMutation(api.admin.updateSetting);
+
+  const getSetting = (k: string, def: string) => publicSettings.find((s: any) => s.key === k)?.value || def;
+  const mapLayer = getSetting('map_layer', 'custom-cyan');
+  const mapBrightness = getSetting('map_brightness', '85');
+  const mapOpacity = getSetting('map_opacity', '100');
+
+  const handleSettingChange = async (key: string, value: string) => {
+      if (!token) return;
+      await updateSetting({ token, key, value, isSecret: false });
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,6 +152,50 @@ export default function MapCMS() {
         {uploadSuccess && (
           <p className="text-emerald-500 font-bold text-sm mt-3 flex items-center gap-1"><CheckCircle2 className="h-4 w-4"/> Successfully updated map data!</p>
         )}
+      </section>
+
+      {/* MAP VISUALS */}
+      <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <h2 className="text-xl font-black font-heading text-brand-navy mb-6 flex items-center gap-2">
+          <Sliders className="h-5 w-5 text-brand-cyan" /> Visual Map Settings
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Base Map Layer</label>
+            <select 
+              value={mapLayer}
+              onChange={(e) => handleSettingChange('map_layer', e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-brand-navy focus:outline-none focus:border-brand-cyan font-bold"
+            >
+              <option value="custom-cyan">The Ride Custom (Cyan)</option>
+              <option value="light">Minimal Light</option>
+              <option value="dark">Stealth Dark</option>
+              <option value="satellite">High-Res Satellite</option>
+              <option value="terrain">Topographic Terrain</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Map Brightness: {mapBrightness}%</label>
+            <input 
+              type="range" min="30" max="200" step="5"
+              value={mapBrightness}
+              onChange={(e) => handleSettingChange('map_brightness', e.target.value)}
+              className="w-full h-2 bg-brand-pale rounded-full appearance-none cursor-pointer mt-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Chart Box Opacity: {mapOpacity}%</label>
+            <input 
+              type="range" min="0" max="100" step="5"
+              value={mapOpacity}
+              onChange={(e) => handleSettingChange('map_opacity', e.target.value)}
+              className="w-full h-2 bg-brand-pale rounded-full appearance-none cursor-pointer mt-3"
+            />
+          </div>
+        </div>
       </section>
 
       {/* MARKERS */}

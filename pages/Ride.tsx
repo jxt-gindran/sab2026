@@ -48,7 +48,7 @@ const Ride: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
             26 July - 1 August 2026
           </div>
-          <h1 className="text-5xl md:text-8xl font-black font-heading leading-tight mb-8">
+          <h1 className="text-5xl md:text-8xl font-black text-white font-heading leading-tight mb-8">
             The <span className="text-brand-orange">Ride.</span>
           </h1>
           <div className="flex items-center justify-center gap-3 text-xl text-brand-pale font-medium mb-16">

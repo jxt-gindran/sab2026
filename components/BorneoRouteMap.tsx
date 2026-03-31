@@ -219,6 +219,69 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
 
     }, [remoteMarkers, mapLoaded]);
 
+    // Dynamic Collision Detection for Labels
+    useEffect(() => {
+        if (!mapInstance.current || !mapLoaded || remoteMarkers.length === 0) return;
+        const map = mapInstance.current;
+
+        const repositionLabels = () => {
+            const labels = Array.from(document.querySelectorAll('.marker-label')) as HTMLElement[];
+            
+            // Reset transforms
+            labels.forEach(el => {
+                el.style.transform = 'translate(0px, 0px)';
+                el.style.zIndex = '20';
+            });
+
+            requestAnimationFrame(() => {
+                const rects = labels.map(l => ({ el: l, rect: l.getBoundingClientRect() }));
+                
+                for (let i = 0; i < rects.length; i++) {
+                    for (let j = i + 1; j < rects.length; j++) {
+                        const r1 = rects[i].rect;
+                        const r2 = rects[j].rect;
+                        
+                        // Check overlap
+                        if (!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
+                            rects[j].el.style.zIndex = '30';
+                            
+                            const overlapLeft = r2.right - r1.left;
+                            const overlapRight = r1.right - r2.left;
+                            const overlapTop = r2.bottom - r1.top;
+                            const overlapBottom = r1.bottom - r2.top;
+                            
+                            const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+                            
+                            let cx = 0, cy = 0;
+                            const currentTransform = rects[j].el.style.transform;
+                            const match = currentTransform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+                            if (match) {
+                                cx = parseFloat(match[1]);
+                                cy = parseFloat(match[2]);
+                            }
+
+                            if (minOverlap === overlapLeft) cx -= (overlapLeft + 4);
+                            else if (minOverlap === overlapRight) cx += (overlapRight + 4);
+                            else if (minOverlap === overlapTop) cy -= (overlapTop + 4);
+                            else if (minOverlap === overlapBottom) cy += (overlapBottom + 4);
+                            
+                            rects[j].el.style.transform = `translate(${cx}px, ${cy}px)`;
+                            rects[j].rect = rects[j].el.getBoundingClientRect(); // update rect
+                        }
+                    }
+                }
+            });
+        };
+
+        map.on('moveend', repositionLabels);
+        const timeout = setTimeout(repositionLabels, 400);
+
+        return () => {
+            map.un('moveend', repositionLabels);
+            clearTimeout(timeout);
+        };
+    }, [remoteMarkers, mapLoaded]);
+
     // Effect to pin the moving dot on the map when hovering the chart
     useEffect(() => {
         if (cursorOverlayRef.current && hoverPoint) {
@@ -260,7 +323,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                                     <div className="p-2 bg-[#FF7F32] rounded-full text-white shadow-lg border-2 border-white animate-bounce">
                                         <Flag className="w-5 h-5 fill-current" />
                                     </div>
-                                    <span className="absolute top-full mt-1.5 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
+                                    <span className="marker-label absolute top-full mt-1.5 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap transition-transform duration-300">
                                         START: {stop.name}
                                     </span>
                                 </div>
@@ -272,7 +335,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                                     <div className="p-2 bg-[#0cdfed] rounded-full text-[#013254] shadow-lg border-2 border-white animate-pulse">
                                         <Trophy className="w-5 h-5 fill-current" />
                                     </div>
-                                    <span className="absolute top-full mt-1.5 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
+                                    <span className="marker-label absolute top-full mt-1.5 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap transition-transform duration-300">
                                         FINISH: {stop.name}
                                     </span>
                                 </div>
@@ -282,7 +345,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                             {stop.type === "stop" && (
                                 <div className="group/dot relative flex flex-col items-center justify-center">
                                     <div className="w-4 h-4 bg-[#013254] rounded-full border-2 border-white shadow-md hover:scale-150 transition-transform duration-200 z-10" />
-                                    <div className="absolute top-full mt-1 text-[10px] font-black text-[#013254] bg-white/70 px-1 rounded uppercase tracking-wider shadow whitespace-nowrap pointer-events-none">
+                                    <div className="marker-label absolute top-full mt-1 text-[10px] font-black text-[#013254] bg-white/70 px-1 rounded uppercase tracking-wider shadow whitespace-nowrap pointer-events-none transition-transform duration-300">
                                         {stop.name}
                                     </div>
                                     {stop.description && (

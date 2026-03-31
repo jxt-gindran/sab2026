@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, ShieldCheck } from 'lucide-react';
+import { Facebook, Instagram, ShieldCheck, Bike } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -11,21 +11,17 @@ const Footer: React.FC = () => {
 
           {/* 1. BRAND COLUMN */}
           <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="h-24 w-24 bg-white/10 rounded-xl flex items-center justify-center shadow-lg p-3 shrink-0">
-                <img src="/assets/logos/SABFavicon.png" alt="SAB Logo" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <div className="text-lg font-black text-white tracking-tight font-heading uppercase leading-tight max-w-[200px]">SEPEDA AMAL BORNEO 2026</div>
-                <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest mt-1">Charity Ride</div>
+            <div className="flex gap-4">
+              <div className="h-24 w-48 shrink-0">
+                <img src="/assets/logos/SAB Logo_ Light.png" alt="SAB Logo" className="w-full h-full object-contain object-left" />
               </div>
             </div>
-            <p className="text-brand-slate text-sm font-medium leading-relaxed max-w-sm">
+            <p className="text-white text-sm font-medium leading-relaxed max-w-sm">
               Trusted Authority. Vibrant Hope.<br /><br />
               Sepeda Amal Borneo 2026 (SAB2026) is a premier 660KM charity cycling event across Borneo, from Kota Kinabalu (Sabah) to Miri (Sarawak).
               Organized by the Malaysian Medical Association Foundation (MMAF) to fund life-saving paediatric surgeries and support children with Primary Immunodeficiencies (PID).
             </p>
-            <div className="flex flex-col gap-4 items-start">
+            <div className="flex flex-row gap-4 items-center">
               <div className="bg-white p-2 rounded-lg shadow-sm">
                 <img
                   src="/assets/logos/MAPS%20Logo.png"
@@ -92,9 +88,16 @@ const Footer: React.FC = () => {
 
         {/* COPYRIGHT BAR */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] font-bold text-brand-slate uppercase tracking-widest text-center md:text-left">
-            &copy; 2026 Sepeda Amal Borneo. Organized by MMA Foundation.
-          </p>
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <p className="text-[10px] font-bold text-brand-slate uppercase tracking-widest text-center md:text-left">
+              &copy; 2026 Sepeda Amal Borneo. Organized by MMA Foundation.
+            </p>
+            <div className="hidden md:flex items-center gap-2 text-brand-cyan/60">
+              <span className="h-1 w-1 bg-brand-cyan rounded-full"></span>
+              <Bike className="h-3 w-3" />
+              <span className="text-[9px] font-black uppercase tracking-widest">Powered by Cyclists</span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-brand-cyan animate-pulse"></span>
             <span className="text-[10px] font-black uppercase tracking-widest text-brand-slate">System Operational</span>

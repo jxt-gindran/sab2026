@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart, Globe } from 'lucide-react';
 import RegistrationModal from './RegistrationModal';
 
 const Navbar: React.FC = () => {
@@ -63,6 +63,17 @@ const Navbar: React.FC = () => {
             {/* Desktop Menu */}
             <div className="hidden md:block">
               <div className="flex items-center space-x-8">
+                {/* Language Selector */}
+                <button
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                    isScrolled || !isDarkHeroPage ? 'text-brand-slate hover:bg-brand-pale bg-brand-pale/50' : 'text-white hover:bg-white/20 bg-white/10'
+                  }`}
+                  title="Language Options"
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                  <span>EN</span>
+                </button>
+
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
@@ -138,6 +149,14 @@ const Navbar: React.FC = () => {
               ))}
 
               <div className="pt-8 space-y-4 border-t border-brand-pale mt-8">
+                {/* Mobile Language Selector */}
+                <div className="flex items-center justify-between py-4 border-b border-brand-pale/50 mb-4">
+                  <span className="text-sm font-black text-brand-slate uppercase tracking-widest">Language</span>
+                  <button className="flex items-center gap-2 px-4 py-2 bg-brand-pale/50 text-brand-navy rounded-lg text-sm font-black uppercase tracking-widest">
+                    <Globe className="h-4 w-4" /> EN
+                  </button>
+                </div>
+
                 <button
                   onClick={() => {
                     setIsOpen(false);

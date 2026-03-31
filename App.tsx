@@ -16,10 +16,31 @@ import ThankYou from './pages/ThankYou';
 import PaymentCancelled from './pages/PaymentCancelled';
 import CyclistProfile from './pages/CyclistProfile';
 
-const ScrollToTop = () => {
+const ScrollToTopAndSEO = () => {
   const { pathname } = useLocation();
   React.useEffect(() => {
     window.scrollTo(0, 0);
+
+    const routesContent: Record<string, { title: string, desc: string }> = {
+      '/': { title: 'Sepeda Amal Borneo 2026', desc: 'A 660km charity cycling expedition across Borneo funding life-saving paediatric surgeries.' },
+      '/mission': { title: 'Our Mission | SAB 2026', desc: 'Learn about our mission to fund life-saving paediatric care in Sarawak through a 660km cycling expedition.' },
+      '/legacy': { title: 'Our Legacy | SAB 2026', desc: 'Building on the success of past editions, our legacy continues as we cycle across Borneo.' },
+      '/ride': { title: 'The Ride | SAB 2026', desc: 'Explore the 680km route from Kota Kinabalu to Miri. Meet the dedicated cyclists undertaking the challenge.' },
+      '/donate': { title: 'Donate | SAB 2026', desc: 'Support the Sepeda Amal Borneo expedition. Your donation directly funds life-saving paediatric care.' },
+      '/contact': { title: 'Contact Us | SAB 2026', desc: 'Get in touch for sponsorships or general questions.' },
+      '/faq': { title: 'FAQ | SAB 2026', desc: 'Frequently asked questions about the SAB 2026 Charity Ride.' }
+    };
+
+    const seo = routesContent[pathname] || { title: 'Sepeda Amal Borneo 2026', desc: 'Charity cycling expedition across Borneo.' };
+    document.title = seo.title;
+    
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', seo.desc);
   }, [pathname]);
   return null;
 };
@@ -28,7 +49,7 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
-        <ScrollToTop />
+        <ScrollToTopAndSEO />
         <Navbar />
         <main className="flex-grow">
           <Routes>

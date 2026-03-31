@@ -36,7 +36,27 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center gap-1 px-3 py-2 bg-slate-50 border-b border-slate-200">
+      <div className="flex flex-wrap items-center gap-1 px-3 py-2 bg-slate-50 border-b border-slate-200">
+        <select 
+          onChange={(e) => {
+            if (e.target.value) {
+              exec('formatBlock', e.target.value);
+              e.target.value = '';
+            }
+          }}
+          className="mx-1 text-xs font-bold text-slate-600 bg-transparent border-none focus:outline-none hover:bg-slate-200 p-1 rounded cursor-pointer"
+          title="Text Style"
+        >
+          <option value="" disabled selected>Style</option>
+          <option value="H1">Heading 1</option>
+          <option value="H2">Heading 2</option>
+          <option value="H3">Heading 3</option>
+          <option value="H4">Heading 4</option>
+          <option value="H5">Heading 5</option>
+          <option value="H6">Heading 6</option>
+          <option value="P">Paragraph</option>
+        </select>
+        <div className="w-px h-5 bg-slate-300 mx-1" />
         <ToolBtn onClick={() => exec('bold')} title="Bold"><Bold className="h-4 w-4" /></ToolBtn>
         <ToolBtn onClick={() => exec('italic')} title="Italic"><Italic className="h-4 w-4" /></ToolBtn>
         <ToolBtn onClick={() => exec('underline')} title="Underline"><Underline className="h-4 w-4" /></ToolBtn>

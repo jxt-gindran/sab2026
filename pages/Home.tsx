@@ -8,7 +8,9 @@ import {
   Map,
   MapPin,
   PlayCircle,
-  User
+  User,
+  Bike,
+  Settings
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -347,13 +349,14 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
             {/* The Why */}
-            <div>
-              <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm animate-fade-in">Our Core Mission 2026</div>
-              <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-6 tracking-tighter font-heading">Two Causes. <br />One Lifeline.</h2>
-              <p className="text-lg text-brand-slate font-medium mb-8 leading-relaxed">
+            <div className="relative">
+              <Bike className="absolute -top-10 -left-10 h-40 w-40 text-brand-navy/5 -rotate-12 pointer-events-none" />
+              <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm animate-fade-in relative z-10">Our Core Mission 2026</div>
+              <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-6 tracking-tighter font-heading relative z-10">Two Causes. <br />One Lifeline.</h2>
+              <p className="text-lg text-brand-slate font-medium mb-8 leading-relaxed relative z-10">
                 Sepeda Amal Borneo is more than a cycling event; it is a movement. We ride to turn awareness into action, ensuring that no child is denied medical care due to lack of funds.
               </p>
-              <div className="h-1 w-24 bg-brand-cyan rounded-full"></div>
+              <div className="h-1 w-24 bg-brand-cyan rounded-full relative z-10"></div>
             </div>
 
             {/* The Who (Cards) */}
@@ -410,8 +413,9 @@ const Home: React.FC = () => {
       </section>
 
       {/* 5. OUR LEGACY (The Track Record) */}
-      <section id="history" className="py-24 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="history" className="py-24 bg-white overflow-hidden relative">
+        <div className="absolute inset-0 bg-tire-tread opacity-[0.02] pointer-events-none" style={{ backgroundSize: '100px 100px' }}></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="mb-16 text-center md:text-left">
             <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-4 tracking-tighter font-heading">A History of Moving Mountains.</h2>
             <p className="text-brand-slate font-medium text-lg">Consistent impact, year after year.</p>
@@ -422,7 +426,7 @@ const Home: React.FC = () => {
             <div className="absolute top-1/2 left-0 right-0 h-2 bg-tire-tread -translate-y-1/2 hidden md:block z-0"></div>
 
             {/* Horizontal Scroll Container */}
-            <div className="flex overflow-x-auto gap-8 pb-8 md:grid md:grid-cols-4 md:gap-8 relative z-10 snap-x snap-mandatory hide-scrollbar">
+            <div className="flex overflow-x-auto gap-8 pt-8 pb-8 md:grid md:grid-cols-4 md:gap-8 relative z-10 snap-x snap-mandatory hide-scrollbar">
               {TIMELINE.map((item, i) => (
                 <div key={i} className="min-w-[280px] snap-center bg-white p-8 rounded-[2rem] border border-brand-grey/20 shadow-lg text-center relative group hover:-translate-y-2 transition-transform">
                   {/* Use Lucide Settings icon for consistency */}
@@ -466,7 +470,10 @@ const Home: React.FC = () => {
                 </p>
 
                 {/* Visual Route Placeholder */}
-                <div className="mt-12 max-w-lg mx-auto">
+                <div className="mt-12 max-w-lg mx-auto relative cursor-default">
+                  <div className="absolute -top-6 left-0 animate-[ride_8s_ease-in-out_infinite] z-20 text-brand-orange">
+                    <Bike className="h-6 w-6" />
+                  </div>
                   <div className="h-3 w-full bg-white/10 rounded-full relative overflow-hidden">
                     <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-brand-cyan via-brand-orange to-brand-cyan animate-shimmer" style={{ backgroundSize: '200% 100%' }}></div>
                   </div>
@@ -548,8 +555,11 @@ const Home: React.FC = () => {
       </section>
 
       {/* 7. CTA (The Closer) */}
-      <section className="py-24 bg-white text-center border-t border-brand-pale">
-        <div className="max-w-4xl mx-auto px-4">
+      <section className="py-24 bg-white text-center border-t border-brand-pale relative overflow-hidden">
+        <Settings className="absolute -top-32 -left-32 h-96 w-96 text-brand-pale/50 animate-[spin_40s_linear_infinite] pointer-events-none" />
+        <Settings className="absolute -bottom-32 -right-32 h-96 w-96 text-brand-pale/50 animate-[spin_40s_linear_infinite_reverse] pointer-events-none" />
+        
+        <div className="max-w-4xl mx-auto px-4 relative z-10">
           <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter text-brand-navy font-heading">Ready to Make an Impact?</h2>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link

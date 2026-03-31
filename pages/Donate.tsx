@@ -96,7 +96,7 @@ const Donate: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white pt-20 pb-12 px-4 font-sans text-brand-slate">
+    <div className="min-h-screen bg-white pt-32 pb-12 px-4 font-sans text-brand-slate">
 
       {/* 💳 DONATION WIZARD CONTAINER */}
       <div className="max-w-5xl mx-auto animate-fade-in">

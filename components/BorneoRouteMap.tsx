@@ -439,8 +439,8 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
                         <AreaChart
                             data={elevationData}
                             margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
-                            onMouseMove={(e) => {
-                                if (e.activePayload && e.activePayload.length) {
+                            onMouseMove={(e: any) => {
+                                if (e && e.activePayload && e.activePayload.length) {
                                     const point = e.activePayload[0].payload;
                                     setHoverPoint([point.lon, point.lat]);
                                 }
@@ -456,7 +456,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
                             <XAxis 
                                 dataKey="dist" 
                                 tick={{fill: '#94a3b8', fontSize: 10}}
-                                tickFormatter={(val) => `${Math.round(val)}km`}
+                                tickFormatter={(val: any) => `${Math.round(val)}km`}
                                 minTickGap={30}
                                 axisLine={false}
                                 tickLine={false}

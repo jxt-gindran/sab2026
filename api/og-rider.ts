@@ -25,7 +25,12 @@ export default async function handler(req: any, res: any) {
     // Build the fallback HTML for crawlers and humans
     const title = `Support ${cyclist.name} | SAB 2026`;
     const description = `${cyclist.name} is riding 680KM across Borneo to raise RM ${cyclist.goal.toLocaleString()} for life-saving paediatric care.`;
-    const imageUrl = cyclist.profileUrl || "https://sab2026.com/assets/logos/SABFavicon.png";
+    
+    let imageUrl = cyclist.profileUrl || "https://sab2026.com/assets/images/sabcyclist.jpg";
+    if (imageUrl.startsWith("/")) {
+      imageUrl = `https://sab2026.com${imageUrl}`;
+    }
+    
     const url = `https://sab2026.com/riders/${slug}`; 
 
     const html = `<!DOCTYPE html>

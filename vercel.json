@@ -20,6 +20,17 @@
             "destination": "/api/og-rider?slug=:slug"
         },
         {
+            "source": "/([^.]*)",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "user-agent",
+                    "value": "(?i).*(facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Pinterest|TelegramBot|Slackbot|Discordbot).*"
+                }
+            ],
+            "destination": "/api/og-site?path=$1"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
-import { Lock, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function Login() {
   const [inputToken, setInputToken] = useState('');
@@ -26,8 +26,8 @@ export default function Login() {
       <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-fade-in relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-brand-cyan"></div>
         
-        <div className="h-16 w-16 bg-brand-pale rounded-2xl flex items-center justify-center mb-6 text-brand-navy mx-auto">
-          <Lock className="h-8 w-8" />
+        <div className="h-24 w-24 bg-white/10 rounded-2xl flex items-center justify-center mb-6 mx-auto hover:scale-105 transition-transform">
+          <img src="/assets/logos/SABFavicon.png" alt="SAB Logo" className="h-full w-full object-contain drop-shadow-md" onError={(e) => (e.currentTarget.style.display = 'none')} />
         </div>
         
         <h1 className="text-3xl font-black text-center text-brand-navy mb-2 font-heading tracking-tight">Nadi-SAB</h1>

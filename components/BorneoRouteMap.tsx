@@ -210,7 +210,7 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                 const overlay = new Overlay({
                     element: element,
                     position: fromLonLat([stop.lng, stop.lat]),
-                    positioning: "bottom-center",
+                    positioning: "center-center",
                     stopEvent: false, 
                 });
                 map.addOverlay(overlay);
@@ -256,11 +256,11 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
                         <div key={stop._id} id={`stop-${stop._id}`} className="relative group cursor-pointer z-20">
                             {/* START MARKER */}
                             {stop.type === "start" && (
-                                <div className="flex flex-col items-center transform -translate-y-2">
+                                <div className="flex flex-col items-center justify-center relative">
                                     <div className="p-2 bg-[#FF7F32] rounded-full text-white shadow-lg border-2 border-white animate-bounce">
                                         <Flag className="w-5 h-5 fill-current" />
                                     </div>
-                                    <span className="mt-1 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
+                                    <span className="absolute top-full mt-1.5 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
                                         START: {stop.name}
                                     </span>
                                 </div>
@@ -268,11 +268,11 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
 
                             {/* FINISH MARKER */}
                             {stop.type === "finish" && (
-                                <div className="flex flex-col items-center transform -translate-y-2">
+                                <div className="flex flex-col items-center justify-center relative">
                                     <div className="p-2 bg-[#0cdfed] rounded-full text-[#013254] shadow-lg border-2 border-white animate-pulse">
                                         <Trophy className="w-5 h-5 fill-current" />
                                     </div>
-                                    <span className="mt-1 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
+                                    <span className="absolute top-full mt-1.5 px-2 py-0.5 bg-white/95 text-[10px] font-bold text-[#013254] rounded shadow whitespace-nowrap">
                                         FINISH: {stop.name}
                                     </span>
                                 </div>
@@ -280,9 +280,9 @@ export function BorneoRouteMap({ className }: BorneoRouteMapProps = {}) {
 
                             {/* PIT STOPS */}
                             {stop.type === "stop" && (
-                                <div className="group/dot relative flex flex-col items-center">
+                                <div className="group/dot relative flex flex-col items-center justify-center">
                                     <div className="w-4 h-4 bg-[#013254] rounded-full border-2 border-white shadow-md hover:scale-150 transition-transform duration-200 z-10" />
-                                    <div className="mt-1 text-[10px] font-black text-white uppercase tracking-wider drop-shadow-md whitespace-nowrap pointer-events-none">
+                                    <div className="absolute top-full mt-1 text-[10px] font-black text-[#013254] bg-white/70 px-1 rounded uppercase tracking-wider shadow whitespace-nowrap pointer-events-none">
                                         {stop.name}
                                     </div>
                                     {stop.description && (

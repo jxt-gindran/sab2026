@@ -46,7 +46,7 @@ const App: React.FC = () => {
               <Route index element={<DashboardHome />} />
               <Route path="content" element={<Content />} />
               <Route path="cyclists" element={<Cyclists />} />
-              <Route path="maps" element={<MapCMS />} />
+              <Route path="ride" element={<MapCMS />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

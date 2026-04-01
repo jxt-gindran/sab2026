@@ -9,7 +9,7 @@ export default function Layout() {
     { to: '/', icon: Home, label: 'Dashboard' },
     { to: '/content', icon: FileText, label: 'Content CMS' },
     { to: '/cyclists', icon: Users, label: 'Cyclist Profiles' },
-    { to: '/maps', icon: Map, label: 'Route & Maps' },
+    { to: '/ride', icon: Map, label: 'Route & Maps' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
 

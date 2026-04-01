@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { Map as MapIcon, Upload, Trash2, Plus, CheckCircle2, Sliders } from 'lucide-react';
+import { Map as MapIcon, Upload, Trash2, Plus, CheckCircle2, Sliders, ExternalLink } from 'lucide-react';
 import { useAuth } from '../components/AuthContext';
-import { BorneoRouteMap } from '../../../components/BorneoRouteMap';
 
 export default function MapCMS() {
   // Routes State
@@ -45,8 +44,13 @@ export default function MapCMS() {
       await updateSetting({ token, key: 'map_center_lng', value: lng.toString(), isSecret: false });
       await updateSetting({ token, key: 'map_center_lat', value: lat.toString(), isSecret: false });
       await updateSetting({ token, key: 'map_zoom', value: zoom.toString(), isSecret: false });
-      alert("Success! The public map anchor coordinates have been updated.");
+      alert('Map anchor saved! Public view updated.');
   };
+
+  // Manual coordinate form state
+  const [manualLng, setManualLng] = useState('');
+  const [manualLat, setManualLat] = useState('');
+  const [manualZoom, setManualZoom] = useState('');
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -305,9 +309,83 @@ export default function MapCMS() {
       {/* MAP PREVIEW & FRAMER */}
       <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative pt-12 mt-12">
         <div className="absolute -top-6 left-8 bg-brand-cyan text-brand-navy px-6 py-2 rounded-full font-black text-sm tracking-widest uppercase shadow-lg shadow-brand-cyan/20 border-4 border-white">
-          Active Map Framer
+          Map View Framer
         </div>
-        <BorneoRouteMap isAdminMode={true} onSaveView={handleSaveView} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+            <h3 className="font-black text-brand-navy mb-1 text-base">Live Map Preview</h3>
+            <p className="text-sm text-brand-slate mb-4">This shows the exact public view. Use the coordinate fields on the right to precisely set the map center and zoom so markers like START and FINISH are fully visible above the elevation profile overlay.</p>
+            <a href="/ride" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-brand-orange font-bold text-sm hover:underline">
+              <ExternalLink className="h-4 w-4" /> Open Public Map in New Tab
+            </a>
+          </div>
+
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+            <h3 className="font-black text-brand-navy mb-4 text-base">Set Map Anchor Coordinates</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Center Longitude (e.g. 115.4)</label>
+                <input
+                  type="number" step="any"
+                  placeholder={getSetting('map_center_lng', '115.4')}
+                  value={manualLng}
+                  onChange={e => setManualLng(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2 font-mono text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Center Latitude (e.g. 5.2)</label>
+                <input
+                  type="number" step="any"
+                  placeholder={getSetting('map_center_lat', '5.2')}
+                  value={manualLat}
+                  onChange={e => setManualLat(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2 font-mono text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Zoom Level (5=far, 12=close)</label>
+                <input
+                  type="number" step="0.1" min="4" max="16"
+                  placeholder={getSetting('map_zoom', '7.8')}
+                  value={manualZoom}
+                  onChange={e => setManualZoom(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2 font-mono text-sm"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  const lng = parseFloat(manualLng);
+                  const lat = parseFloat(manualLat);
+                  const zoom = parseFloat(manualZoom);
+                  if (!isNaN(lng) && !isNaN(lat) && !isNaN(zoom)) {
+                    handleSaveView(lng, lat, zoom);
+                  } else {
+                    alert('Please fill in all three coordinate fields with valid numbers.');
+                  }
+                }}
+                className="w-full bg-brand-navy text-white font-bold px-4 py-3 rounded-xl hover:bg-brand-cyan hover:text-brand-navy transition-colors mt-2"
+              >
+                Save Public Map Anchor
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Live iframe preview */}
+        <div className="rounded-2xl overflow-hidden border-4 border-brand-navy/10 shadow-xl">
+          <div className="bg-brand-navy/5 px-4 py-2 text-xs font-bold text-brand-slate uppercase tracking-widest flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Live Public Map Preview — sab.mma.org.my/ride
+          </div>
+          <iframe
+            src="/ride"
+            title="Public Map Preview"
+            className="w-full h-[500px] border-0"
+            loading="lazy"
+          />
+        </div>
       </section>
 
     </div>

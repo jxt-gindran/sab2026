@@ -60,17 +60,18 @@ const Mission: React.FC = () => {
             <div className="order-1 lg:order-2">
               <img src="/assets/logos/MAPS%20Logo.png" alt="MAPS Logo" className="h-20 mb-8 object-contain" />
               <h3 className="text-3xl lg:text-4xl font-black text-brand-navy mb-2 font-heading">Malaysian Association of Paediatric Surgery</h3>
-              <div className="text-sm font-black text-brand-orange uppercase tracking-widest mb-8">Repairing Little Lives</div>
+              <div className="text-sm font-black text-brand-orange uppercase tracking-widest mb-8">Restoring Futures, One Child at a Time</div>
 
               <p className="text-lg text-brand-slate mb-8 leading-relaxed">
-                For babies born with congenital abnormalities, surgery is their only chance. MAPS funds training and equipment to perform miracles on hearts, intestines, and airways.
+                Children born with congenital conditions don't just need care—they need timely, specialised surgery to survive and thrive. MAPS strengthens paediatric surgical services across Malaysia through training, system development, and strategic collaboration, ensuring that every child benefits from timely, coordinated, and seamless surgical care—no matter where they are.
               </p>
 
               <ul className="space-y-4 mb-8">
                 {[
-                  "Advancing excellence in surgical care.",
-                  "Ensuring equitable access to safe surgery.",
-                  "Funding life-saving equipment for rural hospitals."
+                  "Advancing excellence in paediatric surgical care.",
+                  "Bridging gaps in access across urban and rural communities.",
+                  "Strengthening capacity through training and essential equipment.",
+                  "Driving collaboration to ensure seamless, end-to-end surgical care."
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <div className="h-6 w-6 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan shrink-0">

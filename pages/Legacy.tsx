@@ -44,9 +44,9 @@ const TIMELINE = [
     title: 'SAB2026',
     beneficiary: 'MAPS & MyPOPI',
     raised: 'Targeting Impact',
-    stats: '10 Cyclists · Surgery & Immunity',
+    stats: '20 Cyclists · Surgery & Immunity',
     desc: 'Writing the next chapter. Join us.',
-    details: 'SAB2026 targets Paediatric Surgery & Immunology. We are gathering 10 elite cyclists to ride for MAPS (Malaysian Association of Paediatric Surgery) and MyPOPI (Malaysian Patient Organization for Primary Immunodeficiencies). Join us in making this the most impactful ride yet, funding life-saving surgeries and immune treatments.',
+    details: 'SAB2026 targets Paediatric Surgery & Immunology. We are gathering 20 elite cyclists to ride for MAPS (Malaysian Association of Paediatric Surgery) and MyPOPI (Malaysian Patient Organization for Primary Immunodeficiencies). Join us in making this the most impactful ride yet, funding life-saving surgeries and immune treatments.',
     active: true
   },
 ];

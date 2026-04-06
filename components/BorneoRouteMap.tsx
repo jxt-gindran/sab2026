@@ -105,13 +105,13 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
             view: new View({
                 center: fromLonLat([mapConfig.centerLng, mapConfig.centerLat]),
                 zoom: initialZoom,
-                minZoom: 4,
-                maxZoom: 16,
+                minZoom: isAdminMode ? 4 : initialZoom - 1,
+                maxZoom: isAdminMode ? 16 : initialZoom + 1.5,
                 constrainResolution: true,
                 rotation: 0,
             }),
             controls: [], 
-            interactions: isAdminMode ? defaultInteractions() : [], 
+            interactions: defaultInteractions(), 
         });
 
         map.addOverlay(cursorOverlay);
@@ -429,7 +429,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
             {/* ELEVATION PROFILE CHART (Bottom Half Absolute Overlay) */}
             {elevationData.length > 0 && (
                 <div 
-                   className="relative md:absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-2 px-1 text-white h-[180px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
+                   className="relative md:absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-0 px-0 text-white h-[180px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
                    style={{ backgroundColor: `rgba(1, 50, 84, ${mapConfig.opacity / 100})`, backdropFilter: mapConfig.opacity < 100 ? 'blur(3px)' : 'none' }}
                 >
                     <div className="absolute top-2 left-4 text-xs font-bold text-white/80 tracking-widest uppercase flex items-center gap-2 z-10 pointer-events-none">
@@ -439,7 +439,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
                     <ResponsiveContainer width="100%" height="100%" className="pointer-events-auto">
                         <AreaChart
                             data={elevationData}
-                            margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
+                            margin={{ top: 20, right: 0, left: -30, bottom: 0 }}
                             onMouseMove={(e: any) => {
                                 if (e && e.activePayload && e.activePayload.length) {
                                     const point = e.activePayload[0].payload;
@@ -467,6 +467,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
                                 axisLine={false}
                                 tickLine={false}
                                 orientation="right"
+                                mirror={true}
                             />
                             <RechartsTooltip content={<CustomTooltip />} />
                             <Area 

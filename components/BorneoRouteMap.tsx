@@ -342,7 +342,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
         <div className={className ? `relative flex flex-col ${className}` : "relative flex flex-col w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
 
             {/* MAP CONTAINER (Full Height) */}
-            <div className={`relative w-full h-[360px] md:h-[650px] z-10 ${isAdminMode ? 'cursor-move' : ''}`}>
+            <div className={`relative w-full h-[400px] md:h-[650px] z-10 ${isAdminMode ? 'cursor-move' : ''}`}>
                 <div ref={mapRef} className="w-full h-full transition-all duration-1000" style={{ filter: mapFilterStyle }} />
                 <div className="absolute inset-0 bg-[#013254] mix-blend-overlay opacity-20 pointer-events-none"></div>
 
@@ -429,7 +429,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
             {/* ELEVATION PROFILE CHART (Bottom Half Absolute Overlay) */}
             {elevationData.length > 0 && (
                 <div 
-                   className="absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-2 px-1 text-white h-[150px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
+                   className="relative md:absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-2 px-1 text-white h-[180px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
                    style={{ backgroundColor: `rgba(1, 50, 84, ${mapConfig.opacity / 100})`, backdropFilter: mapConfig.opacity < 100 ? 'blur(3px)' : 'none' }}
                 >
                     <div className="absolute top-2 left-4 text-xs font-bold text-white/80 tracking-widest uppercase flex items-center gap-2 z-10 pointer-events-none">

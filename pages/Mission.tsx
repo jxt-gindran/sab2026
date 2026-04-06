@@ -134,7 +134,7 @@ const Mission: React.FC = () => {
             </div>
             <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border border-brand-grey/20">
               <img
-                src="/assets/images/immune-care.webp"
+                src="/assets/images/bubble-baby.jpeg"
                 alt="Immune Deficiency Care"
                 className="w-full h-full object-cover"
               />

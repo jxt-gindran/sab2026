@@ -47,13 +47,28 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
 
     const mapConfig = useMemo(() => {
         const getSetting = (k: string, def: string) => publicSettings.find(s => s.key === k)?.value || def;
+        
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const savedZoom = getSetting('map_zoom', '');
+        const savedLat = getSetting('map_center_lat', '');
+        
+        let zoomVal = savedZoom ? parseFloat(savedZoom) : (isMobile ? 6.2 : 7.8);
+        let latVal = savedLat ? parseFloat(savedLat) : 5.2;
+
+        if (isMobile && savedZoom) {
+            zoomVal -= 1.0;
+        }
+        if (isMobile && savedLat) {
+            latVal -= 0.6; // Shift the map downward artificially, moving route center UP on the screen avoiding elevation graph
+        }
+
         return {
             layer: getSetting('map_layer', 'custom-cyan'),
             brightness: parseInt(getSetting('map_brightness', '85'), 10),
             opacity: parseInt(getSetting('map_opacity', '100'), 10),
             centerLng: parseFloat(getSetting('map_center_lng', '115.4')),
-            centerLat: parseFloat(getSetting('map_center_lat', '5.2')),
-            zoom: parseFloat(getSetting('map_zoom', window.innerWidth < 768 ? '6.5' : '7.8')),
+            centerLat: latVal,
+            zoom: zoomVal,
         };
     }, [publicSettings]);
 
@@ -342,7 +357,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
         <div className={className ? `relative flex flex-col ${className}` : "relative flex flex-col w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-[#013254]/10 bg-slate-100"}>
 
             {/* MAP CONTAINER (Full Height) */}
-            <div className={`relative w-full h-[400px] md:h-[650px] z-10 ${isAdminMode ? 'cursor-move' : ''}`}>
+            <div className={`relative w-full h-[500px] md:h-[650px] z-10 ${isAdminMode ? 'cursor-move' : ''}`}>
                 <div ref={mapRef} className="w-full h-full transition-all duration-1000" style={{ filter: mapFilterStyle }} />
                 <div className="absolute inset-0 bg-[#013254] mix-blend-overlay opacity-20 pointer-events-none"></div>
 
@@ -429,7 +444,7 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
             {/* ELEVATION PROFILE CHART (Bottom Half Absolute Overlay) */}
             {elevationData.length > 0 && (
                 <div 
-                   className="relative md:absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-0 px-0 text-white h-[180px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
+                   className="absolute bottom-0 w-full border-t-2 border-brand-cyan/30 pt-4 pb-0 px-0 text-white h-[180px] md:h-[200px] z-30 pointer-events-none transition-all duration-700" 
                    style={{ backgroundColor: `rgba(1, 50, 84, ${mapConfig.opacity / 100})`, backdropFilter: mapConfig.opacity < 100 ? 'blur(3px)' : 'none' }}
                 >
                     <div className="absolute top-2 left-4 text-xs font-bold text-white/80 tracking-widest uppercase flex items-center gap-2 z-10 pointer-events-none">

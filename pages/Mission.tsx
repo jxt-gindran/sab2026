@@ -105,14 +105,15 @@ const Mission: React.FC = () => {
               <div className="text-sm font-black text-brand-orange uppercase tracking-widest mb-8">Defending the Defenseless</div>
 
               <p className="text-lg text-brand-slate mb-8 leading-relaxed">
-                Supporting 'bubble babies' born without functioning immune systems. Your funds aid in early diagnosis, isolation protection, and bone marrow transplants.
+                Supporting "bubble babies" born with severely weakened immune systems, where every moment matters. Your contribution directly enables life-saving early diagnosis, protective isolation, and critical treatments such as bone marrow transplants.
               </p>
 
               <ul className="space-y-4 mb-8">
                 {[
-                  "Promoting early diagnosis to prevent fatal infections.",
-                  "Improving quality of life for families.",
-                  "Funding IPOPI diagnostics kits."
+                  "Saving lives through early detection to prevent severe and often fatal infections",
+                  "Providing financial relief to families facing the overwhelming cost of long-term treatment and care",
+                  "Helping families afford vital genetic diagnostic testing when it matters most",
+                  "Giving SCID patients a second chance at life through critical bone marrow treatment"
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <div className="h-6 w-6 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan shrink-0">

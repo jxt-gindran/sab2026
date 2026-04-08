@@ -264,7 +264,7 @@ const EN_FLAT: Record<string, string> = {
   'donate.err_receipt_email': "Please email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.",
   'donate.sidebar_summary': 'Current Summary',
   'donate.sidebar_donation': 'Donation',
-  'donate.sidebar_sponsoring': 'Sponsoring',
+  'donate.sidebar_sponsoring': 'Supporting',
   'donate.sidebar_general': 'General Medical Fund',
   'donate.sidebar_tax_label': 'Tax Exempt',
   'donate.sidebar_tax_desc': 'All donations to MMA Foundation are tax deductible under Section 44(6) of ITA 1967.',

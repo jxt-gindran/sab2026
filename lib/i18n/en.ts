@@ -371,7 +371,7 @@ export const en = {
     // Sidebar
     sidebar_summary: 'Current Summary',
     sidebar_donation: 'Donation',
-    sidebar_sponsoring: 'Sponsoring',
+    sidebar_sponsoring: 'Supporting',
     sidebar_general: 'General Medical Fund',
     sidebar_tax_label: 'Tax Exempt',
     sidebar_tax_desc:

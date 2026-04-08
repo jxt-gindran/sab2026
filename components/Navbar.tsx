@@ -77,42 +77,6 @@ const Navbar: React.FC = () => {
             <div className="hidden md:block">
               <div className="flex items-center space-x-8">
 
-                {/* Language Selector Dropdown */}
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    onClick={() => setIsLangOpen((v) => !v)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                      isLightNav
-                        ? 'text-brand-slate hover:bg-brand-pale bg-brand-pale/50'
-                        : 'text-white hover:bg-white/20 bg-white/10'
-                    }`}
-                    title={t('navbar.language')}
-                  >
-                    <Globe className="h-3.5 w-3.5" />
-                    <span>{lang.toUpperCase()}</span>
-                    {availableLangs.length > 1 && <ChevronDown className="h-3 w-3" />}
-                  </button>
-
-                  {/* Dropdown */}
-                  {isLangOpen && availableLangs.length > 1 && (
-                    <div className="absolute left-0 top-full mt-2 bg-white border border-brand-pale rounded-xl shadow-xl overflow-hidden z-50 min-w-[100px]">
-                      {availableLangs.map((l) => (
-                        <button
-                          key={l}
-                          onClick={() => { setLang(l); setIsLangOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
-                            l === lang
-                              ? 'bg-brand-navy text-white'
-                              : 'text-brand-navy hover:bg-brand-pale'
-                          }`}
-                        >
-                          {l.toUpperCase()}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
@@ -143,6 +107,42 @@ const Navbar: React.FC = () => {
                 >
                   {t('navbar.donate')}
                 </Link>
+
+                {/* Language Selector Dropdown */}
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => setIsLangOpen((v) => !v)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                      isLightNav
+                        ? 'text-brand-slate hover:bg-brand-pale bg-brand-pale/50'
+                        : 'text-white hover:bg-white/20 bg-white/10'
+                    }`}
+                    title={t('navbar.language')}
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                    <span>{lang.toUpperCase()}</span>
+                    {availableLangs.length > 1 && <ChevronDown className="h-3 w-3" />}
+                  </button>
+
+                  {/* Dropdown */}
+                  {isLangOpen && availableLangs.length > 1 && (
+                    <div className="absolute right-0 top-full mt-2 bg-white border border-brand-pale rounded-xl shadow-xl overflow-hidden z-50 min-w-[100px]">
+                      {availableLangs.map((l) => (
+                        <button
+                          key={l}
+                          onClick={() => { setLang(l); setIsLangOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
+                            l === lang
+                              ? 'bg-brand-navy text-white'
+                              : 'text-brand-navy hover:bg-brand-pale'
+                          }`}
+                        >
+                          {l.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

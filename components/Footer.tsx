@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, ShieldCheck, Bike } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-brand-navy text-brand-pale py-20 border-t border-brand-navy/10 relative overflow-hidden font-sans">
 
@@ -17,9 +20,8 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-white text-sm font-medium leading-relaxed max-w-sm">
-              Trusted Authority. Vibrant Hope.<br /><br />
-              Sepeda Amal Borneo 2026 (SAB2026) is a premier 660KM charity cycling event across Borneo, from Kota Kinabalu (Sabah) to Miri (Sarawak).
-              Organized by the Malaysian Medical Association Foundation (MMAF) to fund life-saving paediatric surgeries and support children with Primary Immunodeficiencies (PID).
+              {t('footer.tagline')}<br /><br />
+              {t('footer.description')}
             </p>
             <div className="flex flex-row gap-4 items-center">
               <div className="bg-white p-2 rounded-lg shadow-sm">
@@ -43,34 +45,34 @@ const Footer: React.FC = () => {
 
           {/* 2. QUICK LINKS */}
           <div>
-            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">Quick Links</h3>
+            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">{t('footer.quick_links')}</h3>
             <ul className="space-y-4">
-              <li><Link to="/mission" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">The Mission</Link></li>
-              <li><Link to="/ride" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">The Ride</Link></li>
-              <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Sponsorships</Link></li>
-              <li><Link to="/faq" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">FAQ</Link></li>
-              <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Contact Us</Link></li>
+              <li><Link to="/mission" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_mission')}</Link></li>
+              <li><Link to="/ride" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_ride')}</Link></li>
+              <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_sponsorships')}</Link></li>
+              <li><Link to="/faq" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_faq')}</Link></li>
+              <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_contact')}</Link></li>
             </ul>
           </div>
 
           {/* 3. LEGAL & TRUST */}
           <div>
-            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">Legal & Trust</h3>
+            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">{t('footer.legal_trust')}</h3>
             <ul className="space-y-4">
-              <li><Link to="/privacy" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/refund" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">Refund Policy</Link></li>
+              <li><Link to="/privacy" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_privacy')}</Link></li>
+              <li><Link to="/terms" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_terms')}</Link></li>
+              <li><Link to="/refund" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_refund')}</Link></li>
               <li className="flex items-start gap-2">
                 <ShieldCheck className="h-4 w-4 text-brand-cyan shrink-0 mt-0.5" />
-                <span className="text-sm text-brand-pale">Tax Exempt: LHDN.01/35/42/51/179-6.5621</span>
+                <span className="text-sm text-brand-pale">{t('footer.tax_exempt')}</span>
               </li>
-              <li className="text-sm text-brand-pale opacity-60">MMAF Reg: PPM-001-14-14022019</li>
+              <li className="text-sm text-brand-pale opacity-60">{t('footer.mmaf_reg')}</li>
             </ul>
           </div>
 
           {/* 4. SOCIALS */}
           <div>
-            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">Connect</h3>
+            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6 font-heading">{t('footer.connect')}</h3>
             <div className="flex gap-4">
               <a href="https://www.facebook.com/sepedaamalborneo" target="_blank" rel="noreferrer" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1">
                 <Facebook className="h-5 w-5" />
@@ -80,7 +82,7 @@ const Footer: React.FC = () => {
               </a>
             </div>
             <p className="mt-8 text-xs text-brand-slate leading-relaxed">
-              Every pedal stroke brings hope to a child in need. Join the movement.
+              {t('footer.social_tagline')}
             </p>
           </div>
 
@@ -90,17 +92,17 @@ const Footer: React.FC = () => {
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <p className="text-[10px] font-bold text-brand-slate uppercase tracking-widest text-center md:text-left">
-              &copy; 2026 Sepeda Amal Borneo. Organized by MMA Foundation.
+              {t('footer.copyright')}
             </p>
             <div className="hidden md:flex items-center gap-2 text-brand-cyan/60">
               <span className="h-1 w-1 bg-brand-cyan rounded-full"></span>
               <Bike className="h-3 w-3" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Powered by Cyclists</span>
+              <span className="text-[9px] font-black uppercase tracking-widest">{t('footer.powered_by')}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-brand-cyan animate-pulse"></span>
-            <span className="text-[10px] font-black uppercase tracking-widest text-brand-slate">System Operational</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-brand-slate">{t('footer.system_operational')}</span>
           </div>
         </div>
       </div>

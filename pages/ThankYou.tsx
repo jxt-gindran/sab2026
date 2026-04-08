@@ -10,6 +10,7 @@ import {
     Download
 } from 'lucide-react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from '../lib/i18n';
 
 // Simple WhatsApp Icon component since Lucide doesn't have it explicitly sometimes or varying
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -32,6 +33,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 const ThankYou: React.FC = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [amount, setAmount] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
 
@@ -47,7 +49,7 @@ const ThankYou: React.FC = () => {
     }, [searchParams, navigate]);
 
     const shareUrl = "https://sab.mma.org.my";
-    const shareText = "I just supported the Sepeda Amal Borneo 2026 mission to save lives! Join me in making a difference.";
+    const shareText = t('thankyou.share_text');
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareUrl);
@@ -66,35 +68,35 @@ const ThankYou: React.FC = () => {
                 </div>
 
                 <h1 className="text-6xl md:text-7xl font-black text-brand-navy mb-8 font-heading tracking-tighter leading-none">
-                    Thank You!
+                    {t('thankyou.heading')}
                 </h1>
 
                 <p className="text-xl md:text-2xl text-brand-slate font-medium max-w-2xl mx-auto mb-12 leading-relaxed">
-                    Your contribution{amount ? ` of RM ${amount}` : ''} is securely received. You are directly funding life-saving surgeries for children in Borneo.
+                    {t('thankyou.subtitle_prefix')}{amount ? ` ${t('thankyou.subtitle_amount_prefix')} ${amount}` : ''} {t('thankyou.subtitle_suffix')}
                 </p>
 
                 {/* Receipt Info */}
                 <div className="bg-brand-pale/20 rounded-[2.5rem] p-8 md:p-12 mb-16 border border-brand-pale max-w-2xl mx-auto">
-                    <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">What happens next?</h3>
+                    <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{t('thankyou.next_heading')}</h3>
                     <ul className="text-left space-y-6 text-brand-slate font-medium">
                         <li className="flex items-start gap-4">
                             <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm mt-1">
                                 <span className="font-black text-brand-cyan text-sm">1</span>
                             </div>
-                            <p>You will receive an official tax-exemption receipt via email within 24 hours.</p>
+                            <p>{t('thankyou.next_step1')}</p>
                         </li>
                         <li className="flex items-start gap-4">
                             <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm mt-1">
                                 <span className="font-black text-brand-cyan text-sm">2</span>
                             </div>
-                            <p>Your donation will be matched to a specific medical case or general fund needs.</p>
+                            <p>{t('thankyou.next_step2')}</p>
                         </li>
                     </ul>
                 </div>
 
                 {/* Share Section */}
                 <div className="mb-20">
-                    <h3 className="text-sm font-black text-brand-orange uppercase tracking-[0.2em] mb-8">Multiply Your Impact</h3>
+                    <h3 className="text-sm font-black text-brand-orange uppercase tracking-[0.2em] mb-8">{t('thankyou.share_tag')}</h3>
                     <div className="flex flex-wrap justify-center gap-4">
                         <a
                             href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
@@ -103,7 +105,7 @@ const ThankYou: React.FC = () => {
                             className="flex items-center gap-3 px-8 py-4 bg-[#1877F2] text-white rounded-2xl font-bold hover:brightness-110 transition-all shadow-lg hover:-translate-y-1"
                         >
                             <Facebook className="h-5 w-5" />
-                            Share on Facebook
+                            {t('thankyou.share_facebook')}
                         </a>
                         <a
                             href={`https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`}
@@ -112,14 +114,14 @@ const ThankYou: React.FC = () => {
                             className="flex items-center gap-3 px-8 py-4 bg-[#25D366] text-white rounded-2xl font-bold hover:brightness-110 transition-all shadow-lg hover:-translate-y-1"
                         >
                             <WhatsAppIcon className="h-5 w-5" />
-                            Share on WhatsApp
+                            {t('thankyou.share_whatsapp')}
                         </a>
                         <button
                             onClick={handleCopy}
                             className="flex items-center gap-3 px-8 py-4 bg-brand-navy text-white rounded-2xl font-bold hover:bg-brand-cyan hover:text-brand-navy transition-all shadow-lg"
                         >
                             {copied ? <CheckCircle2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                            {copied ? 'Copied!' : 'Copy Link'}
+                            {copied ? t('thankyou.share_copied') : t('thankyou.share_copy')}
                         </button>
                     </div>
                 </div>
@@ -128,7 +130,7 @@ const ThankYou: React.FC = () => {
                     to="/"
                     className="inline-flex items-center gap-3 text-brand-slate font-bold uppercase tracking-widest hover:text-brand-orange transition-colors"
                 >
-                    Return to Home <ArrowRight className="h-5 w-5" />
+                    {t('thankyou.return_home')} <ArrowRight className="h-5 w-5" />
                 </Link>
 
             </div>

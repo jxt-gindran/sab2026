@@ -6,8 +6,10 @@ import { api } from '../convex/_generated/api';
 import RegistrationModal from '../components/RegistrationModal';
 import { BorneoRouteMap } from '../components/BorneoRouteMap';
 import RiderStoryModal from '../components/RiderStoryModal';
+import { useTranslation } from '../lib/i18n';
 
 const Ride: React.FC = () => {
+  const { t } = useTranslation();
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [selectedRider, setSelectedRider] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<string>('Cyclist');
@@ -46,23 +48,23 @@ const Ride: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
-            26 July - 1 August 2026
+            {t('ride.event_date')}
           </div>
           <h1 className="text-5xl md:text-8xl font-black text-white font-heading leading-tight mb-8">
-            The <span className="text-brand-orange">Ride.</span>
+            {t('ride.hero_heading1')} <span className="text-brand-orange">{t('ride.hero_heading2')}</span>
           </h1>
           <div className="flex items-center justify-center gap-3 text-xl text-brand-pale font-medium mb-16">
             <MapPin className="h-5 w-5 text-brand-cyan" />
-            <span>Kota Kinabalu to Miri</span>
+            <span>{t('ride.hero_location')}</span>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 border-t border-white/10 pt-16">
             {[
-              { label: 'Days', value: '6' },
-              { label: 'Distance', value: '680 KM' },
-              { label: 'Territories', value: '4' },
-              { label: 'Cyclists', value: '20' },
+              { label: t('ride.stat_days_label'), value: t('ride.stat_days_value') },
+              { label: t('ride.stat_distance_label'), value: t('ride.stat_distance_value') },
+              { label: t('ride.stat_territories_label'), value: t('ride.stat_territories_value') },
+              { label: t('ride.stat_cyclists_label'), value: t('ride.stat_cyclists_value') },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div className="text-4xl md:text-5xl font-black text-white mb-2 font-heading">{stat.value}</div>
@@ -78,7 +80,7 @@ const Ride: React.FC = () => {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Quote className="h-12 w-12 text-brand-cyan mx-auto mb-8 opacity-50" />
           <p className="text-2xl md:text-4xl font-black text-brand-navy leading-tight font-heading italic">
-            "Endurance cycling mirrors the realities faced by patients: long journeys marked by uncertainty, setbacks, and the need for sustained support. We take these conversations out of hospitals and into everyday spaces."
+            {t('ride.quote')}
           </p>
         </div>
       </section>
@@ -94,8 +96,8 @@ const Ride: React.FC = () => {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-brand-navy mb-4 font-heading">Support a Rider.</h2>
-            <p className="text-brand-slate font-medium">Sponsor a champion and help them reach their fundraising goal.</p>
+            <h2 className="text-4xl font-black text-brand-navy mb-4 font-heading">{t('ride.support_heading')}</h2>
+            <p className="text-brand-slate font-medium">{t('ride.support_subheading')}</p>
 
             {hasMultipleRoles && (
               <div className="flex flex-wrap justify-center gap-4 mt-8">
@@ -138,8 +140,8 @@ const Ride: React.FC = () => {
 
                 <div className="mt-4 mb-6">
                   <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
-                    <span>Raised: <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
-                    <span>Goal: <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
+                    <span>{t('ride.rider_raised')} <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
+                    <span>{t('ride.rider_goal')} <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
                   </div>
                   <div className="w-full h-3 bg-brand-pale/50 rounded-full overflow-hidden p-0.5">
                     <div className="h-full bg-brand-orange rounded-full shadow-sm transition-all duration-1000" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
@@ -148,7 +150,7 @@ const Ride: React.FC = () => {
 
                 <div className="flex gap-2">
                   <Link to={`/riders/${encodeURIComponent(rider.shareSlug)}`} className="flex-grow text-center bg-brand-navy text-white font-black py-4 rounded-xl hover:bg-brand-cyan hover:text-brand-navy transition-all text-sm uppercase tracking-widest">
-                    View Profile
+                    {t('ride.rider_view_profile')}
                   </Link>
                   <Link to={`/donate?cyclist=${encodeURIComponent(rider.shareSlug)}`} className="px-4 py-4 border-2 border-brand-orange bg-white text-brand-orange font-black rounded-xl hover:bg-brand-orange hover:text-white transition-all text-sm shrink-0">
                     <Heart className="h-4 w-4" />
@@ -162,8 +164,8 @@ const Ride: React.FC = () => {
                 <div className="h-20 w-20 bg-brand-pale mx-auto rounded-full flex items-center justify-center mb-6">
                   <UserPlus className="h-10 w-10 text-brand-navy" />
                 </div>
-                <h3 className="text-3xl font-black text-brand-navy mb-4 font-heading">The Roster is Forming.</h3>
-                <p className="text-brand-slate font-medium text-lg max-w-2xl mx-auto">We are actively selecting the riders who will take on the 680km challenge across Borneo. Stay tuned as we announce our champions soon.</p>
+                <h3 className="text-3xl font-black text-brand-navy mb-4 font-heading">{t('ride.no_roster_heading')}</h3>
+                <p className="text-brand-slate font-medium text-lg max-w-2xl mx-auto">{t('ride.no_roster_desc')}</p>
               </div>
             )}
           </div>
@@ -180,19 +182,19 @@ const Ride: React.FC = () => {
 
         <div className="max-w-2xl mx-auto px-6 relative z-10">
           <UserPlus className="h-16 w-16 text-brand-orange mx-auto mb-8" />
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 font-heading">Join the Peloton.</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 font-heading">{t('ride.cta_heading')}</h2>
           <p className="text-xl text-brand-pale font-medium mb-12">
-            Ready to push your limits for a cause? <br />
-            <span className="text-brand-orange font-bold text-sm uppercase tracking-widest block mt-4">Minimum Donation to Ride: RM 3,000</span>
+            {t('ride.cta_desc')} <br />
+            <span className="text-brand-orange font-bold text-sm uppercase tracking-widest block mt-4">{t('ride.cta_min_donation')}</span>
           </p>
           <button
             onClick={() => setIsRegOpen(true)}
             className="inline-block bg-brand-orange text-white text-xl font-black px-12 py-5 rounded-full hover:bg-white hover:text-brand-orange transition-all shadow-xl hover:-translate-y-1"
           >
-            Register to Ride
+            {t('ride.cta_register')}
           </button>
           <p className="text-xs text-brand-pale/40 mt-6 max-w-sm mx-auto">
-            Limited slots available. Riders are selected based on fundraising commitment and fitness readiness.
+            {t('ride.cta_disclaimer')}
           </p>
         </div>
       </section>

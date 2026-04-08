@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Users, ArrowUpRight, X, History } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 const TIMELINE = [
   {
@@ -52,6 +53,7 @@ const TIMELINE = [
 ];
 
 const Legacy: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedItem, setSelectedItem] = useState<typeof TIMELINE[0] | null>(null);
 
   return (
@@ -66,12 +68,12 @@ const Legacy: React.FC = () => {
           <div className="max-w-3xl mb-16">
             <div className="inline-flex items-center gap-2 text-brand-cyan mb-6">
               <TrendingUp className="h-5 w-5" />
-              <span className="text-xs font-black uppercase tracking-[0.3em]">Track Record</span>
+              <span className="text-xs font-black uppercase tracking-[0.3em]">{t('legacy.tag')}</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black font-heading leading-tight mb-6 text-white">
-              A History of <br />Moving Mountains.
+              {t('legacy.heading1')} <br />{t('legacy.heading2')}
             </h1>
-            <p className="text-2xl text-brand-pale font-medium">Over <span className="text-brand-orange font-bold">RM 1.2 Million</span> raised since 2022.</p>
+            <p className="text-2xl text-brand-pale font-medium">{t('legacy.raised_prefix')} <span className="text-brand-orange font-bold">{t('legacy.raised_amount')}</span> {t('legacy.raised_suffix')}</p>
           </div>
 
           {/* Organizer Cards */}
@@ -81,8 +83,8 @@ const Legacy: React.FC = () => {
               <div className="h-28 w-28 bg-white rounded-xl flex items-center justify-center mb-6 p-4 shadow-lg">
                 <img src="/assets/logos/MMA_logo.png" alt="MMA Logo" className="w-full h-full object-contain" />
               </div>
-              <h3 className="text-2xl font-black mb-2 font-heading text-white">Malaysian Medical Association</h3>
-              <p className="text-brand-pale font-medium">Established 1959. 17,000 members committed to medical ethics and public health.</p>
+              <h3 className="text-2xl font-black mb-2 font-heading text-white">{t('legacy.mma_name')}</h3>
+              <p className="text-brand-pale font-medium">{t('legacy.mma_desc')}</p>
             </div>
 
             {/* MMA Foundation Card */}
@@ -90,8 +92,8 @@ const Legacy: React.FC = () => {
               <div className="h-28 w-28 bg-white rounded-xl flex items-center justify-center mb-6 p-4 shadow-lg">
                 <img src="/assets/logos/MMAF_logo.png" alt="MMAF Logo" className="w-full h-full object-contain" />
               </div>
-              <h3 className="text-2xl font-black mb-2 font-heading text-white">MMA Foundation</h3>
-              <p className="text-brand-pale font-medium">Established 1974. Managing charitable donations with absolute transparency and accountability.</p>
+              <h3 className="text-2xl font-black mb-2 font-heading text-white">{t('legacy.mmaf_name')}</h3>
+              <p className="text-brand-pale font-medium">{t('legacy.mmaf_desc')}</p>
             </div>
           </div>
         </div>
@@ -122,7 +124,7 @@ const Legacy: React.FC = () => {
                       className={`bg-white p-8 rounded-[2rem] shadow-xl border border-brand-grey/10 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group cursor-pointer ${item.active ? 'ring-4 ring-brand-cyan/20' : ''}`}
                     >
                       {item.active && (
-                        <div className="absolute top-0 right-0 bg-brand-cyan text-brand-navy text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">Current</div>
+                        <div className="absolute top-0 right-0 bg-brand-cyan text-brand-navy text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">{t('legacy.current_badge')}</div>
                       )}
 
                       <div className="text-6xl font-black text-brand-pale absolute top-4 right-4 opacity-20 group-hover:opacity-40 transition-opacity select-none font-heading">{item.year}</div>
@@ -140,11 +142,11 @@ const Legacy: React.FC = () => {
                         <div className="border-t border-brand-pale pt-4 mt-4">
                           <div className="flex justify-between items-end">
                             <div>
-                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Funds Raised</div>
+                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('legacy.funds_raised_label')}</div>
                               <div className="text-2xl font-black text-brand-orange">{item.raised}</div>
                             </div>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity text-brand-cyan font-bold text-sm bg-brand-navy/5 px-3 py-1 rounded-full">
-                              Read More
+                              {t('legacy.read_more')}
                             </div>
                           </div>
                         </div>
@@ -161,9 +163,9 @@ const Legacy: React.FC = () => {
           </div>
 
           <div className="text-center mt-24">
-            <p className="text-brand-slate font-medium mb-6">Be part of history.</p>
+            <p className="text-brand-slate font-medium mb-6">{t('legacy.cta_desc')}</p>
             <Link to="/donate" className="inline-flex items-center gap-2 bg-brand-orange text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-brand-orange/90 transition-all uppercase tracking-widest text-sm group">
-              Make your mark <ArrowUpRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              {t('legacy.cta_btn')} <ArrowUpRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
@@ -206,7 +208,7 @@ const Legacy: React.FC = () => {
                   onClick={() => setSelectedItem(null)}
                   className="px-6 py-2 rounded-lg font-bold text-sm text-brand-slate hover:bg-slate-100 transition-colors"
                 >
-                  Close
+                  {t('legacy.modal_close')}
                 </button>
               </div>
             </div>

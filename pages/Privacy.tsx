@@ -1,13 +1,15 @@
 import React from 'react';
+import { useTranslation } from '../lib/i18n';
 
 const Privacy: React.FC = () => {
+    const { t } = useTranslation();
     return (
         <div className="bg-white min-h-screen pt-32 pb-24">
             <div className="max-w-4xl mx-auto px-6 animate-fade-in">
-                <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">Legal & Compliance</div>
+                <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">{t('legal.tag')}</div>
                 <h1 className="text-4xl md:text-5xl font-black text-brand-navy mb-12 font-heading leading-tight">
-                    Privacy Policy & <br />
-                    <span className="text-brand-cyan">Data Protection (PDPA).</span>
+                    {t('legal.privacy_heading1')} <br />
+                    <span className="text-brand-cyan">{t('legal.privacy_heading2')}</span>
                 </h1>
 
                 <div className="prose prose-lg prose-slate max-w-none text-brand-slate font-medium">
@@ -63,7 +65,7 @@ const Privacy: React.FC = () => {
                     </p>
 
                     <div className="bg-brand-pale/20 p-8 rounded-[2rem] border border-brand-pale mt-12">
-                        <h4 className="text-brand-navy font-black text-xl mb-4">Contact Us</h4>
+                        <h4 className="text-brand-navy font-black text-xl mb-4">{t('legal.contact_card_heading')}</h4>
                         <p className="mb-2"><strong>Malaysian Medical Association Foundation</strong></p>
                         <p className="mb-2">
                             <a href="https://maps.google.com/?q=MMA+House,+124,+Jalan+Pahang,+53000+Kuala+Lumpur" target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange transition-colors">

@@ -1,20 +1,22 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Facebook, Instagram, Building, ArrowRight } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 const Contact: React.FC = () => {
+    const { t } = useTranslation();
     return (
         <div className="bg-white min-h-screen pt-32 pb-24 font-sans text-brand-slate">
             <div className="max-w-7xl mx-auto px-6 animate-fade-in">
 
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">Contact Us</div>
+                    <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">{t('contact.tag')}</div>
                     <h1 className="text-5xl md:text-6xl font-black text-brand-navy mb-6 font-heading leading-tight">
-                        We're Here to <br />
-                        <span className="text-brand-cyan">Help & Serve.</span>
+                        {t('contact.heading1')} <br />
+                        <span className="text-brand-cyan">{t('contact.heading2')}</span>
                     </h1>
                     <p className="text-xl text-brand-slate max-w-2xl mx-auto font-medium">
-                        Whether you're a donor, a cyclist, or a supporter, we'd love to hear from you. Reach out to the MMA Foundation team below.
+                        {t('contact.subtitle')}
                     </p>
                 </div>
 
@@ -23,7 +25,7 @@ const Contact: React.FC = () => {
                     <div className="space-y-8">
                         {/* 1. Contact Details Card */}
                         <div className="bg-brand-pale/20 rounded-[3rem] p-10 border border-brand-pale h-auto">
-                            <h3 className="text-3xl font-black text-brand-navy mb-8 font-heading">Get in Touch.</h3>
+                            <h3 className="text-3xl font-black text-brand-navy mb-8 font-heading">{t('contact.get_in_touch')}</h3>
 
                             <div className="space-y-8">
                                 {/* Address */}
@@ -32,7 +34,7 @@ const Contact: React.FC = () => {
                                         <MapPin className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-brand-navy text-lg mb-1">Our Headquarters</h4>
+                                        <h4 className="font-bold text-brand-navy text-lg mb-1">{t('contact.hq_label')}</h4>
                                         <a
                                             href="https://maps.google.com/?q=MMA+House,+124,+Jalan+Pahang,+53000+Kuala+Lumpur"
                                             target="_blank"
@@ -52,14 +54,14 @@ const Contact: React.FC = () => {
                                         <Phone className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-brand-navy text-lg mb-1">Call Us</h4>
+                                        <h4 className="font-bold text-brand-navy text-lg mb-1">{t('contact.call_label')}</h4>
                                         <a
                                             href="tel:+60340411375"
                                             className="text-brand-slate hover:text-brand-orange transition-colors block text-xl font-medium"
                                         >
                                             +603-4041 1375
                                         </a>
-                                        <span className="text-xs text-brand-slate/60 font-bold uppercase tracking-wider">Mon-Fri, 9am - 5pm</span>
+                                        <span className="text-xs text-brand-slate/60 font-bold uppercase tracking-wider">{t('contact.call_hours')}</span>
                                     </div>
                                 </div>
 
@@ -69,7 +71,7 @@ const Contact: React.FC = () => {
                                         <Mail className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-brand-navy text-lg mb-1">Email Us</h4>
+                                        <h4 className="font-bold text-brand-navy text-lg mb-1">{t('contact.email_label')}</h4>
                                         <a
                                             href="mailto:sab2026@mma.org.my"
                                             className="text-brand-slate hover:text-brand-orange transition-colors block text-xl font-medium break-all"
@@ -82,7 +84,7 @@ const Contact: React.FC = () => {
 
                             {/* Socials */}
                             <div className="mt-12 pt-12 border-t border-brand-navy/10">
-                                <h4 className="font-bold text-brand-navy text-lg mb-6">Follow Our Journey</h4>
+                                <h4 className="font-bold text-brand-navy text-lg mb-6">{t('contact.social_label')}</h4>
                                 <div className="flex gap-4">
                                     <a href="https://www.facebook.com/sepedaamalborneo" target="_blank" rel="noopener noreferrer" className="h-12 w-12 rounded-full bg-brand-navy text-white flex items-center justify-center hover:bg-brand-orange transition-all hover:-translate-y-1">
                                         <Facebook className="h-6 w-6" />
@@ -100,9 +102,9 @@ const Contact: React.FC = () => {
 
                             <div className="relative z-10">
                                 <Building className="h-12 w-12 mb-6 text-brand-navy" />
-                                <h3 className="text-3xl font-black mb-4 font-heading">Corporate Partnerships.</h3>
+                                <h3 className="text-3xl font-black mb-4 font-heading">{t('contact.corporate_heading')}</h3>
                                 <p className="text-white/90 font-medium mb-8 leading-relaxed">
-                                    Align your brand with health and hope. Contact us for Platinum, Gold, and Silver partnership tiers.
+                                    {t('contact.corporate_desc')}
                                 </p>
 
                                 <div className="space-y-4">
@@ -110,7 +112,7 @@ const Contact: React.FC = () => {
                                         href="mailto:sab2026@mma.org.my?subject=SAB2026%20Sponsorship%20Inquiry"
                                         className="w-full bg-brand-navy text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-white hover:text-brand-navy transition-all shadow-lg uppercase tracking-widest text-sm"
                                     >
-                                        Request Sponsor Deck <ArrowRight className="h-4 w-4" />
+                                        {t('contact.corporate_cta')} <ArrowRight className="h-4 w-4" />
                                     </a>
                                     <div className="text-center text-[10px] uppercase tracking-widest opacity-80 font-bold">
                                         sab2026@mma.org.my

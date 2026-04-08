@@ -60,4 +60,19 @@ export default defineSchema({
         description: v.optional(v.string()),
         orderIndex: v.number(), // to keep them correctly sorted along the route
     }).index("by_order", ["orderIndex"]),
+
+    /**
+     * i18n translations.
+     * lang  = ISO language code, e.g. "ms", "zh"
+     * key   = dot-notation UI key, e.g. "navbar.home"
+     * value = translated string
+     * English ("en") is never stored here — it lives in lib/i18n/en.ts
+     */
+    translations: defineTable({
+        lang:  v.string(),
+        key:   v.string(),
+        value: v.string(),
+    })
+        .index("by_lang", ["lang"])
+        .index("by_lang_key", ["lang", "key"]),
 });

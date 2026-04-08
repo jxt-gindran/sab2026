@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Heart, Globe } from 'lucide-react';
+import { Menu, X, Heart, Globe, ChevronDown } from 'lucide-react';
 import RegistrationModal from './RegistrationModal';
+import { useTranslation } from '../lib/i18n';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
+  const { t, lang, setLang, availableLangs } = useTranslation();
 
   // Pages where the hero section is dark, allowing for a transparent navbar initially
   const isDarkHeroPage = ['/', '/mission', '/ride', '/legacy'].includes(location.pathname);
@@ -20,11 +23,19 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close lang dropdown on outside click
+  useEffect(() => {
+    if (!isLangOpen) return;
+    const handler = () => setIsLangOpen(false);
+    window.addEventListener('click', handler);
+    return () => window.removeEventListener('click', handler);
+  }, [isLangOpen]);
+
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'The Mission', path: '/mission' },
-    { name: 'Our Legacy', path: '/legacy' },
-    { name: 'The Ride', path: '/ride' },
+    { name: t('navbar.home'), path: '/' },
+    { name: t('navbar.mission'), path: '/mission' },
+    { name: t('navbar.legacy'), path: '/legacy' },
+    { name: t('navbar.ride'), path: '/ride' },
   ];
 
   // Dynamic Classes
@@ -41,6 +52,8 @@ const Navbar: React.FC = () => {
   const mobileMenuButtonClass = isScrolled || !isDarkHeroPage
     ? 'bg-brand-pale/20 text-brand-navy'
     : 'bg-white/20 text-white';
+
+  const isLightNav = isScrolled || !isDarkHeroPage;
 
   return (
     <>
@@ -63,16 +76,42 @@ const Navbar: React.FC = () => {
             {/* Desktop Menu */}
             <div className="hidden md:block">
               <div className="flex items-center space-x-8">
-                {/* Language Selector */}
-                <button
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                    isScrolled || !isDarkHeroPage ? 'text-brand-slate hover:bg-brand-pale bg-brand-pale/50' : 'text-white hover:bg-white/20 bg-white/10'
-                  }`}
-                  title="Language Options"
-                >
-                  <Globe className="h-3.5 w-3.5" />
-                  <span>EN</span>
-                </button>
+
+                {/* Language Selector Dropdown */}
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => setIsLangOpen((v) => !v)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                      isLightNav
+                        ? 'text-brand-slate hover:bg-brand-pale bg-brand-pale/50'
+                        : 'text-white hover:bg-white/20 bg-white/10'
+                    }`}
+                    title={t('navbar.language')}
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                    <span>{lang.toUpperCase()}</span>
+                    {availableLangs.length > 1 && <ChevronDown className="h-3 w-3" />}
+                  </button>
+
+                  {/* Dropdown */}
+                  {isLangOpen && availableLangs.length > 1 && (
+                    <div className="absolute left-0 top-full mt-2 bg-white border border-brand-pale rounded-xl shadow-xl overflow-hidden z-50 min-w-[100px]">
+                      {availableLangs.map((l) => (
+                        <button
+                          key={l}
+                          onClick={() => { setLang(l); setIsLangOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
+                            l === lang
+                              ? 'bg-brand-navy text-white'
+                              : 'text-brand-navy hover:bg-brand-pale'
+                          }`}
+                        >
+                          {l.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {navLinks.map((link) => (
                   <Link
@@ -84,36 +123,36 @@ const Navbar: React.FC = () => {
                   </Link>
                 ))}
 
-                {/* Secondary Action: Register (Ghost — Full) */}
+                {/* Secondary Action: Register */}
                 <button
                   onClick={() => setIsRegOpen(true)}
                   className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:-translate-y-1 active:scale-95 group/reg relative overflow-hidden ${
-                    isScrolled || !isDarkHeroPage
+                    isLightNav
                       ? 'border-brand-slate/40 text-brand-slate/60 hover:border-red-400 hover:text-red-500'
                       : 'border-white/30 text-white/60 hover:border-red-400 hover:text-red-400'
                   }`}
                 >
-                  <span className="group-hover/reg:hidden">Register to Ride</span>
-                  <span className="hidden group-hover/reg:inline">Registration Full</span>
+                  <span className="group-hover/reg:hidden">{t('navbar.register')}</span>
+                  <span className="hidden group-hover/reg:inline">{t('navbar.registration_full')}</span>
                 </button>
 
-                {/* Primary Action: Donate (Solid) */}
+                {/* Primary Action: Donate */}
                 <Link
                   to="/donate"
                   className="bg-brand-orange text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-brand-cyan hover:text-brand-navy transition-all hover:-translate-y-1 active:scale-95"
                 >
-                  DONATE
+                  {t('navbar.donate')}
                 </Link>
               </div>
             </div>
 
-            {/* Mobile Actions (Donate + Menu) */}
+            {/* Mobile Actions */}
             <div className="md:hidden flex items-center gap-4">
               <Link
                 to="/donate"
                 className="bg-brand-orange text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg"
               >
-                Donate
+                {t('navbar.donate')}
               </Link>
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -134,7 +173,7 @@ const Navbar: React.FC = () => {
                 onClick={() => setIsOpen(false)}
                 className="block w-full text-center bg-brand-orange text-white py-5 rounded-2xl text-xl font-black shadow-xl uppercase tracking-widest mb-8"
               >
-                DONATE NOW
+                {t('navbar.donate_now')}
               </Link>
 
               {navLinks.map((link) => (
@@ -151,10 +190,22 @@ const Navbar: React.FC = () => {
               <div className="pt-8 space-y-4 border-t border-brand-pale mt-8">
                 {/* Mobile Language Selector */}
                 <div className="flex items-center justify-between py-4 border-b border-brand-pale/50 mb-4">
-                  <span className="text-sm font-black text-brand-slate uppercase tracking-widest">Language</span>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-brand-pale/50 text-brand-navy rounded-lg text-sm font-black uppercase tracking-widest">
-                    <Globe className="h-4 w-4" /> EN
-                  </button>
+                  <span className="text-sm font-black text-brand-slate uppercase tracking-widest">{t('navbar.language')}</span>
+                  <div className="flex gap-2">
+                    {availableLangs.map((l) => (
+                      <button
+                        key={l}
+                        onClick={() => setLang(l)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-all ${
+                          l === lang
+                            ? 'bg-brand-navy text-white'
+                            : 'bg-brand-pale/50 text-brand-navy hover:bg-brand-pale'
+                        }`}
+                      >
+                        <Globe className="h-4 w-4" /> {l.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <button
@@ -164,7 +215,7 @@ const Navbar: React.FC = () => {
                   }}
                   className="block w-full text-center py-4 rounded-2xl text-sm font-black border-2 border-brand-cyan text-brand-cyan uppercase tracking-widest"
                 >
-                  Register to Ride
+                  {t('navbar.register')}
                 </button>
               </div>
             </div>

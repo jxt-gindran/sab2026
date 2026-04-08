@@ -1,4 +1,5 @@
 import React from 'react';
+import { I18nProvider } from './lib/i18n';
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -47,6 +48,7 @@ const ScrollToTopAndSEO = () => {
 
 const App: React.FC = () => {
   return (
+    <I18nProvider>
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         <ScrollToTopAndSEO />
@@ -80,6 +82,7 @@ const App: React.FC = () => {
         <Footer />
       </div>
     </BrowserRouter>
+    </I18nProvider>
   );
 };
 

@@ -19,18 +19,22 @@ import {
 
 import { useAction, useMutation, useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
+import { useTranslation } from '../lib/i18n';
 
 import ridersData from '../data/riders.json';
 
-const IMPACT_TIERS = [
-  { amount: 50, label: "Care Bundle", description: "Essential hygiene kits for recovery." },
-  { amount: 150, label: "Immune Support", description: "Diagnostic tests for deficiency." },
-  { amount: 500, label: "Surgery Fund", description: "O.T. consumables for one child." },
-  { amount: 1200, label: "Full Hero", description: "Complete surgery + post-op care." },
-];
+// IMPACT_TIERS labels are now i18n-driven — see getImpactTiers() inside the component
 
 const Donate: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const IMPACT_TIERS = [
+    { amount: 50,   label: t('donate.tier1_label'), description: t('donate.tier1_desc') },
+    { amount: 150,  label: t('donate.tier2_label'), description: t('donate.tier2_desc') },
+    { amount: 500,  label: t('donate.tier3_label'), description: t('donate.tier3_desc') },
+    { amount: 1200, label: t('donate.tier4_label'), description: t('donate.tier4_desc') },
+  ];
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
@@ -63,23 +67,23 @@ const Donate: React.FC = () => {
   const nextStep = () => {
     if (step === 2) {
       if (!donorName.trim() || !donorEmail.trim() || !donorPhone.trim()) {
-        alert('Name, Email, and Phone Number are mandatory.');
+        alert(t('donate.val_required'));
         return;
       }
       if (!/\S+@\S+\.\S+/.test(donorEmail)) {
-        alert('Please enter a valid email address.');
+        alert(t('donate.val_email'));
         return;
       }
       // Simple phone validation (e.g. +60 or 01...)
       const phoneClean = donorPhone.replace(/[\s-]/g, '');
       if (phoneClean.length < 9 || phoneClean.length > 15 || !/^\+?\d+$/.test(phoneClean)) {
-        alert('Please enter a valid phone number (e.g. +60123456789).');
+        alert(t('donate.val_phone'));
         return;
       }
       // IC Validation - Optional but validate format if provided
       const icClean = donorIC.replace(/[\s-]/g, '');
       if (icClean && icClean.length < 6) {
-        alert('Please enter a valid IC / Passport Number (at least 6 characters).');
+        alert(t('donate.val_ic'));
         return;
       }
     }
@@ -104,9 +108,9 @@ const Donate: React.FC = () => {
         {/* HOW YOUR DONATION WORKS (Transparency Layer) */}
         <div className="grid grid-cols-3 gap-4 mb-10 border-b border-brand-pale pb-10">
           {[
-            { icon: Grab, title: 'Select a Cause', desc: 'General Fund or a specific Rider.' },
-            { icon: Lock, title: '100% Secure', desc: 'Direct to MMA Foundation (Tax Exempt).' },
-            { icon: Flag, title: 'Get Receipt', desc: 'LHDN-compliant tax receipt instantly.' },
+            { icon: Grab, title: t('donate.how_step1_title'), desc: t('donate.how_step1_desc') },
+            { icon: Lock, title: t('donate.how_step2_title'), desc: t('donate.how_step2_desc') },
+            { icon: Flag, title: t('donate.how_step3_title'), desc: t('donate.how_step3_desc') },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="flex flex-col items-center text-center group">
               <div className="h-10 w-10 md:h-16 md:w-16 bg-brand-pale/50 rounded-full flex items-center justify-center mb-3 md:mb-6 text-brand-navy group-hover:bg-brand-cyan transition-colors">
@@ -139,7 +143,7 @@ const Donate: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-          {/* MAIN FORM PANEL */}
+          {/* MAIN FORM PANEL — Step indicator */}
           <div className="lg:col-span-8">
             <div className="bg-white rounded-[2rem] shadow-2xl shadow-brand-navy/5 p-6 sm:p-10 md:p-14 border border-brand-grey/20 min-h-[500px] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-brand-cyan"></div>
@@ -147,8 +151,8 @@ const Donate: React.FC = () => {
               {/* STEP 1: AMOUNT & BENEFICIARY */}
               {step === 1 && (
                 <div className="animate-fade-in flex-grow">
-                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">Choose Your Impact.</h2>
-                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">Select an amount or enter your own. Every ringgit counts towards a life-saving surgery.</p>
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step1_heading')}</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step1_sub')}</p>
 
                   <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
                     {IMPACT_TIERS.map((tier) => (
@@ -178,7 +182,7 @@ const Donate: React.FC = () => {
                     <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-xl text-slate-400">RM</span>
                     <input
                       type="number"
-                      placeholder="Other Amount"
+                      placeholder={t('donate.step1_other')}
                       value={customAmount}
                       onChange={(e) => { setCustomAmount(e.target.value); setSelectedAmount(null); }}
                       className="w-full bg-slate-50 border-4 border-slate-50 rounded-3xl pl-16 pr-8 py-6 text-2xl font-black text-brand-navy focus:border-brand-cyan outline-none transition-all placeholder:text-slate-200"
@@ -186,7 +190,7 @@ const Donate: React.FC = () => {
                   </div>
 
                   <div className="pt-6 border-t border-slate-100">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Supporting:</h3>
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">{t('donate.step1_supporting')}</h3>
                     <div className="flex flex-wrap gap-2 sm:gap-4">
                       <button
                         onClick={() => setSelectedRider(null)}
@@ -196,7 +200,7 @@ const Donate: React.FC = () => {
                             : 'bg-white text-brand-navy border border-slate-200 hover:border-brand-cyan'
                         }`}
                       >
-                        General Fund (SAB2026)
+                        {t('donate.step1_general')}
                       </button>
                       
                       {cyclists.map((c: any) => (
@@ -221,8 +225,8 @@ const Donate: React.FC = () => {
               {/* STEP 2: PERSONAL INFO */}
               {step === 2 && (
                 <div className="animate-fade-in flex-grow">
-                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">Who's building hope?</h2>
-                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">We need your details for the official tax receipt (LHDN).</p>
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step2_heading')}</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step2_sub')}</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-6">
                     <div className="bg-brand-pale/30 p-4 sm:p-6 rounded-2xl border border-brand-pale mb-0 md:mb-8">
@@ -231,7 +235,7 @@ const Donate: React.FC = () => {
                           <Heart size={20} />
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-brand-slate uppercase tracking-widest mb-1">Beneficiary</div>
+                          <div className="text-xs font-bold text-brand-slate uppercase tracking-widest mb-1">{t('donate.step2_beneficiary')}</div>
                           <div className="font-black text-brand-navy text-lg">
                             {selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General Fund (SAB2026)' : 'General Fund (SAB2026)'}
                           </div>
@@ -239,42 +243,42 @@ const Donate: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name (as per IC) <span className="text-red-500">*</span></label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_name_label')} <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         value={donorName}
                         onChange={(e) => setDonorName(e.target.value)}
-                        placeholder="e.g. Ahmad bin Ali"
+                        placeholder={t('donate.step2_name_placeholder')}
                         className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address <span className="text-red-500">*</span></label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_email_label')} <span className="text-red-500">*</span></label>
                       <input
                         type="email"
                         value={donorEmail}
                         onChange={(e) => setDonorEmail(e.target.value)}
-                        placeholder="ahmad@example.com"
+                        placeholder={t('donate.step2_email_placeholder')}
                         className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number <span className="text-red-500">*</span></label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_phone_label')} <span className="text-red-500">*</span></label>
                       <input
                         type="tel"
                         value={donorPhone}
                         onChange={(e) => setDonorPhone(e.target.value)}
-                        placeholder="+60 12 345 6789"
+                        placeholder={t('donate.step2_phone_placeholder')}
                         className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">IC / Passport Number <span className="text-slate-300 text-[9px] normal-case">(optional, for tax receipt)</span></label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_ic_label')} <span className="text-slate-300 text-[9px] normal-case">{t('donate.step2_ic_optional')}</span></label>
                       <input
                         type="text"
                         value={donorIC}
                         onChange={(e) => setDonorIC(e.target.value)}
-                        placeholder="Optional — for Tax Exemption Receipt"
+                        placeholder={t('donate.step2_ic_placeholder')}
                         className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
                       />
                     </div>
@@ -290,13 +294,13 @@ const Donate: React.FC = () => {
               {/* STEP 3: PAYMENT METHOD */}
               {step === 3 && (
                 <div className="animate-fade-in flex-grow">
-                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">The Final Step.</h2>
-                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">Select your preferred payment method via our secure HitPay gateway.</p>
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step3_heading')}</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step3_sub')}</p>
 
                   <div className="space-y-4 mb-10">
                     {[
-                      { id: 'HITPAY', name: 'HitPay Checkout', icon: ExternalLink, subtitle: 'FPX, Cards, GrabPay, ShopeePay' },
-                      { id: 'TRANSFER', name: 'Manual Bank Transfer', icon: CreditCard, subtitle: 'UOB Direct (WhatsApp / Email Proof)' }
+                      { id: 'HITPAY', name: t('donate.step3_hitpay_name'), icon: ExternalLink, subtitle: t('donate.step3_hitpay_sub') },
+                      { id: 'TRANSFER', name: t('donate.step3_transfer_name'), icon: CreditCard, subtitle: t('donate.step3_transfer_sub') }
                     ].map(method => (
                       <button
                         key={method.id}
@@ -322,7 +326,7 @@ const Donate: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-4 justify-center py-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Securely processed by</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('donate.step3_processed_by')}</span>
                     <div className="px-3 py-1 bg-white rounded-lg border border-slate-100 flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-brand-orange animate-pulse"></div>
                       <span className="text-xs font-black text-brand-navy">HITPAY</span>
@@ -341,13 +345,13 @@ const Donate: React.FC = () => {
                       onClick={() => setPaymentMethod('HITPAY')}
                       className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'HITPAY' ? 'bg-white text-brand-navy shadow-md' : 'text-slate-500 hover:text-brand-navy'}`}
                     >
-                      HitPay
+                      {t('donate.step4_hitpay_tab')}
                     </button>
                     <button
                       onClick={() => setPaymentMethod('TRANSFER')}
                       className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'TRANSFER' ? 'bg-white text-brand-navy shadow-md' : 'text-slate-500 hover:text-brand-navy'}`}
                     >
-                      Manual Transfer
+                      {t('donate.step4_transfer_tab')}
                     </button>
                     <button
                       onClick={() => setStep(3)}
@@ -363,8 +367,8 @@ const Donate: React.FC = () => {
                         <ExternalLink className="h-10 w-10 text-brand-cyan" />
                         <div className="absolute inset-0 rounded-full border-4 border-brand-cyan animate-ping opacity-20"></div>
                       </div>
-                      <h2 className="text-5xl font-black text-brand-navy mb-4 tracking-tighter font-heading">Ready to Redirect.</h2>
-                      <p className="text-lg text-brand-slate font-medium mb-12">Click below to proceed to the secure HitPay gateway and complete your donation of <span className="text-brand-navy font-bold text-xl">RM {totalAmount.toLocaleString()}</span>.</p>
+                      <h2 className="text-5xl font-black text-brand-navy mb-4 tracking-tighter font-heading">{t('donate.step4_hitpay_heading')}</h2>
+                      <p className="text-lg text-brand-slate font-medium mb-12">{t('donate.step4_hitpay_sub')} <span className="text-brand-navy font-bold text-xl">RM {totalAmount.toLocaleString()}</span>.</p>
 
                       <button
                         id="hitpay-btn"
@@ -399,16 +403,16 @@ const Donate: React.FC = () => {
                             if (result && result.url) {
                               window.location.href = result.url;
                             } else {
-                              alert('Payment initialization failed. Please try again.');
+                              alert(t('donate.err_init'));
                             }
                           } catch (e) {
-                            alert('Error connecting to payment server. Please try again.');
+                            alert(t('donate.err_server'));
                             console.error(e);
                           }
                         }}
                         className="w-full bg-brand-navy text-white text-xl font-black py-8 rounded-[2.5rem] shadow-2xl hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-4 group uppercase tracking-widest"
                       >
-                        Proceed to Checkout
+                        {t('donate.step4_proceed')}
                         <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
                       </button>
 
@@ -424,13 +428,13 @@ const Donate: React.FC = () => {
                       <div className="h-24 w-24 bg-brand-cyan rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce-slow shadow-xl">
                         <CheckCircle2 className="h-12 w-12 text-brand-navy" />
                       </div>
-                      <h2 className="text-5xl font-black text-brand-navy mb-4 tracking-tighter">Heart of Gold.</h2>
-                      <p className="text-xl text-slate-500 font-medium mb-8">Please complete your manual transfer to the MMA Foundation account below.</p>
+                      <h2 className="text-5xl font-black text-brand-navy mb-4 tracking-tighter">{t('donate.step4_transfer_heading')}</h2>
+                      <p className="text-xl text-slate-500 font-medium mb-8">{t('donate.step4_transfer_sub')}</p>
 
                       <div className="bg-brand-navy rounded-2xl p-6 flex items-center gap-4 mb-10 shadow-xl border border-brand-cyan/20 animate-pulse">
                         <AlertCircle className="h-8 w-8 text-brand-cyan shrink-0" />
                         <div className="text-xs font-black text-white uppercase tracking-widest leading-relaxed">
-                          IMPORTANT: Please put "SAB2026" as your recipient reference for automated verification.
+                          {t('donate.step4_warning')}
                         </div>
                       </div>
 
@@ -534,11 +538,11 @@ const Donate: React.FC = () => {
                     onClick={prevStep}
                     className="flex items-center gap-2 text-brand-navy font-black text-xs uppercase tracking-widest hover:text-brand-orange transition-colors"
                   >
-                    <ArrowLeft className="h-4 w-4" /> Back
+                    <ArrowLeft className="h-4 w-4" /> {t('donate.back')}
                   </button>
                 )}
                 {step === 1 && (
-                  <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Step 1 of 4</div>
+                  <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{t('donate.step_indicator')}</div>
                 )}
                 {step < 4 && (
                   <button
@@ -563,17 +567,17 @@ const Donate: React.FC = () => {
             <div className="bg-brand-navy rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-brand-cyan/20 blur-[80px] rounded-full z-0"></div>
               <div className="relative z-10">
-                <div className="text-[10px] font-black text-brand-cyan uppercase tracking-[0.3em] mb-6 decoration-brand-cyan/50 underline underline-offset-8">Current Summary</div>
+                <div className="text-[10px] font-black text-brand-cyan uppercase tracking-[0.3em] mb-6 decoration-brand-cyan/50 underline underline-offset-8">{t('donate.sidebar_summary')}</div>
 
                 <div className="space-y-6 mb-12">
                   <div className="flex justify-between items-end border-b border-white/10 pb-4">
-                    <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Donation</span>
+                    <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{t('donate.sidebar_donation')}</span>
                     <span className="text-2xl font-black text-white font-heading">RM {totalAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-end border-b border-white/10 pb-4">
-                    <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Sponsoring</span>
+                    <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{t('donate.sidebar_sponsoring')}</span>
                     <span className="text-sm font-black text-brand-cyan tracking-wider text-right max-w-[150px]">
-                      General Medical Fund
+                      {t('donate.sidebar_general')}
                     </span>
                   </div>
                 </div>
@@ -583,9 +587,9 @@ const Donate: React.FC = () => {
                     <div className="h-10 w-10 bg-brand-cyan rounded-2xl flex items-center justify-center text-brand-navy shadow-[0_0_20px_rgba(0,174,239,0.3)]">
                       <Lock className="h-6 w-6" />
                     </div>
-                    <div className="text-xs font-black uppercase tracking-widest leading-none">Tax Exempt</div>
+                    <div className="text-xs font-black uppercase tracking-widest leading-none">{t('donate.sidebar_tax_label')}</div>
                   </div>
-                  <p className="text-[10px] text-slate-400 leading-relaxed font-bold">All donations to MMA Foundation are tax deductible under Section 44(6) of ITA 1967.</p>
+                  <p className="text-[10px] text-slate-400 leading-relaxed font-bold">{t('donate.sidebar_tax_desc')}</p>
                 </div>
               </div>
             </div>
@@ -597,11 +601,11 @@ const Donate: React.FC = () => {
                   <User className="h-6 w-6 text-slate-400" />
                 </div>
                 <div>
-                  <div className="text-sm font-black text-brand-navy">Dr. Kevin Tan</div>
-                  <div className="text-[10px] font-bold text-brand-orange uppercase tracking-widest">Head of Paediatrics</div>
+                  <div className="text-sm font-black text-brand-navy">{t('donate.testimonial_name')}</div>
+                  <div className="text-[10px] font-bold text-brand-orange uppercase tracking-widest">{t('donate.testimonial_role')}</div>
                 </div>
               </div>
-              <p className="text-xs text-brand-slate font-medium italic leading-relaxed">"Your donation isn't just a transaction. It's the medicine, the recovery, and the future of a child."</p>
+              <p className="text-xs text-brand-slate font-medium italic leading-relaxed">{t('donate.testimonial_quote')}</p>
             </div>
 
           </div>

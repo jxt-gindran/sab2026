@@ -1,13 +1,15 @@
 import React from 'react';
+import { useTranslation } from '../lib/i18n';
 
 const Refund: React.FC = () => {
+    const { t } = useTranslation();
     return (
         <div className="bg-white min-h-screen pt-32 pb-24">
             <div className="max-w-4xl mx-auto px-6 animate-fade-in">
-                <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">Legal & Compliance</div>
+                <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">{t('legal.tag')}</div>
                 <h1 className="text-4xl md:text-5xl font-black text-brand-navy mb-12 font-heading leading-tight">
-                    Refund & <br />
-                    <span className="text-brand-cyan">Cancellation Policy.</span>
+                    {t('legal.refund_heading1')} <br />
+                    <span className="text-brand-cyan">{t('legal.refund_heading2')}</span>
                 </h1>
 
                 <div className="prose prose-lg prose-slate max-w-none text-brand-slate font-medium">
@@ -40,7 +42,7 @@ const Refund: React.FC = () => {
                     </p>
 
                     <div className="bg-brand-pale/20 p-8 rounded-[2rem] border border-brand-pale mt-12">
-                        <h4 className="text-brand-navy font-black text-xl mb-4">Questions?</h4>
+                        <h4 className="text-brand-navy font-black text-xl mb-4">{t('legal.questions_heading')}</h4>
                         <p className="mb-4">For any inquiries regarding this policy, please reach out to the MMAF secretariat.</p>
                         <p className="text-brand-orange font-bold">Email: sab2026@mma.org.my</p>
                     </div>

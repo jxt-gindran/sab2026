@@ -7,6 +7,7 @@ import Settings from './pages/Settings';
 import Content from './pages/Content';
 import Cyclists from './pages/Cyclists';
 import MapCMS from './pages/MapCMS';
+import Translations from './pages/Translations';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -47,6 +48,7 @@ const App: React.FC = () => {
               <Route path="content" element={<Content />} />
               <Route path="cyclists" element={<Cyclists />} />
               <Route path="ride" element={<MapCMS />} />
+              <Route path="translations" element={<Translations />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

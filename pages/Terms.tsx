@@ -1,13 +1,15 @@
 import React from 'react';
+import { useTranslation } from '../lib/i18n';
 
 const Terms: React.FC = () => {
+    const { t } = useTranslation();
     return (
         <div className="bg-white min-h-screen pt-32 pb-24">
             <div className="max-w-4xl mx-auto px-6 animate-fade-in">
-                <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">Legal & Compliance</div>
+                <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm">{t('legal.tag')}</div>
                 <h1 className="text-4xl md:text-5xl font-black text-brand-navy mb-12 font-heading leading-tight">
-                    Terms & <br />
-                    <span className="text-brand-cyan">Conditions.</span>
+                    {t('legal.terms_heading1')} <br />
+                    <span className="text-brand-cyan">{t('legal.terms_heading2')}</span>
                 </h1>
 
                 <div className="prose prose-lg prose-slate max-w-none text-brand-slate font-medium">

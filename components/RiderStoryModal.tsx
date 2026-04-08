@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Heart, Shield, Award, Facebook, Instagram, Linkedin, Quote } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 interface Rider {
     id: number;
@@ -22,6 +23,7 @@ interface RiderStoryModalProps {
 }
 
 const RiderStoryModal: React.FC<RiderStoryModalProps> = ({ rider, onClose }) => {
+    const { t } = useTranslation();
     if (!rider) return null;
 
     return (
@@ -66,7 +68,7 @@ const RiderStoryModal: React.FC<RiderStoryModalProps> = ({ rider, onClose }) => 
 
                     <div className="mb-10">
                         <Quote className="h-10 w-10 text-brand-cyan/20 mb-6" />
-                        <h3 className="text-2xl font-black text-brand-navy mb-6 leading-tight">"Cycling 660km is nothing compared to the fight these children face every day."</h3>
+                        <h3 className="text-2xl font-black text-brand-navy mb-6 leading-tight">{t('riderstory.cycling_quote')}</h3>
                         <p className="text-slate-500 font-medium leading-relaxed mb-6">
                             {rider.story}
                         </p>
@@ -76,11 +78,11 @@ const RiderStoryModal: React.FC<RiderStoryModalProps> = ({ rider, onClose }) => 
                     <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 mb-10">
                         <div className="flex justify-between items-end mb-4">
                             <div>
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Impact Progress</div>
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('riderstory.progress_label')}</div>
                                 <div className="text-2xl font-black text-brand-navy">RM {rider.raised.toLocaleString()}</div>
                             </div>
                             <div className="text-right">
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Goal</div>
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('riderstory.goal_label')}</div>
                                 <div className="text-sm font-bold text-brand-navy">RM {rider.goal.toLocaleString()}</div>
                             </div>
                         </div>
@@ -94,7 +96,7 @@ const RiderStoryModal: React.FC<RiderStoryModalProps> = ({ rider, onClose }) => 
 
                     {/* Social Links */}
                     <div className="flex items-center gap-6">
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Connect:</span>
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('riderstory.connect_label')}</span>
                         <div className="flex gap-4">
                             {rider.social?.facebook && (
                                 <a href={rider.social.facebook} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-navy hover:bg-brand-cyan transition-all">

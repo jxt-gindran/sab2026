@@ -1,8 +1,10 @@
 import React from 'react';
 import { XCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../lib/i18n';
 
 const PaymentCancelled: React.FC = () => {
+    const { t } = useTranslation();
     return (
         <div className="min-h-screen bg-white pt-32 pb-20 font-sans text-brand-slate">
             <div className="max-w-4xl mx-auto px-6 animate-fade-in text-center">
@@ -14,28 +16,28 @@ const PaymentCancelled: React.FC = () => {
                 </div>
 
                 <h1 className="text-5xl md:text-7xl font-black text-brand-navy mb-8 font-heading tracking-tighter leading-none">
-                    Payment Incomplete
+                    {t('cancelled.heading')}
                 </h1>
 
                 <p className="text-xl md:text-2xl text-brand-slate font-medium max-w-2xl mx-auto mb-12 leading-relaxed">
-                    Your payment was not completed. No charges have been made to your account. You can try again or choose a different payment method.
+                    {t('cancelled.subtitle')}
                 </p>
 
                 {/* Info Card */}
                 <div className="bg-brand-pale/20 rounded-[2.5rem] p-8 md:p-12 mb-16 border border-brand-pale max-w-2xl mx-auto">
-                    <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">What happened?</h3>
+                    <h3 className="text-2xl font-black text-brand-navy mb-4 font-heading">{t('cancelled.what_happened')}</h3>
                     <ul className="text-left space-y-6 text-brand-slate font-medium">
                         <li className="flex items-start gap-4">
                             <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm mt-1">
                                 <span className="font-black text-red-500 text-sm">!</span>
                             </div>
-                            <p>The payment may have been cancelled, timed out, or declined by your bank. No money has been deducted.</p>
+                            <p>{t('cancelled.reason1')}</p>
                         </li>
                         <li className="flex items-start gap-4">
                             <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm mt-1">
                                 <span className="font-black text-brand-cyan text-sm">✓</span>
                             </div>
-                            <p>You can try again immediately or use Manual Bank Transfer as an alternative.</p>
+                            <p>{t('cancelled.reason2')}</p>
                         </li>
                     </ul>
                 </div>
@@ -47,13 +49,13 @@ const PaymentCancelled: React.FC = () => {
                         className="inline-flex items-center justify-center gap-3 bg-brand-orange text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-navy transition-all shadow-xl hover:-translate-y-1"
                     >
                         <RefreshCw className="h-5 w-5" />
-                        Try Again
+                        {t('cancelled.try_again')}
                     </Link>
                     <Link
                         to="/"
                         className="inline-flex items-center justify-center gap-3 text-brand-slate font-bold uppercase tracking-widest hover:text-brand-orange transition-colors px-10 py-5"
                     >
-                        Return to Home <ArrowRight className="h-5 w-5" />
+                        {t('cancelled.return_home')} <ArrowRight className="h-5 w-5" />
                     </Link>
                 </div>
 

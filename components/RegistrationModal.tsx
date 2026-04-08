@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, UserPlus, AlertTriangle, ExternalLink, Heart } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
+import { useTranslation } from '../lib/i18n';
 
 interface RegistrationModalProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface RegistrationModalProps {
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const settings = useQuery(api.admin.getPublicSettings) || [];
     const isFull = settings.find(s => s.key === 'registration_status')?.value === 'full';
     const formUrl = settings.find(s => s.key === 'registration_form_url')?.value || '';
@@ -39,10 +41,10 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                             }
                         </div>
                         <h2 className="text-3xl font-black text-white tracking-tighter">
-                            {isFull ? 'Registration Closed.' : 'Join the Movement.'}
+                            {isFull ? t('modal.title_full') : t('modal.title_open')}
                         </h2>
                         <p className="text-brand-cyan/80 font-black text-xs uppercase tracking-[0.3em]">
-                            {isFull ? 'All Cyclist Slots Are Filled' : 'Become an SAB 2026 Champion'}
+                            {isFull ? t('modal.subtitle_full') : t('modal.subtitle_open')}
                         </p>
                     </div>
                     <button
@@ -60,10 +62,10 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                         <div className="text-center">
                             <div className="bg-red-50 border border-red-100 rounded-2xl p-8 mb-8">
                                 <p className="text-slate-600 font-medium text-lg leading-relaxed mb-2">
-                                    Thank you for your interest in SAB 2026.
+                                    {t('modal.full_interest')}
                                 </p>
                                 <p className="text-slate-500 font-medium">
-                                    All cyclist slots have been filled for this year's event. Stay tuned for future announcements.
+                                    {t('modal.full_desc')}
                                 </p>
                             </div>
                             <div className="flex flex-col gap-4">
@@ -71,13 +73,13 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                                     onClick={() => { onClose(); navigate('/donate'); }}
                                     className="block w-full text-center bg-brand-orange text-white font-black py-4 rounded-2xl hover:bg-brand-cyan hover:text-brand-navy transition-all uppercase tracking-widest text-sm shadow-lg"
                                 >
-                                    Support a Cyclist Instead
+                                    {t('modal.full_support_btn')}
                                 </button>
                                 <button
                                     onClick={onClose}
                                     className="block w-full text-center border-2 border-slate-200 text-slate-400 font-black py-4 rounded-2xl hover:border-brand-navy hover:text-brand-navy transition-all uppercase tracking-widest text-sm"
                                 >
-                                    Close
+                                    {t('modal.full_close_btn')}
                                 </button>
                             </div>
                         </div>
@@ -86,9 +88,9 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                         <div className="text-center">
                             <div className="space-y-6 mb-8 text-left">
                                 {[
-                                    { n: '1', title: 'Official Registration', desc: 'Fill out the official MMA SAB 2026 participation form.' },
-                                    { n: '2', title: 'Health & Safety', desc: 'Provide medical clearance and endurance experience for the 680km ride.' },
-                                    { n: '3', title: 'Fundraising Page', desc: 'Once verified, we will create your custom Champion profile on this site.' },
+                                    { n: '1', title: t('modal.step1_title'), desc: t('modal.step1_desc') },
+                                    { n: '2', title: t('modal.step2_title'), desc: t('modal.step2_desc') },
+                                    { n: '3', title: t('modal.step3_title'), desc: t('modal.step3_desc') },
                                 ].map(s => (
                                     <div key={s.n} className="flex gap-4">
                                         <div className="h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-brand-navy flex-shrink-0 font-black text-sm border border-slate-200">{s.n}</div>
@@ -102,7 +104,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                             <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-start gap-3 mb-8">
                                 <Heart className="h-4 w-4 text-brand-orange flex-shrink-0 mt-0.5" />
                                 <p className="text-xs font-bold text-slate-500 leading-relaxed uppercase tracking-wider">
-                                    Minimum fundraising commitment: RM 3,000. Subject to medical review.
+                                    {t('modal.commitment')}
                                 </p>
                             </div>
                             <a
@@ -112,18 +114,18 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                                 className="flex items-center justify-center gap-2 w-full bg-brand-cyan text-brand-navy font-black py-5 rounded-2xl hover:bg-brand-orange hover:text-white transition-all uppercase tracking-widest text-sm shadow-lg"
                             >
                                 <ExternalLink className="h-4 w-4" />
-                                Open Registration Form
+                                {t('modal.open_form')}
                             </a>
                         </div>
                     ) : (
                         /* OPEN BUT NO FORM URL SET YET */
                         <div className="text-center">
-                            <p className="text-slate-500 font-medium mb-6">Registration form coming soon. Stay tuned!</p>
+                            <p className="text-slate-500 font-medium mb-6">{t('modal.coming_soon')}</p>
                             <button
                                 onClick={onClose}
                                 className="border-2 border-brand-navy text-brand-navy font-black px-8 py-4 rounded-2xl hover:bg-brand-navy hover:text-white transition-all uppercase tracking-widest text-sm"
                             >
-                                Close
+                                {t('modal.close')}
                             </button>
                         </div>
                     )}

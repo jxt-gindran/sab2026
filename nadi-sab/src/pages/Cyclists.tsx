@@ -5,11 +5,16 @@ import { useAuth } from '../components/AuthContext';
 import { Plus, Trash2, Edit2, Star, Target, Heart, Link as LinkIcon, Image as ImageIcon, Archive, ArchiveRestore, Upload, Bold, Italic, Underline, List, Globe } from 'lucide-react';
 import type { Id } from '../../../convex/_generated/dataModel';
 
-// ─── Supported translation languages ─────────────────────────────────────────
-const SUPPORTED_LANGS = [
-  { code: 'ms', label: 'Bahasa Malaysia' },
-  { code: 'zh', label: '中文 (Chinese)' },
-];
+// ── Language display names ─────────────────────────────────────────────────────
+const LANG_NAMES: Record<string, string> = {
+  ms: 'Bahasa Malaysia',
+  zh: 'Chinese (Simplified)',
+  'zh-TW': 'Chinese (Traditional)',
+  ar: 'Arabic',
+  ta: 'Tamil',
+};
+
+const getLangName = (code: string) => LANG_NAMES[code] || code.toUpperCase();
 
 // ─── Lightweight Rich Text Editor ────────────────────────────────────────────
 function RichTextEditor({ value, onChange, placeholder }: { value: string; onChange: (html: string) => void; placeholder?: string }) {
@@ -128,6 +133,12 @@ const DEFAULT_FORM: FormData = {
 
 export default function Cyclists() {
   const { token } = useAuth();
+  const dbLanguages = useQuery(api.translations.listLanguages) || [];
+  const SUPPORTED_LANGS = dbLanguages.map((code: string) => ({
+    code,
+    label: getLangName(code)
+  }));
+  
   const cyclists = useQuery(api.cyclists.listAll) || [];
   
   const addCyclist = useMutation(api.cyclists.add);

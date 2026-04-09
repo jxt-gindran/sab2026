@@ -476,6 +476,38 @@ export const en = {
     connect_label: 'Connect:',
   },
 
+  // ─── Cyclist Profile page ─────────────────────────────────────────────────
+  cyclistProfile: {
+    loading:          'Loading Profile…',
+    not_found:        "This cyclist profile doesn't exist or has been removed.",
+    view_all_riders:  '← View All Riders',
+    back:             'Back',
+    sab_rider_label:  'SAB 2026 Rider',
+    location_label:   'Borneo 2026',
+    goal_label:       'Goal',
+    featured_label:   'Featured Rider',
+    raised_label:     'Raised',
+    reached_suffix:   '% Reached',
+    their_story:      'Their Story',
+    gallery:          'Gallery',
+    about_the_ride:   'About The Ride',
+    distance_label:   'Distance',
+    distance_value:   '680 KM',
+    days_label:       'Days',
+    days_value:       '6',
+    route_label:      'Route',
+    route_value:      'KK → Miri',
+    date_label:       'Date',
+    date_value:       'Jul 2026',
+    support_prefix:   'Support',
+    donate_desc:      "Your donation directly supports this rider's fundraising goal and funds life-saving paediatric care.",
+    donate_now:       'Donate Now',
+    or_general_fund:  'Or donate to General Fund',
+    share_profile:    'Share Profile',
+    link_copied:      'Link Copied!',
+    see_all_riders:   'See All Riders',
+  },
+
   // ─── Legal pages (Privacy, Terms, Refund) — headings only ─────────────────
   legal: {
     tag: 'Legal & Compliance',

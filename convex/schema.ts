@@ -28,7 +28,18 @@ export default defineSchema({
         galleryUrls: v.optional(v.array(v.string())), // Up to 3 additional images
         isFeatured: v.boolean(),
         isArchived: v.optional(v.boolean()), // For past events/retired cyclists
-        shareSlug: v.string() // Unique slug for share link e.g. "john-doe"
+        shareSlug: v.string(), // Unique slug for share link e.g. "john-doe"
+        /**
+         * Per-language content overrides.
+         * Keys are ISO language codes (e.g. "ms", "zh").
+         * Each entry may override name, role, and/or story.
+         * Falls back to the base English fields if not present.
+         */
+        translations: v.optional(v.record(v.string(), v.object({
+            name:  v.optional(v.string()),
+            role:  v.optional(v.string()),
+            story: v.optional(v.string()),
+        }))),
     }).index("by_slug", ["shareSlug"]),
 
     settings: defineTable({

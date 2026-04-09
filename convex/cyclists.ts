@@ -42,7 +42,12 @@ export const add = mutation({
         isFeatured: v.boolean(),
         isArchived: v.optional(v.boolean()),
         shareSlug: v.string(),
-        raised: v.optional(v.number())
+        raised: v.optional(v.number()),
+        translations: v.optional(v.record(v.string(), v.object({
+            name:  v.optional(v.string()),
+            role:  v.optional(v.string()),
+            story: v.optional(v.string()),
+        }))),
     },
     handler: async (ctx, args) => {
         if (args.token !== ADMIN_SECRET) throw new Error("Unauthorized");
@@ -57,7 +62,8 @@ export const add = mutation({
             galleryUrls: args.galleryUrls,
             isFeatured: args.isFeatured,
             isArchived: args.isArchived,
-            shareSlug: args.shareSlug
+            shareSlug: args.shareSlug,
+            translations: args.translations,
         });
     },
 });
@@ -75,7 +81,12 @@ export const update = mutation({
         isFeatured: v.boolean(),
         isArchived: v.optional(v.boolean()),
         shareSlug: v.string(),
-        raised: v.optional(v.number())
+        raised: v.optional(v.number()),
+        translations: v.optional(v.record(v.string(), v.object({
+            name:  v.optional(v.string()),
+            role:  v.optional(v.string()),
+            story: v.optional(v.string()),
+        }))),
     },
     handler: async (ctx, args) => {
         if (args.token !== ADMIN_SECRET) throw new Error("Unauthorized");
@@ -90,7 +101,8 @@ export const update = mutation({
             isFeatured: args.isFeatured,
             isArchived: args.isArchived,
             shareSlug: args.shareSlug,
-            raised: args.raised
+            raised: args.raised,
+            translations: args.translations,
         });
     },
 });

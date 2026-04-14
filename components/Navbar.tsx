@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
-  const { t, lang, setLang, availableLangs } = useTranslation();
+  const { t, lang, setLang, availableLangs, loadAvailableLangs } = useTranslation();
 
   // Pages where the hero section is dark, allowing for a transparent navbar initially
   const isDarkHeroPage = ['/', '/mission', '/ride', '/legacy'].includes(location.pathname);
@@ -111,7 +111,7 @@ const Navbar: React.FC = () => {
                 {/* Language Selector Dropdown */}
                 <div className="relative" onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => setIsLangOpen((v) => !v)}
+                    onClick={() => { loadAvailableLangs(); setIsLangOpen((v) => !v); }}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
                       isLightNav
                         ? 'text-brand-slate hover:bg-brand-pale bg-brand-pale/50'

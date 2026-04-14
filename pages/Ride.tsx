@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Quote, UserPlus, User, Heart } from 'lucide-react';
 import { useQuery } from 'convex/react';
@@ -15,10 +15,16 @@ const Ride: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('Cyclist');
 
   const allCyclists = useQuery(api.cyclists.listAll) || [];
-  const cyclists = allCyclists.filter((c: any) => !c.isArchived);
+  const cyclists = useMemo(
+    () => allCyclists.filter((c: any) => !c.isArchived),
+    [allCyclists]
+  );
 
   // Derive unique roles
-  const uniqueRoles = Array.from(new Set(cyclists.map((c: any) => c.role || 'Cyclist')));
+  const uniqueRoles = useMemo(
+    () => Array.from(new Set(cyclists.map((c: any) => c.role || 'Cyclist'))),
+    [cyclists]
+  );
   const hasMultipleRoles = uniqueRoles.length > 1;
 
   // Sync activeTab if the default 'Cyclist' isn't available

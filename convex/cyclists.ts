@@ -15,7 +15,7 @@ export const listFeatured = query({
     args: {},
     handler: async (ctx) => {
         const results = await ctx.db.query("cyclists")
-            .filter(q => q.eq(q.field("isFeatured"), true))
+            .withIndex("by_featured", q => q.eq("isFeatured", true))
             .collect();
         return results.filter(c => c.isArchived !== true);
     },

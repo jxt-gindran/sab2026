@@ -160,10 +160,16 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
         if (!activeRoute || !activeRoute.fileUrl) return;
 
         const fetchUrl = activeRoute.fileUrl;
-        
-        fetch(fetchUrl)
+
+        // Abort controller: cancels the fetch on cleanup (unmount or dep change)
+        // and enforces a 15-second timeout so the map never hangs indefinitely.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        fetch(fetchUrl, { signal: controller.signal })
             .then(res => res.text())
             .then(fileText => {
+                clearTimeout(timeoutId);
                 let parsedCoordinates: [number, number][] = [];
                 let parsedElevations: { dist: number, ele: number, lon: number, lat: number }[] = [];
 
@@ -229,9 +235,18 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
                 }
             })
             .catch(err => {
-                console.error("Failed to load map coordinates:", err);
+                clearTimeout(timeoutId);
+                // AbortError is expected when the fetch is cancelled (timeout or unmount) — not a real error
+                if (err.name !== 'AbortError') {
+                    console.error("Failed to load map coordinates:", err);
+                }
             });
 
+        // Cleanup: cancel the in-flight fetch if deps change or component unmounts
+        return () => {
+            controller.abort();
+            clearTimeout(timeoutId);
+        };
     }, [activeRoute, mapLoaded]);
 
     // Effect for dynamically managing map overlays (stop markers)
@@ -239,24 +254,31 @@ export function BorneoRouteMap({ className, isAdminMode, onSaveView }: BorneoRou
         if (!mapInstance.current || !mapLoaded) return;
         const map = mapInstance.current;
 
-        // We clean up existing dynamic overlays first 
-        // Note: we don't remove the cursorOverlay which is managed separately
+        // Clean up existing dynamic overlays first.
+        // Note: we don't remove the cursorOverlay which is managed separately.
         const overlaysToRemove = map.getOverlays().getArray().filter(o => o !== cursorOverlayRef.current);
         overlaysToRemove.forEach(o => map.removeOverlay(o));
 
-        remoteMarkers.forEach(stop => {
-            const element = document.getElementById(`stop-${stop._id}`);
-            if (element) {
-                const overlay = new Overlay({
-                    element: element,
-                    position: fromLonLat([stop.lng, stop.lat]),
-                    positioning: "center-center",
-                    stopEvent: false, 
-                });
-                map.addOverlay(overlay);
-            }
+        // Defer the DOM lookup to the next animation frame.
+        // React may not have committed the hidden marker <div> elements yet
+        // when this effect fires, causing getElementById to return null silently.
+        const rafId = requestAnimationFrame(() => {
+            remoteMarkers.forEach(stop => {
+                const element = document.getElementById(`stop-${stop._id}`);
+                if (element) {
+                    const overlay = new Overlay({
+                        element: element,
+                        position: fromLonLat([stop.lng, stop.lat]),
+                        positioning: "center-center",
+                        stopEvent: false,
+                    });
+                    map.addOverlay(overlay);
+                }
+            });
         });
 
+        // Cancel the pending rAF if deps change or component unmounts
+        return () => cancelAnimationFrame(rafId);
     }, [remoteMarkers, mapLoaded]);
 
     // Dynamic Collision Detection for Labels

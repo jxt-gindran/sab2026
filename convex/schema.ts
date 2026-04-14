@@ -40,7 +40,8 @@ export default defineSchema({
             role:  v.optional(v.string()),
             story: v.optional(v.string()),
         }))),
-    }).index("by_slug", ["shareSlug"]),
+    }).index("by_slug", ["shareSlug"])
+      .index("by_featured", ["isFeatured"]),
 
     settings: defineTable({
         key: v.string(),

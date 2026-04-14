@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -17,10 +17,22 @@ import {
 const CyclistProfile: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const cyclist = useQuery(api.cyclists.getBySlug, { shareSlug: slug || '' });
+  // Skip the query entirely if slug is missing — prevents querying with empty string
+  const cyclist = useQuery(api.cyclists.getBySlug, slug ? { shareSlug: slug } : 'skip');
   const [copied, setCopied] = useState(false);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const { t, lang } = useTranslation();
+
+  // Safety timeout: if Convex is slow / rate-limited, don't hang the spinner forever
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    if (cyclist !== undefined) {
+      setTimedOut(false); // Query resolved — reset
+      return;
+    }
+    const timer = setTimeout(() => setTimedOut(true), 10000); // 10 s
+    return () => clearTimeout(timer);
+  }, [cyclist]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -29,6 +41,27 @@ const CyclistProfile: React.FC = () => {
   };
 
   if (cyclist === undefined) {
+    if (timedOut) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-brand-pale px-4">
+          <div className="text-center">
+            <div className="text-5xl mb-4">⏱</div>
+            <h1 className="text-2xl font-black text-brand-navy mb-3 font-heading">
+              {t('cyclistProfile.load_error', 'Connection Timeout')}
+            </h1>
+            <p className="text-brand-slate font-medium mb-8 max-w-sm">
+              {t('cyclistProfile.load_error_desc', 'Unable to load this profile. Please check your connection and try again.')}
+            </p>
+            <button
+              onClick={() => { setTimedOut(false); window.location.reload(); }}
+              className="bg-brand-orange text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-navy transition-all"
+            >
+              {t('cyclistProfile.retry', 'Retry')}
+            </button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen flex items-center justify-center bg-brand-pale">
         <div className="flex flex-col items-center gap-3">

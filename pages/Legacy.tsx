@@ -74,6 +74,7 @@ const Legacy: React.FC = () => {
               {t('legacy.heading1')} <br />{t('legacy.heading2')}
             </h1>
             <p className="text-2xl text-brand-pale font-medium">{t('legacy.raised_prefix')} <span className="text-brand-orange font-bold">{t('legacy.raised_amount')}</span> {t('legacy.raised_suffix')}</p>
+            <p className="text-lg text-brand-pale/80 font-medium mt-6 leading-relaxed">{t('legacy.cycling_desc')}</p>
           </div>
 
           {/* Organizer Cards */}

@@ -163,6 +163,7 @@ const EN_FLAT: Record<string, string> = {
   'legacy.raised_amount': 'RM 1.2 Million',
   'legacy.raised_suffix': 'raised since 2022.',
   'legacy.cycling_desc': 'Cycling is both symbolic and practical in our work. It is a form of movement that speaks directly to health, resilience, and prevention; values that sit at the heart of many community and healthcare causes. Endurance cycling mirrors the realities faced by patients and families: long journeys marked by uncertainty, setbacks, and the need for sustained support to keep going. At the same time, cycling takes these important conversations out of institutions and into everyday spaces; beyond hospitals and clinics, bringing visibility to health challenges across towns, rural communities, and daily life. Through cycling, we turn awareness into action, movement into meaning - moving together, visibly and purposefully, for those who cannot.',
+  'legacy.cycling_desc_mobile': 'Cycling is symbolic and practical, speaking directly to health and resilience. It mirrors the long journeys faced by patients. Through cycling, we take these conversations into everyday spaces, turning awareness into action for those who cannot.',
   'legacy.mma_name': 'Malaysian Medical Association',
   'legacy.mma_desc': 'Established 1959. 17,000 members committed to medical ethics and public health.',
   'legacy.mmaf_name': 'MMA Foundation',

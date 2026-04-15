@@ -126,6 +126,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       if (lang !== 'en' && translationMap[key]) {
         return translationMap[key];
       }
+      
       // 2️⃣ English default from en.ts
       const enValue = getEnValue(key);
       if (enValue !== undefined) return enValue;

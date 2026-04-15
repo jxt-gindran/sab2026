@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Users, ArrowUpRight, X, History } from 'lucide-react';
 import { useTranslation } from '../lib/i18n';
+import { useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
 
 const TIMELINE = [
   {
@@ -56,6 +58,17 @@ const Legacy: React.FC = () => {
   const { t } = useTranslation();
   const [selectedItem, setSelectedItem] = useState<typeof TIMELINE[0] | null>(null);
 
+  // Auto-seed backend translations for 'ms' the first time this component mounts
+  const upsertKey = useMutation(api.translations.upsertKey);
+  const hasSeeded = useRef(false);
+  useEffect(() => {
+    if (!hasSeeded.current) {
+      hasSeeded.current = true;
+      upsertKey({ lang: 'ms', key: 'legacy.cycling_desc', value: 'Berbasikal adalah simbolik dan praktikal dalam kerja kami. Ia adalah satu bentuk pergerakan yang berbicara secara langsung tentang kesihatan, ketahanan, dan pencegahan; nilai-nilai yang terletak di hati banyak komuniti dan tujuan penjagaan kesihatan. Ketahanan berbasikal mencerminkan realiti yang dihadapi oleh pesakit dan keluarga: perjalanan panjang yang ditandai dengan ketidakpastian, halangan, dan keperluan sokongan berterusan untuk terus maju. Pada masa yang sama, berbasikal membawa perbualan penting ini keluar dari institusi ke ruang seharian; melangkaui hospital dan klinik, membawa visibiliti kepada cabaran kesihatan merentasi bandar, masyarakat luar bandar, dan kehidupan harian. Melalui basikal, kami mengubah kesedaran kepada tindakan, pergerakan kepada makna - bergerak bersama, secara nyata dan bermatlamat, untuk mereka yang tidak mampu.' }).catch(() => {});
+      upsertKey({ lang: 'ms', key: 'legacy.cycling_desc_mobile', value: 'Berbasikal adalah simbolik dan praktikal, mencerminkan kesihatan dan ketahanan. Ia seumpama perjalanan panjang yang dihadapi pesakit. Melalui kayuhan, kami membawa perbualan ini ke ruang harian, mengubah kesedaran kepada tindakan.' }).catch(() => {});
+    }
+  }, [upsertKey]);
+
   return (
     <div className="bg-white min-h-screen">
 
@@ -74,7 +87,11 @@ const Legacy: React.FC = () => {
               {t('legacy.heading1')} <br />{t('legacy.heading2')}
             </h1>
             <p className="text-2xl text-brand-pale font-medium">{t('legacy.raised_prefix')} <span className="text-brand-orange font-bold">{t('legacy.raised_amount')}</span> {t('legacy.raised_suffix')}</p>
-            <p className="text-lg text-brand-pale/80 font-medium mt-6 leading-relaxed">{t('legacy.cycling_desc')}</p>
+          </div>
+          
+          <div className="mb-16 max-w-full">
+            <p className="hidden md:block text-lg text-brand-pale/80 font-normal leading-relaxed">{t('legacy.cycling_desc')}</p>
+            <p className="block md:hidden text-lg text-brand-pale/80 font-normal leading-relaxed">{t('legacy.cycling_desc_mobile')}</p>
           </div>
 
           {/* Organizer Cards */}

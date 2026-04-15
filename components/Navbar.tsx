@@ -155,7 +155,10 @@ const Navbar: React.FC = () => {
                 {t('navbar.donate')}
               </Link>
               <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                  if (!isOpen) loadAvailableLangs();
+                  setIsOpen(!isOpen);
+                }}
                 className={`p-2 rounded-xl transition-colors ${mobileMenuButtonClass}`}
               >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

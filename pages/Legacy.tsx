@@ -58,17 +58,6 @@ const Legacy: React.FC = () => {
   const { t } = useTranslation();
   const [selectedItem, setSelectedItem] = useState<typeof TIMELINE[0] | null>(null);
 
-  // Auto-seed backend translations for 'ms' the first time this component mounts
-  const upsertKey = useMutation(api.translations.upsertKey);
-  const hasSeeded = useRef(false);
-  useEffect(() => {
-    if (!hasSeeded.current) {
-      hasSeeded.current = true;
-      upsertKey({ lang: 'ms', key: 'legacy.cycling_desc', value: 'Berbasikal adalah simbolik dan praktikal dalam kerja kami. Ia adalah satu bentuk pergerakan yang berbicara secara langsung tentang kesihatan, ketahanan, dan pencegahan; nilai-nilai yang terletak di hati banyak komuniti dan tujuan penjagaan kesihatan. Ketahanan berbasikal mencerminkan realiti yang dihadapi oleh pesakit dan keluarga: perjalanan panjang yang ditandai dengan ketidakpastian, halangan, dan keperluan sokongan berterusan untuk terus maju. Pada masa yang sama, berbasikal membawa perbualan penting ini keluar dari institusi ke ruang seharian; melangkaui hospital dan klinik, membawa visibiliti kepada cabaran kesihatan merentasi bandar, masyarakat luar bandar, dan kehidupan harian. Melalui basikal, kami mengubah kesedaran kepada tindakan, pergerakan kepada makna - bergerak bersama, secara nyata dan bermatlamat, untuk mereka yang tidak mampu.' }).catch(() => {});
-      upsertKey({ lang: 'ms', key: 'legacy.cycling_desc_mobile', value: 'Berbasikal adalah simbolik dan praktikal, mencerminkan kesihatan dan ketahanan. Ia seumpama perjalanan panjang yang dihadapi pesakit. Melalui kayuhan, kami membawa perbualan ini ke ruang harian, mengubah kesedaran kepada tindakan.' }).catch(() => {});
-    }
-  }, [upsertKey]);
-
   return (
     <div className="bg-white min-h-screen">
 

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, Globe, ChevronUp } from 'lucide-react';
 
 type Charity = 'maps' | 'mypopi';
 
@@ -165,8 +165,10 @@ export default function ImpactTiersCMS() {
         category: row.category,
         description: row.description,
         isActive: row.isActive ?? true,
-        translations: row.translations,
-      });
+        // translations is accepted by the backend mutation but the Convex
+        // generated types lag until next deploy — cast to bypass the check.
+        ...(row.translations ? { translations: row.translations } : {}),
+      } as any);
       if (id) {
         setLocalEdits((prev) => { const n = { ...prev }; delete n[id]; return n; });
       } else {

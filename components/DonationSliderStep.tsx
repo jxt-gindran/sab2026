@@ -1,84 +1,130 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ChevronDown } from 'lucide-react';
-import {
-  MAPS_DATA,
-  MYPOPI_DATA,
-  matchMaps,
-  matchMypopi,
-  sliderToAmount,
-  amountToSlider,
-  type MapsItem,
-  type MypopiItem,
-} from '../lib/donationMatcher';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
+import { sliderToAmount, amountToSlider } from '../lib/donationMatcher';
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface ImpactTier {
+  _id: string;
+  charity: string;
+  tier: number;
+  title?: string;
+  category?: string;
+  description: string;
+  isActive?: boolean;
+}
 
-interface MapsCardProps { item: MapsItem; }
+// ── Floor-match helper ────────────────────────────────────────────────────────
+function floorMatch(tiers: ImpactTier[], amount: number): ImpactTier | null {
+  const eligible = tiers.filter((t) => t.isActive !== false && t.tier <= amount);
+  if (!eligible.length) return null;
+  return eligible.reduce((a, b) => (b.tier > a.tier ? b : a));
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────────
+interface MapsCardProps  { item: ImpactTier; }
 const MapsCard: React.FC<MapsCardProps> = ({ item }) => (
-  <div className="flex-1 min-w-0 rounded-3xl border-2 border-[#00AEEF]/30 bg-gradient-to-br from-[#001B3A] to-[#00233F] p-6 md:p-8 text-white shadow-2xl flex flex-col gap-3 transition-all duration-500 animate-fade-in">
-    <div className="flex items-center gap-2 mb-1">
-      <div className="h-8 w-8 rounded-xl flex items-center justify-center bg-[#00AEEF]/20 shrink-0">
-        <img src="/assets/logos/MMA_logo.png" alt="MAPS" className="h-5 w-5 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+  <div className="flex-1 min-w-0 bg-white rounded-[2rem] border border-brand-grey/20 shadow-xl p-7 flex flex-col gap-3 transition-all duration-500 animate-fade-in relative overflow-hidden">
+    {/* Subtle teal accent blob */}
+    <div className="absolute -top-8 -right-8 h-28 w-28 bg-brand-cyan/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="flex items-center gap-3 mb-1 relative z-10">
+      <div className="h-10 w-10 bg-brand-pale rounded-xl flex items-center justify-center shrink-0 p-1.5">
+        <img
+          src="https://sab.mma.org.my/assets/logos/MAPS%20Logo.png"
+          alt="MAPS"
+          className="h-full w-full object-contain"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
       </div>
-      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00AEEF]">MAPS</span>
+      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-cyan">MAPS</span>
     </div>
-    <div className="text-2xl md:text-3xl font-black font-heading text-white leading-tight">{item.title}</div>
-    <div className="text-xs font-bold text-[#00AEEF]/60 uppercase tracking-widest">From RM {item.tier.toLocaleString()}</div>
-    <p className="text-sm text-white/70 font-medium leading-relaxed flex-grow">{item.description}</p>
+    <h3 className="text-2xl md:text-2xl font-black font-heading text-brand-navy leading-tight relative z-10">
+      {item.title}
+    </h3>
+    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest relative z-10">
+      From RM {item.tier.toLocaleString()}
+    </div>
+    <p className="text-sm text-brand-slate font-medium leading-relaxed flex-grow relative z-10">
+      {item.description}
+    </p>
   </div>
 );
 
-interface MypopiCardProps { item: MypopiItem; }
+interface MypopiCardProps { item: ImpactTier; }
 const MypopiCard: React.FC<MypopiCardProps> = ({ item }) => (
-  <div className="flex-1 min-w-0 rounded-3xl border-2 border-[#F4831F]/30 bg-gradient-to-br from-[#3A1A00] to-[#2A1200] p-6 md:p-8 text-white shadow-2xl flex flex-col gap-3 transition-all duration-500 animate-fade-in">
-    <div className="flex items-center gap-2 mb-1">
-      <div className="h-8 w-8 rounded-xl flex items-center justify-center bg-[#F4831F]/20 shrink-0">
-        <img src="/assets/logos/MMAF_logo.png" alt="MyPOPI" className="h-5 w-5 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+  <div className="flex-1 min-w-0 bg-white rounded-[2rem] border border-brand-grey/20 shadow-xl p-7 flex flex-col gap-3 transition-all duration-500 animate-fade-in relative overflow-hidden">
+    {/* Subtle orange accent blob */}
+    <div className="absolute -top-8 -right-8 h-28 w-28 bg-brand-orange/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="flex items-center gap-3 mb-1 relative z-10">
+      <div className="h-10 w-10 bg-brand-pale rounded-xl flex items-center justify-center shrink-0 p-1.5">
+        <img
+          src="https://sab.mma.org.my/assets/logos/MyPOPI-1.png"
+          alt="MyPOPI"
+          className="h-full w-full object-contain"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
       </div>
-      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#F4831F]">MyPOPI</span>
+      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-orange">MyPOPI</span>
     </div>
-    <div className="text-xl md:text-2xl font-black text-[#F4831F] leading-tight">{item.category}</div>
-    <div className="text-xs font-bold text-[#F4831F]/60 uppercase tracking-widest">From RM {item.tier.toLocaleString()}</div>
-    <p className="text-sm text-white/70 font-medium leading-relaxed flex-grow">{item.description}</p>
+    <h3 className="text-2xl font-black font-heading text-brand-navy leading-tight relative z-10">
+      {item.category}
+    </h3>
+    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest relative z-10">
+      From RM {item.tier.toLocaleString()}
+    </div>
+    <p className="text-sm text-brand-slate font-medium leading-relaxed flex-grow relative z-10">
+      {item.description}
+    </p>
   </div>
 );
 
-// Mobile accordion card wrapper
+// ── Mobile accordion wrapper ──────────────────────────────────────────────────
 interface MobileCardWrapperProps {
   label: string;
-  accentColor: string;
+  accentClass: string;
+  borderColorHex: string;
   children: React.ReactNode;
 }
-const MobileCardWrapper: React.FC<MobileCardWrapperProps> = ({ label, accentColor, children }) => {
-  const [expanded, setExpanded] = useState(false);
+const MobileCardWrapper: React.FC<MobileCardWrapperProps> = ({ label, accentClass, borderColorHex, children }) => {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-2xl overflow-hidden border-2 transition-all duration-300" style={{ borderColor: accentColor + '40' }}>
+    <div className="rounded-2xl overflow-hidden border-2 border-brand-pale/60">
       <button
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-3 text-left"
-        style={{ background: accentColor + '15' }}
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-5 py-3 bg-brand-pale/30 text-left"
       >
-        <span className="text-xs font-black uppercase tracking-widest" style={{ color: accentColor }}>{label} Impact</span>
-        <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} style={{ color: accentColor }} />
+        <span className={`text-xs font-black uppercase tracking-widest ${accentClass}`}>{label} Impact</span>
+        <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${accentClass} ${open ? 'rotate-180' : ''}`} />
       </button>
-      <div className={`transition-all duration-300 overflow-hidden ${expanded ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="p-1">{children}</div>
+      <div className={`transition-all duration-300 overflow-hidden ${open ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="p-2">{children}</div>
       </div>
     </div>
   );
 };
 
-// ── Cyclist SVG icon for slider thumb ────────────────────────────────────────
-const CyclistIcon: React.FC = () => (
-  <svg viewBox="0 0 24 24" fill="#F4831F" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 drop-shadow-lg">
-    <circle cx="15.5" cy="3.5" r="1.5"/>
-    <path d="M12 10.31V8l3.5 2.5-2 2L12 11.5V15l-3-1.5V10l3 .31zM5 14.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0zm1.5 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0zM12.5 14.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0zm1.5 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
-    <path d="M8.5 7l1.5 3-2 1.5"/>
+// ── Cyclist SVG ───────────────────────────────────────────────────────────────
+const CyclistSVG: React.FC = () => (
+  <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+    {/* Head */}
+    <circle cx="24" cy="5" r="3" fill="#F4831F"/>
+    {/* Body / torso leaning forward */}
+    <path d="M24 8 L18 16 L13 14" stroke="#F4831F" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+    {/* Left arm to handlebar */}
+    <path d="M18 16 L14 12" stroke="#F4831F" strokeWidth="2" strokeLinecap="round" fill="none"/>
+    {/* Crank arm */}
+    <path d="M18 16 L20 22" stroke="#F4831F" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+    {/* Rear wheel */}
+    <circle cx="10" cy="26" r="7" stroke="#F4831F" strokeWidth="2" fill="none"/>
+    {/* Front wheel */}
+    <circle cx="26" cy="26" r="7" stroke="#F4831F" strokeWidth="2" fill="none"/>
+    {/* Seat stay and chain stay */}
+    <path d="M18 16 L10 26 M20 22 L10 26 M20 22 L26 26 M14 12 L26 26" stroke="#F4831F" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
   </svg>
 );
 
-// ── Main component ────────────────────────────────────────────────────────────
-
+// ── Main Component ────────────────────────────────────────────────────────────
 interface DonationSliderStepProps {
   amount: number;
   onChange: (amount: number) => void;
@@ -87,20 +133,37 @@ interface DonationSliderStepProps {
 const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChange }) => {
   const [inputValue, setInputValue] = useState(String(amount));
   const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const sliderRef = useRef<HTMLInputElement>(null);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // Sync inputValue when amount changes externally (slider drag)
+  // ── Backend queries ──
+  const mapsTiersRaw  = useQuery(api.impactTiers.listByCharity, { charity: 'maps'   }) ?? null;
+  const mypopiTiersRaw = useQuery(api.impactTiers.listByCharity, { charity: 'mypopi' }) ?? null;
+  const seedDefaults  = useMutation(api.impactTiers.seedDefaults);
+
+  // Seed on first mount if DB is empty
+  useEffect(() => {
+    seedDefaults().catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Use active tiers from DB; while loading, show nothing (cards simply absent)
+  const mapsTiers   = useMemo(() => (mapsTiersRaw  ?? []) as ImpactTier[], [mapsTiersRaw]);
+  const mypopiTiers = useMemo(() => (mypopiTiersRaw ?? []) as ImpactTier[], [mypopiTiersRaw]);
+
+  const mapsMatch   = useMemo(() => floorMatch(mapsTiers,   amount), [mapsTiers,   amount]);
+  const mypopiMatch = useMemo(() => floorMatch(mypopiTiers, amount), [mypopiTiers, amount]);
+
+  // Sync displayed value when slider changes externally
   useEffect(() => {
     if (!isEditing) setInputValue(String(amount));
   }, [amount, isEditing]);
 
+  const sliderPct = amountToSlider(amount); // 0–1
+  const sliderVal = Math.round(sliderPct * 10000); // maps to range 0–10000
+
   const handleSliderChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const pct = parseFloat(e.target.value) / 1000;
-    const newAmount = sliderToAmount(pct);
-    onChange(newAmount);
-    setInputValue(String(newAmount));
+    const pct = parseInt(e.target.value, 10) / 10000;
+    const next = sliderToAmount(pct);
+    onChange(next);
   }, [onChange]);
 
   const handleInputCommit = useCallback(() => {
@@ -108,34 +171,31 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
     if (!isNaN(parsed) && parsed >= 50) {
       onChange(parsed);
     } else {
-      setInputValue(String(amount)); // revert
+      setInputValue(String(amount));
     }
     setIsEditing(false);
   }, [inputValue, amount, onChange]);
 
-  const mapsMatch = matchMaps(amount);
-  const mypopiMatch = matchMypopi(amount);
-  const sliderPct = amountToSlider(amount);
-
-  // Slider fill % for CSS gradient
-  const fillPct = Math.round(sliderPct * 100);
+  // Fill % for the coloured portion of the track
+  const fillPct = sliderPct * 100;
 
   return (
-    <div className="animate-fade-in flex-grow flex flex-col">
-      {/* ── Heading ── */}
-      <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-1 tracking-tighter leading-none font-heading">
-        Choose Your Impact.
-      </h2>
-      <p className="text-sm text-brand-slate font-medium mb-8">
-        Drag the slider or tap the amount to enter a custom value.
-      </p>
+    <div className="animate-fade-in flex flex-col gap-5">
+      {/* Heading */}
+      <div>
+        <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-1 tracking-tighter leading-none font-heading">
+          Choose Your Impact.
+        </h2>
+        <p className="text-sm text-brand-slate font-medium">
+          Drag the slider or tap the amount below to enter a custom value.
+        </p>
+      </div>
 
       {/* ── Amount Display ── */}
-      <div className="flex items-center justify-center gap-3 mb-2">
-        <span className="text-3xl md:text-4xl font-black text-brand-slate/40 font-heading">RM</span>
+      <div className="flex items-baseline justify-center gap-2">
+        <span className="text-3xl font-black text-brand-slate/40 font-heading select-none">RM</span>
         {isEditing ? (
           <input
-            ref={inputRef}
             type="number"
             value={inputValue}
             min={50}
@@ -143,12 +203,11 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
             onBlur={handleInputCommit}
             onKeyDown={(e) => { if (e.key === 'Enter') handleInputCommit(); }}
             autoFocus
-            className="text-5xl md:text-7xl font-black text-brand-navy font-heading text-center outline-none border-b-4 border-brand-orange bg-transparent w-[220px] md:w-[300px] appearance-none"
-            style={{ MozAppearance: 'textfield' } as React.CSSProperties}
+            className="text-5xl md:text-7xl font-black text-brand-navy font-heading text-center outline-none border-b-4 border-brand-orange bg-transparent w-[200px] md:w-[280px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         ) : (
           <button
-            onClick={() => { setIsEditing(true); setTimeout(() => inputRef.current?.select(), 0); }}
+            onClick={() => setIsEditing(true)}
             className="text-5xl md:text-7xl font-black text-brand-navy font-heading hover:text-brand-orange transition-colors cursor-text leading-none"
             title="Tap to enter custom amount"
           >
@@ -156,135 +215,122 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
           </button>
         )}
       </div>
-      <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">
-        {isEditing ? 'Press Enter or click away to apply' : 'Tap amount to edit'}
+      <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest -mt-3">
+        {isEditing ? 'Press Enter or click away to apply' : 'Tap amount to edit · Min RM 50'}
       </p>
 
       {/* ── Cyclist Slider ── */}
-      <div className="relative mb-3 px-2">
-        {/* Gradient track background */}
+      <div className="relative select-none" style={{ height: '72px' }}>
+
+        {/* Gradient track (full width) */}
         <div
-          className="absolute top-1/2 left-2 right-2 h-3 -translate-y-1/2 rounded-full pointer-events-none"
+          className="absolute rounded-full pointer-events-none"
           style={{
-            background: 'linear-gradient(to right, #00AEEF, #7ECFB3, #F4831F)',
+            top: '50%',
+            left: '0',
+            right: '0',
+            height: '12px',
+            transform: 'translateY(-50%)',
+            background: 'linear-gradient(to right, #00AEEF, #6ECFA3, #F4831F)',
           }}
         />
-        {/* Unfilled overlay from thumb to right */}
+
+        {/* Dim overlay for unfilled portion */}
         <div
-          className="absolute top-1/2 right-2 h-3 -translate-y-1/2 rounded-r-full pointer-events-none bg-slate-200/60"
-          style={{ left: `calc(${fillPct}% * (100% - 16px) / 100 + 8px)` }}
+          className="absolute rounded-r-full pointer-events-none bg-slate-200/70"
+          style={{
+            top: '50%',
+            height: '12px',
+            transform: 'translateY(-50%)',
+            left: `${fillPct}%`,
+            right: '0',
+          }}
         />
 
-        <style>{`
-          .cyclist-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            background: transparent;
-            width: 100%;
-            height: 48px;
-            cursor: pointer;
-            position: relative;
-            z-index: 10;
-          }
-          .cyclist-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            cursor: grab;
-            margin-top: -2px;
-          }
-          .cyclist-slider::-moz-range-thumb {
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            border: none;
-            cursor: grab;
-          }
-          .cyclist-slider::-webkit-slider-runnable-track {
-            background: transparent;
-            height: 12px;
-          }
-          .cyclist-slider::-moz-range-track {
-            background: transparent;
-            height: 12px;
-          }
-        `}</style>
+        {/*
+          Native range input — TRANSPARENT so our custom track shows through.
+          The thumb is also made invisible; the cyclist SVG below is positioned
+          to match it using the same fillPct calculation.
+        */}
+        <input
+          type="range"
+          min={0}
+          max={10000}
+          step={1}
+          value={sliderVal}
+          onChange={handleSliderChange}
+          className="absolute inset-0 w-full opacity-0 cursor-pointer"
+          style={{ height: '100%', zIndex: 20 }}
+        />
 
-        {/* Custom cyclist thumb positioned via CSS var trick */}
-        <div className="relative">
-          <input
-            ref={sliderRef}
-            type="range"
-            min={0}
-            max={1000}
-            step={1}
-            value={Math.round(sliderPct * 1000)}
-            onChange={handleSliderChange}
-            className="cyclist-slider"
-          />
-          {/* Cyclist icon overlaid on top of slider thumb */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-75"
-            style={{
-              left: `calc(${fillPct}% * (100% - 40px) / 100)`,
-            }}
-          >
-            <div className="w-10 flex items-center justify-center drop-shadow-xl">
-              <CyclistIcon />
-            </div>
-          </div>
-        </div>
-
-        {/* Range labels */}
-        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1 px-1">
-          <span>RM 50</span>
-          <span>RM 5K</span>
-          <span>RM 60K+</span>
+        {/* Cyclist icon — positioned on top of the invisible thumb */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: '50%',
+            // Mirror browser thumb centering: thumb spans [thumb/2 .. width-thumb/2]
+            // We use 60px thumb width equivalent
+            left: `calc(${fillPct}% * (100% - 60px) / 100%)`,
+            transform: 'translateY(-50%)',
+            width: '60px',
+            height: '60px',
+            zIndex: 10,
+          }}
+        >
+          <CyclistSVG />
         </div>
       </div>
 
-      {/* ── 50/50 Split Notice ── */}
-      <div className="flex items-center justify-center gap-3 my-5">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#00AEEF]/40" />
-        <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest text-center leading-relaxed">
-          Your donation is shared equally (50/50) between{' '}
-          <span className="text-[#00AEEF]">MAPS</span> and{' '}
-          <span className="text-[#F4831F]">MyPOPI</span>
+      {/* Range labels */}
+      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-brand-slate/50 -mt-3 px-1">
+        <span>RM 50</span>
+        <span>RM 5K</span>
+        <span>RM 60K+</span>
+      </div>
+
+      {/* ── 50/50 notice ── */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-brand-cyan/30" />
+        <p className="text-[11px] font-black text-brand-slate/60 uppercase tracking-widest text-center leading-snug">
+          Shared equally (50/50) between{' '}
+          <span className="text-brand-cyan">MAPS</span> &amp;{' '}
+          <span className="text-brand-orange">MyPOPI</span>
         </p>
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#F4831F]/40" />
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-brand-orange/30" />
       </div>
 
-      {/* ── Impact Cards ── */}
-      <div className="flex-grow">
-        {/* Desktop: side by side */}
-        <div className="hidden md:flex gap-4">
+      {/* ── Impact Cards — Desktop ── */}
+      <div className="hidden md:flex gap-5">
+        {mapsMatch
+          ? <MapsCard item={mapsMatch} />
+          : (
+            <div className="flex-1 rounded-[2rem] border-2 border-dashed border-brand-cyan/20 flex items-center justify-center text-xs text-brand-cyan/40 font-black uppercase tracking-widest p-8 text-center">
+              Increase donation to<br />unlock MAPS impact
+            </div>
+          )}
+        {mypopiMatch
+          ? <MypopiCard item={mypopiMatch} />
+          : (
+            <div className="flex-1 rounded-[2rem] border-2 border-dashed border-brand-orange/20 flex items-center justify-center text-xs text-brand-orange/40 font-black uppercase tracking-widest p-8 text-center">
+              Increase donation to<br />unlock MyPOPI impact
+            </div>
+          )}
+      </div>
+
+      {/* ── Impact Cards — Mobile ── */}
+      <div className="flex flex-col gap-3 md:hidden">
+        <MobileCardWrapper label="MAPS" accentClass="text-brand-cyan" borderColorHex="#00AEEF">
           {mapsMatch
             ? <MapsCard item={mapsMatch} />
-            : <div className="flex-1 rounded-3xl border-2 border-dashed border-[#00AEEF]/20 flex items-center justify-center text-xs text-[#00AEEF]/40 font-bold uppercase tracking-widest p-8">Increase donation to unlock MAPS impact</div>
+            : <p className="p-4 text-xs text-brand-cyan/50 font-bold text-center">Increase donation to unlock MAPS impact</p>
           }
+        </MobileCardWrapper>
+        <MobileCardWrapper label="MyPOPI" accentClass="text-brand-orange" borderColorHex="#F4831F">
           {mypopiMatch
             ? <MypopiCard item={mypopiMatch} />
-            : <div className="flex-1 rounded-3xl border-2 border-dashed border-[#F4831F]/20 flex items-center justify-center text-xs text-[#F4831F]/40 font-bold uppercase tracking-widest p-8">Increase donation to unlock MyPOPI impact</div>
+            : <p className="p-4 text-xs text-brand-orange/50 font-bold text-center">Increase donation to unlock MyPOPI impact</p>
           }
-        </div>
-
-        {/* Mobile: stacked with accordion */}
-        <div className="flex flex-col gap-3 md:hidden">
-          <MobileCardWrapper label="MAPS" accentColor="#00AEEF">
-            {mapsMatch
-              ? <MapsCard item={mapsMatch} />
-              : <div className="p-4 text-xs text-[#00AEEF]/60 font-bold text-center">Increase donation to unlock MAPS impact</div>
-            }
-          </MobileCardWrapper>
-          <MobileCardWrapper label="MyPOPI" accentColor="#F4831F">
-            {mypopiMatch
-              ? <MypopiCard item={mypopiMatch} />
-              : <div className="p-4 text-xs text-[#F4831F]/60 font-bold text-center">Increase donation to unlock MyPOPI impact</div>
-            }
-          </MobileCardWrapper>
-        </div>
+        </MobileCardWrapper>
       </div>
     </div>
   );

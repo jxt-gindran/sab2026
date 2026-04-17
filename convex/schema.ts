@@ -87,4 +87,21 @@ export default defineSchema({
     })
         .index("by_lang", ["lang"])
         .index("by_lang_key", ["lang", "key"]),
+
+    /**
+     * Impact tier cards for the donate page slider.
+     * charity = "maps" | "mypopi"
+     * tier    = minimum donation amount (RM)
+     */
+    impactTiers: defineTable({
+        charity:     v.string(),   // "maps" | "mypopi"
+        tier:        v.number(),   // minimum RM amount
+        title:       v.optional(v.string()), // MAPS: title
+        category:    v.optional(v.string()), // MyPOPI: category
+        description: v.string(),
+        isActive:    v.optional(v.boolean()),
+    })
+        .index("by_charity", ["charity"])
+        .index("by_charity_tier", ["charity", "tier"]),
 });
+

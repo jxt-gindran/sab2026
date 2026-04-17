@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Home, Settings, FileText, LogOut, Menu, Users, Map, Globe } from 'lucide-react';
+import { Home, Settings, FileText, LogOut, Menu, Users, Map, Globe, Heart } from 'lucide-react';
 
 export default function Layout() {
   const { logout } = useAuth();
@@ -10,6 +10,7 @@ export default function Layout() {
     { to: '/content', icon: FileText, label: 'Content CMS' },
     { to: '/cyclists', icon: Users, label: 'Cyclist Profiles' },
     { to: '/ride', icon: Map, label: 'Route & Maps' },
+    { to: '/impact-tiers', icon: Heart, label: 'Impact Tiers' },
     { to: '/translations', icon: Globe, label: 'Translations' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];

@@ -8,6 +8,7 @@ import Content from './pages/Content';
 import Cyclists from './pages/Cyclists';
 import MapCMS from './pages/MapCMS';
 import Translations from './pages/Translations';
+import ImpactTiersCMS from './pages/ImpactTiersCMS';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -49,6 +50,7 @@ const App: React.FC = () => {
               <Route path="cyclists" element={<Cyclists />} />
               <Route path="ride" element={<MapCMS />} />
               <Route path="translations" element={<Translations />} />
+              <Route path="impact-tiers" element={<ImpactTiersCMS />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

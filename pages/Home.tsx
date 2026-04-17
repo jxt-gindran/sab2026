@@ -37,15 +37,17 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // totalRaised = sum of all DB-completed donations (online + admin-approved manual)
   const totalRaised = useQuery(api.donations.getTotal) || 0;
-  const baseAmount = 1200000;
 
   const allSettings = useQuery(api.admin.getPublicSettings) || [];
-  const manualRaised = allSettings.find((s: { key: string; value: string }) => s.key === 'raised_amount');
-  const goalSetting  = allSettings.find((s: { key: string; value: string }) => s.key === 'donation_goal');
+  // historicalBase: pre-2026 total entered in admin settings (e.g. RM 1.2M from 2022-2025)
+  const historicalSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'raised_amount');
+  const goalSetting       = allSettings.find((s: { key: string; value: string }) => s.key === 'donation_goal');
 
-  const currentTotal = manualRaised ? parseFloat(manualRaised.value) : baseAmount + totalRaised;
-  const donationGoal = goalSetting ? parseFloat(goalSetting.value) : 2000000;
+  const historicalBase = historicalSetting ? parseFloat(historicalSetting.value) : 1200000;
+  const currentTotal   = historicalBase + totalRaised;  // always live DB + historical base
+  const donationGoal   = goalSetting ? parseFloat(goalSetting.value) : 2000000;
   const donationPercent = Math.min((currentTotal / donationGoal) * 100, 100);
 
   const formatRM = (n: number) => {

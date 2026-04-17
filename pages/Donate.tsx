@@ -289,7 +289,7 @@ const Donate: React.FC = () => {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('donate.step3_processed_by')}</span>
                     <div className="px-3 py-1 bg-white rounded-lg border border-slate-100 flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-brand-orange animate-pulse"></div>
-                      <span className="text-xs font-black text-brand-navy">HITPAY</span>
+                      <span className="text-xs font-black text-brand-navy">Secure Gateway</span>
                     </div>
                   </div>
                 </div>
@@ -314,7 +314,7 @@ const Donate: React.FC = () => {
                       {t('donate.step4_transfer_tab')}
                     </button>
                     <button
-                      onClick={() => setStep(3)}
+                      onClick={() => setStep(4)}
                       className="ml-4 px-4 py-3 text-brand-cyan hover:text-brand-orange transition-colors"
                     >
                       <ArrowLeft className="h-5 w-5" />

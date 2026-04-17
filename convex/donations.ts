@@ -112,7 +112,12 @@ export const recordPayment = internalMutation({
 export const getTotal = query({
     args: {},
     handler: async (ctx) => {
-        const donations = await ctx.db.query("donations").withIndex("by_status", q => q.eq("status", "completed")).collect();
+        // Sums ALL completed donations — both 'hitpay' (online) and 'manual' (bank transfer
+        // approved by admin). Admin marks manual transfers as 'completed' via the dashboard.
+        const donations = await ctx.db
+            .query("donations")
+            .withIndex("by_status", q => q.eq("status", "completed"))
+            .collect();
         return donations.reduce((sum, d) => sum + d.amount, 0);
     },
 });

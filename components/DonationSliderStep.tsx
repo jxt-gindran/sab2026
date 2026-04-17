@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Pencil } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { sliderToAmount, amountToSlider } from '../lib/donationMatcher';
@@ -184,8 +185,8 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
       </div>
 
       {/* ── Amount Display ── */}
-      <div className="flex items-baseline justify-center gap-2">
-        <span className="text-3xl font-black text-brand-slate/40 font-heading select-none">RM</span>
+      <div className="flex items-center justify-center gap-3">
+        <span className="text-3xl font-black text-brand-slate/40 font-heading select-none self-end pb-1">RM</span>
         {isEditing ? (
           <input
             type="number"
@@ -200,15 +201,21 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
         ) : (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-5xl md:text-7xl font-black text-brand-navy font-heading hover:text-brand-orange transition-colors cursor-text leading-none"
+            className="flex items-center gap-2 group"
             title="Tap to enter custom amount"
           >
-            {amount.toLocaleString()}
+            <span className="text-5xl md:text-7xl font-black text-brand-navy font-heading group-hover:text-brand-orange transition-colors leading-none">
+              {amount.toLocaleString()}
+            </span>
+            {/* Visible edit icon */}
+            <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-brand-pale group-hover:bg-brand-orange group-hover:text-white text-brand-navy transition-all self-end mb-1 shrink-0">
+              <Pencil className="h-4 w-4" />
+            </span>
           </button>
         )}
       </div>
       <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest -mt-3">
-        {isEditing ? 'Press Enter or click away to apply' : 'Tap amount to edit · Slider min RM 50'}
+        {isEditing ? 'Press Enter or click away to apply' : 'Tap to edit amount'}
       </p>
 
       {/* ── Cyclist Slider ── */}

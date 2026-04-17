@@ -286,7 +286,7 @@ export const en = {
     how_step3_desc: 'LHDN-compliant tax receipt instantly.',
 
     // Progress stepper
-    step_indicator: 'Step 1 of 4',
+    step_indicator: 'Step 1 of 5',
     back: 'Back',
     continue: 'Continue',
     complete: 'Complete Donation',
@@ -331,23 +331,23 @@ export const en = {
     val_phone: 'Please enter a valid phone number (e.g. +60123456789).',
     val_ic: 'Please enter a valid IC / Passport Number (at least 6 characters).',
 
-    // Step 3 – Payment method
+    // Step 4 – Payment method
     step3_heading: 'The Final Step.',
     step3_sub:
-      'Select your preferred payment method via our secure HitPay gateway.',
-    step3_hitpay_name: 'HitPay Checkout',
+      'Select your preferred payment method.',
+    step3_hitpay_name: 'Donate Online',
     step3_hitpay_sub: 'FPX, Cards, GrabPay, ShopeePay',
     step3_transfer_name: 'Manual Bank Transfer',
     step3_transfer_sub: 'UOB Direct (WhatsApp / Email Proof)',
     step3_processed_by: 'Securely processed by',
 
-    // Step 4 – HitPay
-    step4_hitpay_heading: 'Ready to Redirect.',
+    // Step 5 – Donate Online
+    step4_hitpay_heading: 'Ready to Donate.',
     step4_hitpay_sub:
-      'Click below to proceed to the secure HitPay gateway and complete your donation of',
-    step4_proceed: 'Proceed to Checkout',
+      "Click below to proceed to our secure payment gateway and complete your donation of",
+    step4_proceed: 'Donate Online Now',
 
-    // Step 4 – Manual transfer
+    // Step 5 – Manual transfer
     step4_transfer_heading: 'Heart of Gold.',
     step4_transfer_sub:
       'Please complete your manual transfer to the MMA Foundation account below.',
@@ -361,7 +361,7 @@ export const en = {
     step4_whatsapp: 'Send Receipt via WhatsApp',
     step4_upload: 'Click to Upload Receipt (Email)',
     step4_upload_hint: 'PDF, JPG, or PNG (Max 5MB)',
-    step4_hitpay_tab: 'HitPay',
+    step4_hitpay_tab: 'Donate Online',
     step4_transfer_tab: 'Manual Transfer',
 
     // Errors

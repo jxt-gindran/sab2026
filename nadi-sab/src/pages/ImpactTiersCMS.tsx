@@ -40,7 +40,11 @@ export default function ImpactTiersCMS() {
     const dbRows = allTiers
       .filter((t) => t.charity === activeTab)
       .sort((a, b) => a.tier - b.tier)
-      .map((t) => ({ ...t, ...localEdits[t._id] }));
+      .map((t) => ({
+        ...t,
+        charity: t.charity as Charity,      // Convex returns string; narrow to Charity
+        ...localEdits[t._id],
+      } as TierRow));
     const addedRows = newRows.filter((r) => r.charity === activeTab);
     return [...dbRows, ...addedRows];
   }, [allTiers, localEdits, newRows, activeTab]);

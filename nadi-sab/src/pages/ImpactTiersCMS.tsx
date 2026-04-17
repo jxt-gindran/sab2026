@@ -1,9 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
 type Charity = 'maps' | 'mypopi';
+
+// Languages that can be translated (extend as needed)
+const SUPPORTED_LANGS = [
+  { code: 'ms', label: 'Bahasa Melayu' },
+  { code: 'zh', label: '中文' },
+];
+
+interface TierTranslation {
+  title?: string;
+  category?: string;
+  description?: string;
+}
 
 interface TierRow {
   _id?: string;
@@ -13,59 +25,137 @@ interface TierRow {
   category?: string;
   description: string;
   isActive?: boolean;
-  _dirty?: boolean;
+  translations?: Record<string, TierTranslation>;
   _isNew?: boolean;
 }
 
-const CHARITY_META: Record<Charity, { label: string; accent: string; fieldLabel: string }> = {
-  maps:   { label: 'MAPS',   accent: 'brand-cyan',   fieldLabel: 'Title' },
-  mypopi: { label: 'MyPOPI', accent: 'brand-orange',  fieldLabel: 'Category' },
+const CHARITY_META: Record<Charity, { label: string; fieldLabel: string }> = {
+  maps:   { label: 'MAPS',   fieldLabel: 'Title' },
+  mypopi: { label: 'MyPOPI', fieldLabel: 'Category' },
 };
 
+// ── Translation sub-panel for a single tier ───────────────────────────────────
+interface TranslationPanelProps {
+  row: TierRow;
+  activeTab: Charity;
+  onUpdate: (id: string, translations: Record<string, TierTranslation>) => void;
+}
+function TranslationPanel({ row, activeTab, onUpdate }: TranslationPanelProps) {
+  const [activeLang, setActiveLang] = useState(SUPPORTED_LANGS[0].code);
+  const id = row._id!;
+  const translations = row.translations ?? {};
+  const current = translations[activeLang] ?? {};
+  const fieldLabel = CHARITY_META[activeTab].fieldLabel;
+
+  function setField(key: keyof TierTranslation, value: string) {
+    const updated = {
+      ...translations,
+      [activeLang]: { ...current, [key]: value },
+    };
+    onUpdate(id, updated);
+  }
+
+  return (
+    <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 mt-2">
+      <div className="flex items-center gap-2 mb-3">
+        <Globe className="h-3.5 w-3.5 text-brand-cyan" />
+        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Translations</span>
+        <div className="flex gap-1 ml-auto">
+          {SUPPORTED_LANGS.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => setActiveLang(l.code)}
+              className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all ${
+                activeLang === l.code ? 'bg-brand-navy text-white' : 'bg-white text-slate-400 border border-slate-200 hover:border-brand-cyan'
+              }`}
+            >
+              {l.code.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+            {fieldLabel} ({activeLang.toUpperCase()})
+          </label>
+          <input
+            type="text"
+            value={activeTab === 'maps' ? current.title ?? '' : current.category ?? ''}
+            onChange={(e) => setField(activeTab === 'maps' ? 'title' : 'category', e.target.value)}
+            placeholder={`${fieldLabel} in ${SUPPORTED_LANGS.find(l => l.code === activeLang)?.label}`}
+            className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-brand-navy outline-none focus:border-brand-cyan"
+          />
+        </div>
+        <div>
+          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+            Description ({activeLang.toUpperCase()})
+          </label>
+          <textarea
+            rows={2}
+            value={current.description ?? ''}
+            onChange={(e) => setField('description', e.target.value)}
+            placeholder={`Description in ${SUPPORTED_LANGS.find(l => l.code === activeLang)?.label}`}
+            className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-medium text-brand-slate outline-none resize-none focus:border-brand-cyan"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function ImpactTiersCMS() {
   const allTiers = useQuery(api.impactTiers.listAll) ?? [];
   const upsert   = useMutation(api.impactTiers.upsert);
   const remove   = useMutation(api.impactTiers.remove);
   const seed     = useMutation(api.impactTiers.seedDefaults);
 
-  const [activeTab, setActiveTab] = useState<Charity>('maps');
-  const [savingId, setSavingId] = useState<string | null>(null);
-  const [savedId,  setSavedId]  = useState<string | null>(null);
-  const [localEdits, setLocalEdits] = useState<Record<string, Partial<TierRow>>>({});
-  const [newRows,    setNewRows]    = useState<TierRow[]>([]);
-  const [seeding,    setSeeding]    = useState(false);
+  const [activeTab,   setActiveTab]   = useState<Charity>('maps');
+  const [savingId,    setSavingId]    = useState<string | null>(null);
+  const [savedId,     setSavedId]     = useState<string | null>(null);
+  const [localEdits,  setLocalEdits]  = useState<Record<string, Partial<TierRow>>>({});
+  const [newRows,     setNewRows]     = useState<TierRow[]>([]);
+  const [seeding,     setSeeding]     = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  // Merge DB rows with local edits
   const rows = useMemo<TierRow[]>(() => {
     const dbRows = allTiers
       .filter((t) => t.charity === activeTab)
       .sort((a, b) => a.tier - b.tier)
       .map((t) => ({
         ...t,
-        charity: t.charity as Charity,      // Convex returns string; narrow to Charity
+        charity: t.charity as Charity,
         ...localEdits[t._id],
       } as TierRow));
-    const addedRows = newRows.filter((r) => r.charity === activeTab);
-    return [...dbRows, ...addedRows];
+    return [...dbRows, ...newRows.filter((r) => r.charity === activeTab)];
   }, [allTiers, localEdits, newRows, activeTab]);
 
   const getField = (row: TierRow) =>
     activeTab === 'maps' ? row.title ?? '' : row.category ?? '';
 
-  const updateLocal = (id: string | undefined, key: string, val: unknown) => {
-    if (!id) return;
+  const update = (id: string, key: string, val: unknown) => {
     setLocalEdits((prev) => ({ ...prev, [id]: { ...prev[id], [key]: val } }));
   };
 
   const updateNew = (tmpId: string, key: string, val: unknown) => {
-    setNewRows((prev) =>
-      prev.map((r) => (r._id === tmpId ? { ...r, [key]: val } : r))
-    );
+    setNewRows((prev) => prev.map((r) => r._id === tmpId ? { ...r, [key]: val } : r));
+  };
+
+  const updateTranslations = (id: string, translations: Record<string, TierTranslation>) => {
+    const isExisting = allTiers.some((t) => t._id === id);
+    if (isExisting) {
+      setLocalEdits((prev) => ({ ...prev, [id]: { ...prev[id], translations } }));
+    } else {
+      setNewRows((prev) => prev.map((r) => r._id === id ? { ...r, translations } : r));
+    }
   };
 
   const handleSave = async (row: TierRow) => {
-    const id = row._id ?? undefined;
-    setSavingId(id ?? 'new');
+    const id = row._id && !row._isNew ? row._id : undefined;
+    const saveKey = id ?? 'new';
+    setSavingId(saveKey);
     try {
       await upsert({
         id: id as any,
@@ -75,14 +165,14 @@ export default function ImpactTiersCMS() {
         category: row.category,
         description: row.description,
         isActive: row.isActive ?? true,
+        translations: row.translations,
       });
-      // Clean up
       if (id) {
         setLocalEdits((prev) => { const n = { ...prev }; delete n[id]; return n; });
       } else {
         setNewRows((prev) => prev.filter((r) => r._id !== row._id));
       }
-      setSavedId(id ?? 'new');
+      setSavedId(saveKey);
       setTimeout(() => setSavedId(null), 2000);
     } finally {
       setSavingId(null);
@@ -93,6 +183,7 @@ export default function ImpactTiersCMS() {
     if (!confirm('Delete this impact tier? This cannot be undone.')) return;
     await remove({ id: id as any });
     setLocalEdits((prev) => { const n = { ...prev }; delete n[id]; return n; });
+    setExpandedIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
   };
 
   const addNewRow = () => {
@@ -115,104 +206,122 @@ export default function ImpactTiersCMS() {
     }
   };
 
+  const toggleExpand = (id: string) =>
+    setExpandedIds((prev) => {
+      const s = new Set(prev);
+      s.has(id) ? s.delete(id) : s.add(id);
+      return s;
+    });
+
   const renderRow = (row: TierRow) => {
     const id = row._id!;
-    const isSaving = savingId === id;
-    const isSaved  = savedId  === id;
-    const meta = CHARITY_META[activeTab];
-    const isDirty = !!(localEdits[id] && Object.keys(localEdits[id]).length) || !!row._isNew;
+    const isSaving   = savingId === id;
+    const isSaved    = savedId  === id;
+    const isExpanded = expandedIds.has(id);
+    const meta       = CHARITY_META[activeTab];
+    const isDirty    = !!(localEdits[id] && Object.keys(localEdits[id]).length) || !!row._isNew;
+    const isNewRow   = !!row._isNew;
+
+    const doUpdate = (key: string, val: unknown) =>
+      isNewRow ? updateNew(id, key, val) : update(id, key, val);
 
     return (
-      <div
-        key={id}
-        className={`grid grid-cols-[80px_1fr_1fr_1fr_auto] gap-4 items-start px-6 py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors ${isDirty ? 'bg-amber-50/40' : ''}`}
-      >
-        {/* Tier amount */}
-        <div>
-          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">RM Tier</label>
-          <input
-            type="number"
-            value={row._isNew ? row.tier || '' : row.tier}
-            onChange={(e) =>
-              row._isNew
-                ? updateNew(id, 'tier', parseInt(e.target.value) || 0)
-                : updateLocal(id, 'tier', parseInt(e.target.value) || 0)
-            }
-            className="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-brand-navy outline-none focus:border-brand-cyan"
-          />
-        </div>
+      <div key={id} className={`border-b border-slate-50 transition-colors ${isDirty ? 'bg-amber-50/40' : 'hover:bg-slate-50/50'}`}>
+        <div className="grid grid-cols-[72px_1fr_1fr_50px_50px_auto] gap-3 items-start px-5 py-4">
+          {/* Tier amount */}
+          <div>
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">RM Tier</label>
+            <input
+              type="number"
+              value={isNewRow ? row.tier || '' : row.tier}
+              onChange={(e) => doUpdate('tier', parseInt(e.target.value) || 0)}
+              className="w-full border-2 border-slate-200 rounded-xl px-2 py-1.5 text-sm font-bold text-brand-navy outline-none focus:border-brand-cyan"
+            />
+          </div>
 
-        {/* Title / Category */}
-        <div>
-          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">{meta.fieldLabel}</label>
-          <input
-            type="text"
-            value={getField(row)}
-            onChange={(e) =>
-              row._isNew
-                ? updateNew(id, activeTab === 'maps' ? 'title' : 'category', e.target.value)
-                : updateLocal(id, activeTab === 'maps' ? 'title' : 'category', e.target.value)
-            }
-            className="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-brand-navy outline-none focus:border-brand-cyan"
-          />
-        </div>
+          {/* Title / Category */}
+          <div>
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">{meta.fieldLabel}</label>
+            <input
+              type="text"
+              value={getField(row)}
+              onChange={(e) => doUpdate(activeTab === 'maps' ? 'title' : 'category', e.target.value)}
+              className="w-full border-2 border-slate-200 rounded-xl px-2 py-1.5 text-sm font-bold text-brand-navy outline-none focus:border-brand-cyan"
+            />
+          </div>
 
-        {/* Description */}
-        <div className="col-span-1">
-          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">Description</label>
-          <textarea
-            rows={3}
-            value={row.description}
-            onChange={(e) =>
-              row._isNew
-                ? updateNew(id, 'description', e.target.value)
-                : updateLocal(id, 'description', e.target.value)
-            }
-            className="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-brand-slate outline-none resize-none focus:border-brand-cyan"
-          />
-        </div>
+          {/* Description */}
+          <div>
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">Description (EN)</label>
+            <textarea
+              rows={3}
+              value={row.description}
+              onChange={(e) => doUpdate('description', e.target.value)}
+              className="w-full border-2 border-slate-200 rounded-xl px-2 py-1.5 text-sm font-medium text-brand-slate outline-none resize-none focus:border-brand-cyan"
+            />
+          </div>
 
-        {/* Active toggle */}
-        <div className="flex flex-col items-center gap-2 pt-5">
-          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Active</label>
-          <button
-            onClick={() =>
-              row._isNew
-                ? updateNew(id, 'isActive', !row.isActive)
-                : updateLocal(id, 'isActive', !(row.isActive ?? true))
-            }
-            className={`w-10 h-6 rounded-full transition-colors ${(row.isActive ?? true) ? 'bg-brand-cyan' : 'bg-slate-200'}`}
-          >
-            <span className={`block w-4 h-4 rounded-full bg-white shadow-sm mx-1 transition-transform ${(row.isActive ?? true) ? 'translate-x-4' : ''}`} />
-          </button>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 pt-5">
-          {isSaving
-            ? <div className="h-5 w-5 border-2 border-brand-orange border-t-transparent rounded-full animate-spin" />
-            : isSaved
-            ? <CheckCircle2 className="h-5 w-5 text-green-500" />
-            : (
-              <button
-                onClick={() => handleSave(row)}
-                className="p-1.5 rounded-lg bg-brand-navy text-white hover:bg-brand-cyan hover:text-brand-navy transition-all"
-                title="Save"
-              >
-                <Save className="h-4 w-4" />
-              </button>
-            )
-          }
-          {!row._isNew && (
+          {/* Active toggle */}
+          <div className="flex flex-col items-center gap-2 pt-5">
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">On</label>
             <button
-              onClick={() => handleDelete(id)}
-              className="p-1.5 rounded-lg text-red-300 hover:bg-red-50 hover:text-red-500 transition-all"
-              title="Delete"
+              onClick={() => doUpdate('isActive', !(row.isActive ?? true))}
+              className={`w-10 h-6 rounded-full transition-colors ${(row.isActive ?? true) ? 'bg-brand-cyan' : 'bg-slate-200'}`}
             >
-              <Trash2 className="h-4 w-4" />
+              <span className={`block w-4 h-4 rounded-full bg-white shadow-sm mx-1 transition-transform ${(row.isActive ?? true) ? 'translate-x-4' : ''}`} />
             </button>
-          )}
+          </div>
+
+          {/* Translate toggle */}
+          <div className="flex flex-col items-center gap-2 pt-5">
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Trans.</label>
+            <button
+              onClick={() => toggleExpand(id)}
+              className={`p-1.5 rounded-lg transition-all ${isExpanded ? 'bg-brand-navy text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-brand-navy'}`}
+              title="Toggle translations"
+            >
+              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
+            </button>
+          </div>
+
+          {/* Save / Delete */}
+          <div className="flex items-center gap-2 pt-5">
+            {isSaving
+              ? <div className="h-5 w-5 border-2 border-brand-orange border-t-transparent rounded-full animate-spin" />
+              : isSaved
+              ? <CheckCircle2 className="h-5 w-5 text-green-500" />
+              : (
+                <button
+                  onClick={() => handleSave(row)}
+                  className="p-1.5 rounded-lg bg-brand-navy text-white hover:bg-brand-cyan hover:text-brand-navy transition-all"
+                  title="Save"
+                >
+                  <Save className="h-4 w-4" />
+                </button>
+              )
+            }
+            {!isNewRow && (
+              <button
+                onClick={() => handleDelete(id)}
+                className="p-1.5 rounded-lg text-red-300 hover:bg-red-50 hover:text-red-500 transition-all"
+                title="Delete"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Translation panel — expandable */}
+        {isExpanded && !isNewRow && (
+          <div className="px-5 pb-4">
+            <TranslationPanel
+              row={row}
+              activeTab={activeTab}
+              onUpdate={updateTranslations}
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -227,7 +336,7 @@ export default function ImpactTiersCMS() {
             Impact Tiers
           </h1>
           <p className="text-brand-slate mt-2">
-            Manage MAPS and MyPOPI impact cards shown on the Donate page slider.
+            Manage MAPS and MyPOPI impact cards. Click <Globe className="inline h-3.5 w-3.5 text-brand-cyan" /> to add translations per tier.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -269,15 +378,15 @@ export default function ImpactTiersCMS() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[80px_1fr_1fr_1fr_auto] text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-6 py-3 border-b border-slate-100 gap-4">
+        <div className="grid grid-cols-[72px_1fr_1fr_50px_50px_auto] text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-5 py-3 border-b border-slate-100 gap-3">
           <span>RM Tier</span>
           <span>{CHARITY_META[activeTab].fieldLabel}</span>
-          <span>Description</span>
+          <span>Description (EN)</span>
           <span>Active</span>
+          <span>Trans.</span>
           <span />
         </div>
-
-        <div className="divide-y divide-slate-50">
+        <div>
           {rows.length === 0 && (
             <div className="py-16 text-center text-slate-400 font-bold">
               No tiers found. Add one above or click "Seed Defaults".
@@ -288,7 +397,7 @@ export default function ImpactTiersCMS() {
       </div>
 
       <p className="text-xs text-slate-400 text-center mt-4 font-bold">
-        Changes are applied immediately. The donate page reflects updates in real-time.
+        Changes are applied immediately. The donate page reflects updates in real-time via Convex.
       </p>
     </div>
   );

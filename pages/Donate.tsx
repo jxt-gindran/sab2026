@@ -57,7 +57,8 @@ const Donate: React.FC = () => {
   }, [location, cyclists]);
 
   const nextStep = () => {
-    if (step === 2) {
+    // Step 3 is now personal info (was step 2)
+    if (step === 3) {
       if (!donorName.trim() || !donorEmail.trim() || !donorPhone.trim()) {
         alert(t('donate.val_required'));
         return;
@@ -66,20 +67,18 @@ const Donate: React.FC = () => {
         alert(t('donate.val_email'));
         return;
       }
-      // Simple phone validation (e.g. +60 or 01...)
       const phoneClean = donorPhone.replace(/[\s-]/g, '');
       if (phoneClean.length < 9 || phoneClean.length > 15 || !/^\+?\d+$/.test(phoneClean)) {
         alert(t('donate.val_phone'));
         return;
       }
-      // IC Validation - Optional but validate format if provided
       const icClean = donorIC.replace(/[\s-]/g, '');
       if (icClean && icClean.length < 6) {
         alert(t('donate.val_ic'));
         return;
       }
     }
-    setStep(s => Math.min(s + 1, 4));
+    setStep(s => Math.min(s + 1, 5));
   };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
@@ -114,18 +113,18 @@ const Donate: React.FC = () => {
           ))}
         </div>
 
-        {/* Progress Stepper */}
-        <div className="flex items-center justify-between mb-8 px-2 sm:px-8 max-w-2xl mx-auto">
-          {[1, 2, 3, 4].map((i) => (
+        {/* Progress Stepper — 5 steps */}
+        <div className="flex items-center justify-between mb-8 px-2 sm:px-4 max-w-2xl mx-auto">
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex items-center">
               <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center font-black text-xs md:text-sm transition-all shadow-md
                 ${step >= i ? 'bg-brand-navy text-white scale-110' : 'bg-white text-slate-300 border border-slate-200'}
               `}>
                 {step > i ? <CheckCircle2 className="h-4 w-4" /> : i}
               </div>
-              {i < 4 && (
+              {i < 5 && (
                 <div
-                  className={`h-2 w-6 sm:w-12 md:w-24 mx-1 sm:mx-2 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
+                  className={`h-2 w-4 sm:w-8 md:w-16 mx-1 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
                   style={{ backgroundImage: `repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 6px)` }}
                 />
               )}
@@ -142,44 +141,49 @@ const Donate: React.FC = () => {
 
               {/* STEP 1: INTERACTIVE AMOUNT SLIDER + IMPACT CARDS */}
               {step === 1 && (
-                <>
-                  <DonationSliderStep amount={donationAmount} onChange={setDonationAmount} />
-
-                  {/* Rider / Beneficiary selector — kept from original Step 1 */}
-                  <div className="pt-6 border-t border-slate-100 mt-6">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">{t('donate.step1_supporting')}</h3>
-                    <div className="flex flex-wrap gap-2 sm:gap-4">
-                      <button
-                        onClick={() => setSelectedRider(null)}
-                        className={`px-6 py-3 rounded-xl font-bold text-xs shadow-lg uppercase tracking-widest transition-all ${
-                          selectedRider === null
-                            ? 'bg-brand-navy text-white scale-105'
-                            : 'bg-white text-brand-navy border border-slate-200 hover:border-brand-cyan'
-                        }`}
-                      >
-                        {t('donate.step1_general')}
-                      </button>
-                      {cyclists.map((c: any) => (
-                        <button
-                          key={c._id}
-                          onClick={() => setSelectedRider(c._id)}
-                          className={`px-6 py-3 flex items-center gap-3 rounded-xl font-bold text-xs shadow-lg uppercase tracking-widest transition-all ${
-                            selectedRider === c._id
-                              ? 'bg-brand-cyan text-brand-navy scale-105'
-                              : 'bg-white text-slate-500 border border-slate-200 hover:border-brand-cyan'
-                          }`}
-                        >
-                          {c.profileUrl && <img src={c.profileUrl} alt={c.name} className="w-6 h-6 rounded-full object-cover" />}
-                          {c.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
+                <DonationSliderStep amount={donationAmount} onChange={setDonationAmount} />
               )}
 
-              {/* STEP 2: PERSONAL INFO */}
+              {/* STEP 2: SUPPORTING CYCLIST SELECTOR */}
               {step === 2 && (
+                <div className="animate-fade-in flex-grow">
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">
+                    Who are you supporting?
+                  </h2>
+                  <p className="text-sm text-brand-slate font-medium mb-8">
+                    Dedicate your donation to a specific cyclist, or donate to the general fund.
+                  </p>
+                  <div className="flex flex-wrap gap-3 sm:gap-4">
+                    <button
+                      onClick={() => setSelectedRider(null)}
+                      className={`px-6 py-4 rounded-2xl font-bold text-sm shadow-lg uppercase tracking-widest transition-all ${
+                        selectedRider === null
+                          ? 'bg-brand-navy text-white scale-105 shadow-brand-navy/20'
+                          : 'bg-white text-brand-navy border-2 border-slate-200 hover:border-brand-cyan'
+                      }`}
+                    >
+                      {t('donate.step1_general')}
+                    </button>
+                    {cyclists.map((c: any) => (
+                      <button
+                        key={c._id}
+                        onClick={() => setSelectedRider(c._id)}
+                        className={`px-6 py-4 flex items-center gap-3 rounded-2xl font-bold text-sm shadow-lg uppercase tracking-widest transition-all ${
+                          selectedRider === c._id
+                            ? 'bg-brand-cyan text-brand-navy scale-105'
+                            : 'bg-white text-slate-500 border-2 border-slate-200 hover:border-brand-cyan'
+                        }`}
+                      >
+                        {c.profileUrl && <img src={c.profileUrl} alt={c.name} className="w-8 h-8 rounded-full object-cover" />}
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: PERSONAL INFO */}
+              {step === 3 && (
                 <div className="animate-fade-in flex-grow">
                   <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step2_heading')}</h2>
                   <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step2_sub')}</p>
@@ -247,8 +251,8 @@ const Donate: React.FC = () => {
                 </div>
               )}
 
-              {/* STEP 3: PAYMENT METHOD */}
-              {step === 3 && (
+              {/* STEP 4: PAYMENT METHOD */}
+              {step === 4 && (
                 <div className="animate-fade-in flex-grow">
                   <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step3_heading')}</h2>
                   <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step3_sub')}</p>
@@ -291,8 +295,8 @@ const Donate: React.FC = () => {
                 </div>
               )}
 
-              {/* STEP 4: THANK YOU / ACTION */}
-              {step === 4 && (
+              {/* STEP 5: THANK YOU / ACTION */}
+              {step === 5 && (
                 <div className="animate-fade-in text-center py-10 flex flex-col items-center">
 
                   {/* PAYMENT SWITCHER (New) */}
@@ -489,7 +493,7 @@ const Donate: React.FC = () => {
 
               {/* ACTION BUTTONS */}
               <div className="mt-6 sm:mt-10 flex items-center justify-between pt-6 sm:pt-10 border-t border-slate-50">
-                {step > 1 && step < 4 && (
+                {step > 1 && step < 5 && (
                   <button
                     onClick={prevStep}
                     className="flex items-center gap-2 text-brand-navy font-black text-xs uppercase tracking-widest hover:text-brand-orange transition-colors"
@@ -500,15 +504,15 @@ const Donate: React.FC = () => {
                 {step === 1 && (
                   <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{t('donate.step_indicator')}</div>
                 )}
-                {step < 4 && (
+                {step < 5 && (
                   <button
                     onClick={nextStep}
-                    disabled={step === 1 && totalAmount < 50}
+                    disabled={step === 1 && totalAmount < 1}
                     className={`ml-auto flex items-center gap-3 bg-brand-navy text-white px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-brand-navy/20
-                      ${step === 1 && totalAmount < 50 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-cyan hover:text-brand-navy hover:-translate-y-1'}
+                      ${step === 1 && totalAmount < 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-cyan hover:text-brand-navy hover:-translate-y-1'}
                     `}
                   >
-                    {step === 3 ? 'Complete Donation' : 'Continue'}
+                    {step === 4 ? 'Complete Donation' : 'Continue'}
                     <ArrowRight className="h-5 w-5" />
                   </button>
                 )}

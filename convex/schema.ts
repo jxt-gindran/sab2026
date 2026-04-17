@@ -96,10 +96,20 @@ export default defineSchema({
     impactTiers: defineTable({
         charity:     v.string(),   // "maps" | "mypopi"
         tier:        v.number(),   // minimum RM amount
-        title:       v.optional(v.string()), // MAPS: title
-        category:    v.optional(v.string()), // MyPOPI: category
-        description: v.string(),
+        title:       v.optional(v.string()), // MAPS: title (English)
+        category:    v.optional(v.string()), // MyPOPI: category (English)
+        description: v.string(),             // English description
         isActive:    v.optional(v.boolean()),
+        /**
+         * Per-language content overrides.
+         * Keys are ISO language codes (e.g. "ms").
+         * Falls back to the English fields above.
+         */
+        translations: v.optional(v.record(v.string(), v.object({
+            title:       v.optional(v.string()),
+            category:    v.optional(v.string()),
+            description: v.optional(v.string()),
+        }))),
     })
         .index("by_charity", ["charity"])
         .index("by_charity_tier", ["charity", "tier"]),

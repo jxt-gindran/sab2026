@@ -32,6 +32,11 @@ export const upsert = mutation({
     category:    v.optional(v.string()),
     description: v.string(),
     isActive:    v.optional(v.boolean()),
+    translations: v.optional(v.record(v.string(), v.object({
+      title:       v.optional(v.string()),
+      category:    v.optional(v.string()),
+      description: v.optional(v.string()),
+    }))),
   },
   handler: async (ctx, { id, ...fields }) => {
     if (id) {

@@ -11,7 +11,6 @@ import {
   Copy,
   ExternalLink,
   ChevronRight,
-  Landmark,
   Grab,
   Lock,
   Flag
@@ -20,24 +19,17 @@ import {
 import { useAction, useMutation, useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { useTranslation } from '../lib/i18n';
+import DonationSliderStep from '../components/DonationSliderStep';
 
 import ridersData from '../data/riders.json';
-
-// IMPACT_TIERS labels are now i18n-driven — see getImpactTiers() inside the component
 
 const Donate: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  const IMPACT_TIERS = [
-    { amount: 50,   label: t('donate.tier1_label'), description: t('donate.tier1_desc') },
-    { amount: 150,  label: t('donate.tier2_label'), description: t('donate.tier2_desc') },
-    { amount: 500,  label: t('donate.tier3_label'), description: t('donate.tier3_desc') },
-    { amount: 1200, label: t('donate.tier4_label'), description: t('donate.tier4_desc') },
-  ];
   const [step, setStep] = useState(1);
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [customAmount, setCustomAmount] = useState('');
+  // Single source of truth for donation amount (replaces selectedAmount + customAmount)
+  const [donationAmount, setDonationAmount] = useState(500);
   const [selectedRider, setSelectedRider] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'HITPAY' | 'TRANSFER' | null>(null);
   const [copied, setCopied] = useState(false);
@@ -91,7 +83,7 @@ const Donate: React.FC = () => {
   };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
-  const totalAmount = selectedAmount || parseFloat(customAmount) || 0;
+  const totalAmount = donationAmount;
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -148,68 +140,32 @@ const Donate: React.FC = () => {
             <div className="bg-white rounded-[2rem] shadow-2xl shadow-brand-navy/5 p-6 sm:p-10 md:p-14 border border-brand-grey/20 min-h-[500px] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-brand-cyan"></div>
 
-              {/* STEP 1: AMOUNT & BENEFICIARY */}
+              {/* STEP 1: INTERACTIVE AMOUNT SLIDER + IMPACT CARDS */}
               {step === 1 && (
-                <div className="animate-fade-in flex-grow">
-                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step1_heading')}</h2>
-                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step1_sub')}</p>
+                <>
+                  <DonationSliderStep amount={donationAmount} onChange={setDonationAmount} />
 
-                  <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
-                    {IMPACT_TIERS.map((tier) => (
-                      <button
-                        key={tier.amount}
-                        onClick={() => { setSelectedAmount(tier.amount); setCustomAmount(''); }}
-                        className={`text-left p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-4 transition-all group relative overflow-hidden
-                          ${selectedAmount === tier.amount
-                            ? 'border-brand-cyan bg-brand-navy'
-                            : 'border-slate-50 bg-slate-50 hover:border-brand-cyan/30'
-                          }`}
-                      >
-                        <div className={`text-xl sm:text-3xl font-black mb-1 font-heading ${selectedAmount === tier.amount ? 'text-brand-cyan' : 'text-brand-navy'}`}>
-                          RM {tier.amount}
-                        </div>
-                        <div className={`font-black uppercase tracking-widest text-[9px] sm:text-[10px] mb-1 sm:mb-3 ${selectedAmount === tier.amount ? 'text-white/60' : 'text-slate-400'}`}>
-                          {tier.label}
-                        </div>
-                        <p className={`text-[10px] sm:text-xs leading-relaxed font-medium hidden sm:block ${selectedAmount === tier.amount ? 'text-brand-pale' : 'text-slate-500'}`}>
-                          {tier.description}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="relative mb-12">
-                    <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-xl text-slate-400">RM</span>
-                    <input
-                      type="number"
-                      placeholder={t('donate.step1_other')}
-                      value={customAmount}
-                      onChange={(e) => { setCustomAmount(e.target.value); setSelectedAmount(null); }}
-                      className="w-full bg-slate-50 border-4 border-slate-50 rounded-3xl pl-16 pr-8 py-6 text-2xl font-black text-brand-navy focus:border-brand-cyan outline-none transition-all placeholder:text-slate-200"
-                    />
-                  </div>
-
-                  <div className="pt-6 border-t border-slate-100">
+                  {/* Rider / Beneficiary selector — kept from original Step 1 */}
+                  <div className="pt-6 border-t border-slate-100 mt-6">
                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">{t('donate.step1_supporting')}</h3>
                     <div className="flex flex-wrap gap-2 sm:gap-4">
                       <button
                         onClick={() => setSelectedRider(null)}
                         className={`px-6 py-3 rounded-xl font-bold text-xs shadow-lg uppercase tracking-widest transition-all ${
-                          selectedRider === null 
-                            ? 'bg-brand-navy text-white scale-105' 
+                          selectedRider === null
+                            ? 'bg-brand-navy text-white scale-105'
                             : 'bg-white text-brand-navy border border-slate-200 hover:border-brand-cyan'
                         }`}
                       >
                         {t('donate.step1_general')}
                       </button>
-                      
                       {cyclists.map((c: any) => (
                         <button
                           key={c._id}
                           onClick={() => setSelectedRider(c._id)}
                           className={`px-6 py-3 flex items-center gap-3 rounded-xl font-bold text-xs shadow-lg uppercase tracking-widest transition-all ${
-                            selectedRider === c._id 
-                              ? 'bg-brand-cyan text-brand-navy scale-105' 
+                            selectedRider === c._id
+                              ? 'bg-brand-cyan text-brand-navy scale-105'
                               : 'bg-white text-slate-500 border border-slate-200 hover:border-brand-cyan'
                           }`}
                         >
@@ -219,7 +175,7 @@ const Donate: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                </div>
+                </>
               )}
 
               {/* STEP 2: PERSONAL INFO */}
@@ -547,9 +503,9 @@ const Donate: React.FC = () => {
                 {step < 4 && (
                   <button
                     onClick={nextStep}
-                    disabled={step === 1 && totalAmount === 0}
+                    disabled={step === 1 && totalAmount < 50}
                     className={`ml-auto flex items-center gap-3 bg-brand-navy text-white px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-brand-navy/20
-                      ${step === 1 && totalAmount === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-cyan hover:text-brand-navy hover:-translate-y-1'}
+                      ${step === 1 && totalAmount < 50 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-cyan hover:text-brand-navy hover:-translate-y-1'}
                     `}
                   >
                     {step === 3 ? 'Complete Donation' : 'Continue'}

@@ -93,7 +93,7 @@ function TranslationPanel({ row, activeTab, availableLangs, onUpdate }: Translat
             type="text"
             value={activeTab === 'maps' ? current.title ?? '' : current.category ?? ''}
             onChange={(e) => setField(activeTab === 'maps' ? 'title' : 'category', e.target.value)}
-            placeholder={`${fieldLabel} in ${SUPPORTED_LANGS.find(l => l.code === activeLang)?.label}`}
+            placeholder={`${fieldLabel} in ${getLangLabel(activeLang)}`}
             className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-brand-navy outline-none focus:border-brand-cyan"
           />
         </div>
@@ -105,7 +105,7 @@ function TranslationPanel({ row, activeTab, availableLangs, onUpdate }: Translat
             rows={2}
             value={current.description ?? ''}
             onChange={(e) => setField('description', e.target.value)}
-            placeholder={`Description in ${SUPPORTED_LANGS.find(l => l.code === activeLang)?.label}`}
+            placeholder={`Description in ${getLangLabel(activeLang)}`}
             className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-medium text-brand-slate outline-none resize-none focus:border-brand-cyan"
           />
         </div>

@@ -1,13 +1,13 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Home, Settings, FileText, LogOut, Menu, Users, Map, Globe, Heart, DollarSign } from 'lucide-react';
+import { Home, Settings, LogOut, Menu, Users, Map, Globe, Heart, DollarSign } from 'lucide-react';
 
 export default function Layout() {
   const { logout } = useAuth();
   
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/content', icon: FileText, label: 'Content CMS' },
+
     { to: '/cyclists', icon: Users, label: 'Cyclist Profiles' },
     { to: '/ride', icon: Map, label: 'Route & Maps' },
     { to: '/impact-tiers', icon: Heart, label: 'Impact Tiers' },

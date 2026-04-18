@@ -1,17 +1,73 @@
 import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import type { MutationCtx } from "./_generated/server";
 
-// Public mutation for manual entry (always pending verification)
+// ─── Shared helpers ────────────────────────────────────────────────────────────
+
+/**
+ * Sync a specific cyclist's raised total when a donation for them transitions
+ * between completed <-> non-completed.
+ */
+async function syncCyclistRaised(
+    ctx: MutationCtx,
+    shareSlug: string,
+    amount: number,
+    prevStatus: string,
+    nextStatus: string,
+) {
+    const cyclist = await ctx.db
+        .query("cyclists")
+        .withIndex("by_slug", q => q.eq("shareSlug", shareSlug))
+        .first();
+    if (!cyclist) return;
+
+    const current = cyclist.raised ?? 0;
+    if (prevStatus !== "completed" && nextStatus === "completed") {
+        await ctx.db.patch(cyclist._id, { raised: current + amount });
+    } else if (prevStatus === "completed" && nextStatus !== "completed") {
+        await ctx.db.patch(cyclist._id, { raised: Math.max(0, current - amount) });
+    }
+}
+
+/**
+ * Distribute a general-fund donation equally across all active (non-archived)
+ * cyclists. Called when riderId is absent and status transitions to completed.
+ * On reversal (completed → failed/voided) the share is subtracted.
+ */
+async function distributeGeneralFund(
+    ctx: MutationCtx,
+    amount: number,
+    prevStatus: string,
+    nextStatus: string,
+) {
+    const allCyclists = await ctx.db.query("cyclists").collect();
+    const active = allCyclists.filter(c => c.isArchived !== true);
+    if (active.length === 0) return;
+
+    const share = amount / active.length;
+
+    for (const cyclist of active) {
+        const current = cyclist.raised ?? 0;
+        if (prevStatus !== "completed" && nextStatus === "completed") {
+            await ctx.db.patch(cyclist._id, { raised: Math.round((current + share) * 100) / 100 });
+        } else if (prevStatus === "completed" && nextStatus !== "completed") {
+            await ctx.db.patch(cyclist._id, { raised: Math.max(0, Math.round((current - share) * 100) / 100) });
+        }
+    }
+}
+
+// ─── Public mutation: donor submission ────────────────────────────────────────
+
 export const add = mutation({
     args: {
         amount: v.number(),
         riderId: v.optional(v.string()),
         name: v.string(),
         email: v.optional(v.string()),
-        phone: v.optional(v.string()), // Required for WhatsApp contact, optional for HitPay initially
+        phone: v.optional(v.string()),
         message: v.optional(v.string()),
-        reference: v.optional(v.string()), // For manual ref match or hitpay reference
+        reference: v.optional(v.string()),
         icNumber: v.optional(v.string()),
         type: v.optional(v.string()), // 'hitpay' or 'manual'
     },
@@ -45,12 +101,13 @@ export const add = mutation({
     },
 });
 
-// Internal mutation for webhook to record verified payment
+// ─── Internal mutation: HitPay webhook ───────────────────────────────────────
+
 export const recordPayment = internalMutation({
     args: {
         amount: v.number(),
-        paymentId: v.string(), // Actual HitPay payment_id
-        reference: v.optional(v.string()), // Our generated SAB reference
+        paymentId: v.string(),
+        reference: v.optional(v.string()),
         name: v.string(),
         email: v.optional(v.string()),
         riderId: v.optional(v.string()),
@@ -59,7 +116,7 @@ export const recordPayment = internalMutation({
         message: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        // First try to find by reference (this is what we saved in addDonation as paymentId)
+        // ── Path 1: Match existing pending record by reference ───────────────
         if (args.reference) {
             const existing = await ctx.db
                 .query("donations")
@@ -68,21 +125,33 @@ export const recordPayment = internalMutation({
 
             if (existing) {
                 if (existing.status === 'completed') {
-                    console.warn(`[recordPayment] Duplicate execution for reference ${args.reference} — skipping`);
+                    console.warn(`[recordPayment] Duplicate for ref ${args.reference} — skipping`);
                     return existing._id;
                 }
 
-                // Update existing record
                 await ctx.db.patch(existing._id, {
                     status: args.status,
-                    paymentId: args.paymentId, // Replace reference with actual payment_id
-                    message: args.message ? (existing.message ? existing.message + " | " + args.message : args.message) : existing.message,
+                    paymentId: args.paymentId,
+                    message: args.message
+                        ? (existing.message ? existing.message + " | " + args.message : args.message)
+                        : existing.message,
                 });
+
+                // Sync cyclist(s) raised
+                if (existing.status !== "completed" && args.status === "completed") {
+                    if (existing.riderId) {
+                        await syncCyclistRaised(ctx, existing.riderId, existing.amount, existing.status, args.status);
+                    } else {
+                        // General Fund → distribute equally across all active cyclists
+                        await distributeGeneralFund(ctx, existing.amount, existing.status, args.status);
+                    }
+                }
+
                 return existing._id;
             }
         }
 
-        // Idempotency: skip if this paymentId was already recorded
+        // ── Path 2: Idempotency guard by paymentId ───────────────────────────
         if (args.paymentId) {
             const existing = await ctx.db
                 .query("donations")
@@ -94,8 +163,8 @@ export const recordPayment = internalMutation({
             }
         }
 
-        // Fallback: create a new record if reference not found (e.g. legacy or skipped addDonation)
-        return await ctx.db.insert("donations", {
+        // ── Path 3: Fallback — create new record ─────────────────────────────
+        const newId = await ctx.db.insert("donations", {
             amount: args.amount,
             riderId: args.riderId,
             name: args.name,
@@ -106,14 +175,24 @@ export const recordPayment = internalMutation({
             status: args.status,
             type: args.type,
         });
+
+        if (args.status === "completed") {
+            if (args.riderId) {
+                await syncCyclistRaised(ctx, args.riderId, args.amount, "pending", args.status);
+            } else {
+                await distributeGeneralFund(ctx, args.amount, "pending", args.status);
+            }
+        }
+
+        return newId;
     },
 });
+
+// ─── Queries ──────────────────────────────────────────────────────────────────
 
 export const getTotal = query({
     args: {},
     handler: async (ctx) => {
-        // Sums ALL completed donations — both 'hitpay' (online) and 'manual' (bank transfer
-        // approved by admin). Admin marks manual transfers as 'completed' via the dashboard.
         const donations = await ctx.db
             .query("donations")
             .withIndex("by_status", q => q.eq("status", "completed"))
@@ -123,7 +202,7 @@ export const getTotal = query({
 });
 
 /**
- * admin: returns a breakdown of online vs manual completed donations.
+ * admin: breakdown of online vs manual completed donations.
  * Formula: onlineTotal + manualTotal = totalFundRaised
  */
 export const getDonationBreakdown = query({
@@ -133,19 +212,22 @@ export const getDonationBreakdown = query({
             .query("donations")
             .withIndex("by_status", q => q.eq("status", "completed"))
             .collect();
-        const onlineTotal  = all.filter(d => d.type === "hitpay").reduce((s, d) => s + d.amount, 0);
-        const manualTotal  = all.filter(d => d.type === "manual").reduce((s, d) => s + d.amount, 0);
+        const onlineTotal = all.filter(d => d.type === "hitpay").reduce((s, d) => s + d.amount, 0);
+        const manualTotal = all.filter(d => d.type === "manual").reduce((s, d) => s + d.amount, 0);
         return {
             onlineTotal,
             manualTotal,
             totalFundRaised: onlineTotal + manualTotal,
-            count: { online: all.filter(d => d.type === "hitpay").length, manual: all.filter(d => d.type === "manual").length },
+            count: {
+                online: all.filter(d => d.type === "hitpay").length,
+                manual: all.filter(d => d.type === "manual").length,
+            },
         };
     },
 });
 
 /**
- * admin: list all donations (any status), newest first — for admin donation dashboard.
+ * admin: list all donations (any status), newest first.
  */
 export const listAll = query({
     args: {},
@@ -155,12 +237,64 @@ export const listAll = query({
     },
 });
 
+// ─── Admin auth ────────────────────────────────────────────────────────────────
+const ADMIN_SECRET = process.env.ADMIN_SECRET || "nadi-sab-2026-admin";
+
 /**
- * admin: update donation status (e.g. mark manual as completed or rejected).
+ * admin: update donation status.
+ * - Specific cyclist donation → increments/decrements cyclist.raised
+ * - General fund donation → distributes/reclaims equally across all active cyclists
  */
 export const updateStatus = mutation({
-    args: { id: v.id("donations"), status: v.string() },
-    handler: async (ctx, { id, status }) => {
+    args: { token: v.string(), id: v.id("donations"), status: v.string() },
+    handler: async (ctx, { token, id, status }) => {
+        if (token !== ADMIN_SECRET) throw new Error("Unauthorized");
+
+        const donation = await ctx.db.get(id);
+        if (!donation) return;
+
+        const previousStatus = donation.status;
         await ctx.db.patch(id, { status });
+
+        if (donation.riderId) {
+            // Specific cyclist donation
+            await syncCyclistRaised(ctx, donation.riderId, donation.amount, previousStatus, status);
+        } else {
+            // General Fund → distribute/reclaim equally
+            await distributeGeneralFund(ctx, donation.amount, previousStatus, status);
+        }
+    },
+});
+
+/**
+ * admin: comprehensive analytics summary for the dashboard home.
+ */
+export const getStats = query({
+    args: {},
+    handler: async (ctx) => {
+        const all = await ctx.db.query("donations").collect();
+        const completed = all.filter(d => d.status === "completed");
+        const pending   = all.filter(d => d.status === "pending");
+
+        const onlineTotal = completed.filter(d => d.type === "hitpay").reduce((s, d) => s + d.amount, 0);
+        const manualTotal = completed.filter(d => d.type === "manual").reduce((s, d) => s + d.amount, 0);
+        const totalFund   = onlineTotal + manualTotal;
+        const avgDonation = completed.length ? totalFund / completed.length : 0;
+
+        const recentDonations = [...all]
+            .sort((a, b) => b.timestamp - a.timestamp)
+            .slice(0, 5);
+
+        return {
+            totalFund,
+            onlineTotal,
+            manualTotal,
+            completedCount: completed.length,
+            pendingCount: pending.length,
+            pendingOnline: pending.filter(d => d.type === "hitpay").length,
+            pendingManual: pending.filter(d => d.type === "manual").length,
+            avgDonation,
+            recentDonations,
+        };
     },
 });

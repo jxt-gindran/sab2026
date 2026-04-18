@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useAuth } from '../components/AuthContext';
 import { CheckCircle2, XCircle, Clock, Globe, CreditCard, TrendingUp, AlertTriangle, Info } from 'lucide-react';
 
 function fmt(n: number) {
@@ -23,6 +24,7 @@ const STATUS_PILL: Record<string, { label: string; className: string; icon: Reac
 type FilterType = 'all' | 'pending' | 'completed' | 'hitpay' | 'manual';
 
 export default function Donations() {
+  const { token } = useAuth();
   const breakdown    = useQuery(api.donations.getDonationBreakdown);
   const allDonations = useQuery(api.donations.listAll) ?? [];
   const updateStatus = useMutation(api.donations.updateStatus);
@@ -38,9 +40,10 @@ export default function Donations() {
   const pendingTotal  = pendingOnline + pendingManual;
 
   const handleStatus = async (id: string, status: string) => {
+    if (!token) return;
     setUpdatingId(id);
     try {
-      await updateStatus({ id: id as any, status });
+      await updateStatus({ token, id: id as any, status });
     } finally {
       setUpdatingId(null);
     }
@@ -48,12 +51,13 @@ export default function Donations() {
 
   // Void ALL pending HitPay donations in one click
   const handleBulkVoidOnline = async () => {
+    if (!token) return;
     if (!confirm(`Void all ${pendingOnline} pending Online (HitPay) donation${pendingOnline > 1 ? 's' : ''}?\n\nThese were never confirmed by HitPay — they are abandoned or failed checkouts. This cannot be undone.`)) return;
     setBulkVoiding(true);
     try {
       const toVoid = allDonations.filter((d: any) => d.status === 'pending' && d.type === 'hitpay');
       for (const d of toVoid) {
-        await updateStatus({ id: d._id as any, status: 'failed' });
+        await updateStatus({ token, id: d._id as any, status: 'failed' });
       }
     } finally {
       setBulkVoiding(false);

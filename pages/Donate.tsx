@@ -21,7 +21,7 @@ import { api } from '../convex/_generated/api';
 import { useTranslation } from '../lib/i18n';
 import DonationSliderStep from '../components/DonationSliderStep';
 
-import ridersData from '../data/riders.json';
+
 
 const Donate: React.FC = () => {
   const { t } = useTranslation();
@@ -52,12 +52,12 @@ const Donate: React.FC = () => {
     const slug = params.get('cyclist');
     if (slug && cyclists.length > 0) {
       const match = cyclists.find((c: any) => c.shareSlug === slug);
-      if (match) setSelectedRider(match._id);
+      if (match) setSelectedRider(match.shareSlug);
     }
   }, [location, cyclists]);
 
   const nextStep = () => {
-    // Step 3 is now personal info (was step 2)
+    // Step 3: personal info validation
     if (step === 3) {
       if (!donorName.trim() || !donorEmail.trim() || !donorPhone.trim()) {
         alert(t('donate.val_required'));
@@ -75,6 +75,13 @@ const Donate: React.FC = () => {
       const icClean = donorIC.replace(/[\s-]/g, '');
       if (icClean && icClean.length < 6) {
         alert(t('donate.val_ic'));
+        return;
+      }
+    }
+    // Step 4: payment method must be selected before proceeding
+    if (step === 4) {
+      if (!paymentMethod) {
+        alert('Please select a payment method to continue.');
         return;
       }
     }
@@ -167,9 +174,9 @@ const Donate: React.FC = () => {
                     {cyclists.map((c: any) => (
                       <button
                         key={c._id}
-                        onClick={() => setSelectedRider(c._id)}
+                        onClick={() => setSelectedRider(c.shareSlug)}
                         className={`px-6 py-4 flex items-center gap-3 rounded-2xl font-bold text-sm shadow-lg uppercase tracking-widest transition-all ${
-                          selectedRider === c._id
+                          selectedRider === c.shareSlug
                             ? 'bg-brand-cyan text-brand-navy scale-105'
                             : 'bg-white text-slate-500 border-2 border-slate-200 hover:border-brand-cyan'
                         }`}
@@ -197,7 +204,7 @@ const Donate: React.FC = () => {
                         <div>
                           <div className="text-xs font-bold text-brand-slate uppercase tracking-widest mb-1">{t('donate.step2_beneficiary')}</div>
                           <div className="font-black text-brand-navy text-lg">
-                            {selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General Fund (SAB2026)' : 'General Fund (SAB2026)'}
+                            {selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General Fund (SAB2026)' : 'General Fund (SAB2026)'}
                           </div>
                         </div>
                       </div>
@@ -350,7 +357,7 @@ const Donate: React.FC = () => {
                               console.error('Failed to create pending record:', err);
                             }
 
-                            const beneficiaryName = selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General' : 'General';
+                            const beneficiaryName = selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General' : 'General';
                             const result = await createPaymentLink({
                               amount: totalAmount,
                               name: donorName,
@@ -442,7 +449,7 @@ const Donate: React.FC = () => {
                                 console.error('Failed to create pending manual record:', err);
                               }
 
-                              const beneficiaryName = selectedRider ? cyclists.find((c: any) => c._id === selectedRider)?.name || 'General' : 'General';
+                              const beneficiaryName = selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General' : 'General';
                               const text = encodeURIComponent(`Hi MMA Foundation, I have made a manual transfer of RM ${totalAmount} for SAB2026.\n\nName: ${donorName}\nPhone: ${donorPhone}\nEmail: ${donorEmail}\nBeneficiary: ${beneficiaryName}\nRef: SAB2026\n\nPlease find my receipt attached.`);
                               window.open(`https://wa.me/60145139470?text=${text}`, '_blank');
                             }}
@@ -457,24 +464,9 @@ const Donate: React.FC = () => {
                               type="file"
                               id="receipt-upload"
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                              onChange={async (e) => {
+                              onChange={(e) => {
                                 if (e.target.files?.[0]) {
-                                  try {
-                                    await addDonation({
-                                      amount: totalAmount,
-                                      name: donorName,
-                                      email: donorEmail,
-                                      phone: donorPhone,
-                                      icNumber: donorIC,
-                                      type: 'manual',
-                                      message: 'Manual Transfer Receipt Upload',
-                                      reference: 'Manual-' + Date.now()
-                                    });
-                                    alert("Thank you! Your donation of RM " + totalAmount + " has been recorded.\n\nPlease also email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
-                                  } catch (err) {
-                                    console.error(err);
-                                    alert("Please email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.");
-                                  }
+                                  alert("Thank you! Please email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification. Your donation has already been recorded.");
                                 }
                               }}
                             />
@@ -537,7 +529,10 @@ const Donate: React.FC = () => {
                   <div className="flex justify-between items-end border-b border-white/10 pb-4">
                     <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{t('donate.sidebar_sponsoring')}</span>
                     <span className="text-sm font-black text-brand-cyan tracking-wider text-right max-w-[150px]">
-                      {t('donate.sidebar_general')}
+                      {selectedRider
+                        ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || t('donate.sidebar_general')
+                        : t('donate.sidebar_general')
+                      }
                     </span>
                   </div>
                 </div>

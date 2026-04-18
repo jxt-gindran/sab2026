@@ -3,8 +3,15 @@ import { Pencil } from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { sliderToAmount, amountToSlider } from '../lib/donationMatcher';
+import { useTranslation } from '../lib/i18n';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+interface TierTranslation {
+  title?:       string;
+  category?:    string;
+  description?: string;
+}
+
 interface ImpactTier {
   _id: string;
   charity: string;
@@ -13,6 +20,7 @@ interface ImpactTier {
   category?: string;
   description: string;
   isActive?: boolean;
+  translations?: Record<string, TierTranslation>;
 }
 
 // ── Floor-match helper ────────────────────────────────────────────────────────
@@ -22,12 +30,24 @@ function floorMatch(tiers: ImpactTier[], amount: number): ImpactTier | null {
   return eligible.reduce((a, b) => (b.tier > a.tier ? b : a));
 }
 
+// ── Resolve translated content with English fallback ─────────────────────────
+function resolveTier(tier: ImpactTier, lang: string) {
+  const ov = lang !== 'en' ? (tier.translations?.[lang] ?? {}) : {};
+  return {
+    title:       ov.title       ?? tier.title,
+    category:    ov.category    ?? tier.category,
+    description: ov.description ?? tier.description,
+  };
+}
+
 // ── Cards ─────────────────────────────────────────────────────────────────────
 // Card title is 1 size smaller (xl instead of 2xl), consistent across both charities.
 // Charity label is brand-navy per brand guidelines.
 
-interface MapsCardProps { item: ImpactTier; }
-const MapsCard: React.FC<MapsCardProps> = ({ item }) => (
+interface MapsCardProps { item: ImpactTier; lang: string; }
+const MapsCard: React.FC<MapsCardProps> = ({ item, lang }) => {
+  const r = resolveTier(item, lang);
+  return (
   <div className="flex-1 min-w-0 bg-white rounded-[2rem] border border-brand-grey/20 shadow-xl p-7 flex flex-col gap-3 transition-all duration-500 animate-fade-in relative overflow-hidden">
     <div className="absolute -top-8 -right-8 h-28 w-28 bg-brand-cyan/10 rounded-full blur-2xl pointer-events-none" />
     <div className="flex items-center gap-3 mb-1 relative z-10">
@@ -44,19 +64,22 @@ const MapsCard: React.FC<MapsCardProps> = ({ item }) => (
     </div>
     {/* xl = 1 size smaller than 2xl, consistent */}
     <h3 className="text-xl font-black font-heading text-brand-navy leading-tight relative z-10">
-      {item.title}
+      {r.title}
     </h3>
     <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest relative z-10">
       From RM {item.tier.toLocaleString()}
     </div>
     <p className="text-sm text-brand-slate font-medium leading-relaxed flex-grow relative z-10">
-      {item.description}
+      {r.description}
     </p>
   </div>
 );
+};
 
-interface MypopiCardProps { item: ImpactTier; }
-const MypopiCard: React.FC<MypopiCardProps> = ({ item }) => (
+interface MypopiCardProps { item: ImpactTier; lang: string; }
+const MypopiCard: React.FC<MypopiCardProps> = ({ item, lang }) => {
+  const r = resolveTier(item, lang);
+  return (
   <div className="flex-1 min-w-0 bg-white rounded-[2rem] border border-brand-grey/20 shadow-xl p-7 flex flex-col gap-3 transition-all duration-500 animate-fade-in relative overflow-hidden">
     <div className="absolute -top-8 -right-8 h-28 w-28 bg-brand-orange/10 rounded-full blur-2xl pointer-events-none" />
     <div className="flex items-center gap-3 mb-1 relative z-10">
@@ -73,16 +96,17 @@ const MypopiCard: React.FC<MypopiCardProps> = ({ item }) => (
     </div>
     {/* xl = 1 size smaller, consistent with MAPS card */}
     <h3 className="text-xl font-black font-heading text-brand-navy leading-tight relative z-10">
-      {item.category}
+      {r.category}
     </h3>
     <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest relative z-10">
       From RM {item.tier.toLocaleString()}
     </div>
     <p className="text-sm text-brand-slate font-medium leading-relaxed flex-grow relative z-10">
-      {item.description}
+      {r.description}
     </p>
   </div>
 );
+};
 
 // ── Cyclist SVG — updated per user spec ──────────────────────────────────────
 const CyclistSVG: React.FC = () => (
@@ -125,6 +149,7 @@ interface DonationSliderStepProps {
 }
 
 const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChange }) => {
+  const { lang } = useTranslation();
   const [inputValue, setInputValue] = useState(String(amount));
   const [isEditing, setIsEditing] = useState(false);
 
@@ -291,14 +316,14 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
       {/* ── Impact Cards — both desktop and mobile shown directly (no accordion) ── */}
       <div className="flex flex-col md:flex-row gap-5">
         {mapsMatch
-          ? <MapsCard item={mapsMatch} />
+          ? <MapsCard item={mapsMatch} lang={lang} />
           : (
             <div className="flex-1 rounded-[2rem] border-2 border-dashed border-brand-cyan/20 flex items-center justify-center text-xs text-brand-cyan/40 font-black uppercase tracking-widest p-8 text-center">
               Increase donation to<br />unlock MAPS impact
             </div>
           )}
         {mypopiMatch
-          ? <MypopiCard item={mypopiMatch} />
+          ? <MypopiCard item={mypopiMatch} lang={lang} />
           : (
             <div className="flex-1 rounded-[2rem] border-2 border-dashed border-brand-orange/20 flex items-center justify-center text-xs text-brand-orange/40 font-black uppercase tracking-widest p-8 text-center">
               Increase donation to<br />unlock MyPOPI impact

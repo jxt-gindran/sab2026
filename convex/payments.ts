@@ -26,7 +26,7 @@ export const createLink = action({
         params.append("amount", args.amount.toString());
         params.append("currency", "MYR");
         params.append("reference_number", args.reference);
-        params.append("redirect_url", `${args.siteUrl}/#/thank-you`);
+        params.append("redirect_url", `${args.siteUrl}/thank-you`);
         params.append("purpose", args.purpose);
         params.append("name", args.name);
         params.append("email", args.email);

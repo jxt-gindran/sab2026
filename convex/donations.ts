@@ -121,3 +121,46 @@ export const getTotal = query({
         return donations.reduce((sum, d) => sum + d.amount, 0);
     },
 });
+
+/**
+ * admin: returns a breakdown of online vs manual completed donations.
+ * Formula: onlineTotal + manualTotal = totalFundRaised
+ */
+export const getDonationBreakdown = query({
+    args: {},
+    handler: async (ctx) => {
+        const all = await ctx.db
+            .query("donations")
+            .withIndex("by_status", q => q.eq("status", "completed"))
+            .collect();
+        const onlineTotal  = all.filter(d => d.type === "hitpay").reduce((s, d) => s + d.amount, 0);
+        const manualTotal  = all.filter(d => d.type === "manual").reduce((s, d) => s + d.amount, 0);
+        return {
+            onlineTotal,
+            manualTotal,
+            totalFundRaised: onlineTotal + manualTotal,
+            count: { online: all.filter(d => d.type === "hitpay").length, manual: all.filter(d => d.type === "manual").length },
+        };
+    },
+});
+
+/**
+ * admin: list all donations (any status), newest first — for admin donation dashboard.
+ */
+export const listAll = query({
+    args: {},
+    handler: async (ctx) => {
+        const all = await ctx.db.query("donations").collect();
+        return all.sort((a, b) => b.timestamp - a.timestamp);
+    },
+});
+
+/**
+ * admin: update donation status (e.g. mark manual as completed or rejected).
+ */
+export const updateStatus = mutation({
+    args: { id: v.id("donations"), status: v.string() },
+    handler: async (ctx, { id, status }) => {
+        await ctx.db.patch(id, { status });
+    },
+});

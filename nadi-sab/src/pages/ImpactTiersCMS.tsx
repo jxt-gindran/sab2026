@@ -5,11 +5,15 @@ import { Plus, Trash2, Save, CheckCircle2, AlertCircle, RefreshCw, Globe, Chevro
 
 type Charity = 'maps' | 'mypopi';
 
-// Languages that can be translated (extend as needed)
-const SUPPORTED_LANGS = [
-  { code: 'ms', label: 'Bahasa Melayu' },
-  { code: 'zh', label: '中文' },
-];
+// All language display names — kept in sync with Translations.tsx LANG_NAMES
+const LANG_NAMES: Record<string, string> = {
+  ms:    'Bahasa Melayu',
+  zh:    '中文 (Simplified)',
+  'zh-TW': '中文 (Traditional)',
+  ar:    'Arabic (عربي)',
+  ta:    'Tamil (தமிழ்)',
+};
+const getLangLabel = (code: string) => LANG_NAMES[code] || code.toUpperCase();
 
 interface TierTranslation {
   title?: string;
@@ -38,10 +42,11 @@ const CHARITY_META: Record<Charity, { label: string; fieldLabel: string }> = {
 interface TranslationPanelProps {
   row: TierRow;
   activeTab: Charity;
+  availableLangs: string[];   // ← now passed from parent (dynamic)
   onUpdate: (id: string, translations: Record<string, TierTranslation>) => void;
 }
-function TranslationPanel({ row, activeTab, onUpdate }: TranslationPanelProps) {
-  const [activeLang, setActiveLang] = useState(SUPPORTED_LANGS[0].code);
+function TranslationPanel({ row, activeTab, availableLangs, onUpdate }: TranslationPanelProps) {
+  const [activeLang, setActiveLang] = useState(availableLangs[0] ?? 'ms');
   const id = row._id!;
   const translations = row.translations ?? {};
   const current = translations[activeLang] ?? {};
@@ -60,16 +65,20 @@ function TranslationPanel({ row, activeTab, onUpdate }: TranslationPanelProps) {
       <div className="flex items-center gap-2 mb-3">
         <Globe className="h-3.5 w-3.5 text-brand-cyan" />
         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Translations</span>
-        <div className="flex gap-1 ml-auto">
-          {SUPPORTED_LANGS.map((l) => (
+        <div className="flex gap-1 ml-auto flex-wrap justify-end">
+          {availableLangs.length === 0 && (
+            <span className="text-[9px] text-slate-400 italic">No languages added in Translations panel yet.</span>
+          )}
+          {availableLangs.map((code) => (
             <button
-              key={l.code}
-              onClick={() => setActiveLang(l.code)}
+              key={code}
+              onClick={() => setActiveLang(code)}
               className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all ${
-                activeLang === l.code ? 'bg-brand-navy text-white' : 'bg-white text-slate-400 border border-slate-200 hover:border-brand-cyan'
+                activeLang === code ? 'bg-brand-navy text-white' : 'bg-white text-slate-400 border border-slate-200 hover:border-brand-cyan'
               }`}
+              title={getLangLabel(code)}
             >
-              {l.code.toUpperCase()}
+              {code.toUpperCase()}
             </button>
           ))}
         </div>
@@ -78,7 +87,7 @@ function TranslationPanel({ row, activeTab, onUpdate }: TranslationPanelProps) {
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-            {fieldLabel} ({activeLang.toUpperCase()})
+            {fieldLabel} ({activeLang.toUpperCase()}) — {getLangLabel(activeLang)}
           </label>
           <input
             type="text"
@@ -107,6 +116,8 @@ function TranslationPanel({ row, activeTab, onUpdate }: TranslationPanelProps) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function ImpactTiersCMS() {
+  // Fetch available languages from the same source as the Translations admin panel
+  const dbLanguages = useQuery(api.translations.listLanguages) ?? [];
   const allTiers = useQuery(api.impactTiers.listAll) ?? [];
   const upsert   = useMutation(api.impactTiers.upsert);
   const remove   = useMutation(api.impactTiers.remove);
@@ -320,6 +331,7 @@ export default function ImpactTiersCMS() {
             <TranslationPanel
               row={row}
               activeTab={activeTab}
+              availableLangs={dbLanguages}
               onUpdate={updateTranslations}
             />
           </div>

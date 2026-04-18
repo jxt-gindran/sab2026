@@ -87,7 +87,7 @@ export const add = mutation({
             icNumber: args.icNumber,
         });
 
-        // Notify Admin (Fire & Forget)
+        // Notify Admin + Confirm to donor (Fire & Forget)
         if (type === 'manual') {
             await ctx.scheduler.runAfter(0, internal.email.sendAdminManualNotification, {
                 name: args.name,
@@ -95,6 +95,16 @@ export const add = mutation({
                 phone: args.phone || '',
                 ref: args.reference
             });
+            // Confirmation to donor that we received their submission
+            if (args.email) {
+                await ctx.scheduler.runAfter(0, internal.email.sendManualSubmissionConfirmation, {
+                    email: args.email,
+                    name: args.name,
+                    amount: args.amount,
+                    ref: args.reference || 'N/A',
+                    beneficiary: args.riderId || undefined,
+                });
+            }
         }
 
         return id;
@@ -262,6 +272,17 @@ export const updateStatus = mutation({
         } else {
             // General Fund → distribute/reclaim equally
             await distributeGeneralFund(ctx, donation.amount, previousStatus, status);
+        }
+
+        // Send approval confirmation to donor when manual donation is marked completed
+        if (donation.type === 'manual' && previousStatus !== 'completed' && status === 'completed' && donation.email) {
+            await ctx.scheduler.runAfter(0, internal.email.sendManualApproved, {
+                email: donation.email,
+                name: donation.name,
+                amount: donation.amount,
+                ref: donation.paymentId || id,
+                beneficiary: donation.riderId || undefined,
+            });
         }
     },
 });

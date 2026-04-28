@@ -50,25 +50,27 @@ const MapsCard: React.FC<MapsCardProps> = ({ item, lang }) => {
   return (
   <div className="flex-1 min-w-0 bg-white rounded-[2rem] border border-brand-grey/20 shadow-xl p-7 flex flex-col gap-3 transition-all duration-500 animate-fade-in relative overflow-hidden">
     <div className="absolute -top-8 -right-8 h-28 w-28 bg-brand-cyan/10 rounded-full blur-2xl pointer-events-none" />
-    <div className="flex items-center gap-3 mb-1 relative z-10">
-      <div className="h-10 w-10 bg-brand-pale rounded-xl flex items-center justify-center shrink-0 p-1.5">
-        <img
-          src="https://sab.mma.org.my/assets/logos/MAPS%20Logo.png"
-          alt="MAPS"
-          className="h-full w-full object-contain"
-          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-        />
+    <div className="flex items-start justify-between gap-4 mb-1 relative z-10">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="h-10 w-10 bg-brand-pale rounded-xl flex items-center justify-center shrink-0 p-1.5">
+          <img
+            src="https://sab.mma.org.my/assets/logos/MAPS%20Logo.png"
+            alt="MAPS"
+            className="h-full w-full object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        </div>
+        {/* brand-navy per guidelines */}
+        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-navy">MAPS</span>
       </div>
-      {/* brand-navy per guidelines */}
-      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-navy">MAPS</span>
+      <div className="text-sm sm:text-base font-black text-brand-orange uppercase tracking-widest text-right leading-tight whitespace-nowrap pt-1">
+        From RM {item.tier.toLocaleString()}
+      </div>
     </div>
     {/* xl = 1 size smaller than 2xl, consistent */}
     <h3 className="text-xl font-black font-heading text-brand-navy leading-tight relative z-10">
       {r.title}
     </h3>
-    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest relative z-10">
-      From RM {item.tier.toLocaleString()}
-    </div>
     <p className="text-sm text-brand-slate font-medium leading-relaxed flex-grow relative z-10">
       {r.description}
     </p>
@@ -82,25 +84,27 @@ const MypopiCard: React.FC<MypopiCardProps> = ({ item, lang }) => {
   return (
   <div className="flex-1 min-w-0 bg-white rounded-[2rem] border border-brand-grey/20 shadow-xl p-7 flex flex-col gap-3 transition-all duration-500 animate-fade-in relative overflow-hidden">
     <div className="absolute -top-8 -right-8 h-28 w-28 bg-brand-orange/10 rounded-full blur-2xl pointer-events-none" />
-    <div className="flex items-center gap-3 mb-1 relative z-10">
-      <div className="h-10 w-10 bg-brand-pale rounded-xl flex items-center justify-center shrink-0 p-1.5">
-        <img
-          src="https://sab.mma.org.my/assets/logos/MyPOPI-1.png"
-          alt="MyPOPI"
-          className="h-full w-full object-contain"
-          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-        />
+    <div className="flex items-start justify-between gap-4 mb-1 relative z-10">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="h-10 w-10 bg-brand-pale rounded-xl flex items-center justify-center shrink-0 p-1.5">
+          <img
+            src="https://sab.mma.org.my/assets/logos/MyPOPI-1.png"
+            alt="MyPOPI"
+            className="h-full w-full object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        </div>
+        {/* brand-navy per guidelines */}
+        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-navy">MyPOPI</span>
       </div>
-      {/* brand-navy per guidelines */}
-      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-navy">MyPOPI</span>
+      <div className="text-sm sm:text-base font-black text-brand-orange uppercase tracking-widest text-right leading-tight whitespace-nowrap pt-1">
+        From RM {item.tier.toLocaleString()}
+      </div>
     </div>
     {/* xl = 1 size smaller, consistent with MAPS card */}
     <h3 className="text-xl font-black font-heading text-brand-navy leading-tight relative z-10">
       {r.category}
     </h3>
-    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest relative z-10">
-      From RM {item.tier.toLocaleString()}
-    </div>
     <p className="text-sm text-brand-slate font-medium leading-relaxed flex-grow relative z-10">
       {r.description}
     </p>

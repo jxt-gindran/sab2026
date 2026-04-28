@@ -19,6 +19,9 @@ const CyclistProfile: React.FC = () => {
   const navigate = useNavigate();
   // Skip the query entirely if slug is missing — prevents querying with empty string
   const cyclist = useQuery(api.cyclists.getBySlug, slug ? { shareSlug: slug } : 'skip');
+  const allSettings = useQuery(api.admin.getPublicSettings) || [];
+  const showProgressSetting = allSettings.find((s: any) => s.key === 'show_fundraising_progress');
+  const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
   const [copied, setCopied] = useState(false);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const { t, lang } = useTranslation();
@@ -147,7 +150,9 @@ const CyclistProfile: React.FC = () => {
 
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-6 text-white/60 text-xs font-bold uppercase tracking-widest">
                 <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-brand-cyan" /> {t('cyclistProfile.location_label')}</span>
-                <span className="flex items-center gap-1.5"><Target className="h-3.5 w-3.5 text-brand-orange" /> RM {cyclist.goal.toLocaleString()} {t('cyclistProfile.goal_label')}</span>
+                {showFundraisingProgress && (
+                  <span className="flex items-center gap-1.5"><Target className="h-3.5 w-3.5 text-brand-orange" /> RM {cyclist.goal.toLocaleString()} {t('cyclistProfile.goal_label')}</span>
+                )}
                 {cyclist.isFeatured && (
                   <span className="flex items-center gap-1.5 text-brand-orange"><CheckCircle2 className="h-3.5 w-3.5" /> {t('cyclistProfile.featured_label')}</span>
                 )}
@@ -158,31 +163,33 @@ const CyclistProfile: React.FC = () => {
       </div>
 
       {/* ─── FUNDRAISING PROGRESS ────────────────────────────────────── */}
-      <div className="bg-brand-navy border-t border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-8">
-          <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <div className="flex justify-between items-end mb-3">
-              <div>
-                <div className="text-brand-cyan font-black text-2xl font-heading">RM {cyclist.raised.toLocaleString()}</div>
-                <div className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{t('cyclistProfile.raised_label')}</div>
+      {showFundraisingProgress && (
+        <div className="bg-brand-navy border-t border-white/10">
+          <div className="max-w-5xl mx-auto px-4 py-8">
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+              <div className="flex justify-between items-end mb-3">
+                <div>
+                  <div className="text-brand-cyan font-black text-2xl font-heading">RM {cyclist.raised.toLocaleString()}</div>
+                  <div className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{t('cyclistProfile.raised_label')}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-white font-black text-lg font-heading">RM {cyclist.goal.toLocaleString()}</div>
+                  <div className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{t('cyclistProfile.goal_label')}</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-white font-black text-lg font-heading">RM {cyclist.goal.toLocaleString()}</div>
-                <div className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{t('cyclistProfile.goal_label')}</div>
+              <div className="w-full h-5 bg-white/10 rounded-full overflow-hidden mb-2">
+                <div
+                  className="h-full rounded-full transition-all duration-1000 relative overflow-hidden"
+                  style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #00AEEF, #F97316)' }}
+                >
+                  <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-white/20 to-transparent" style={{ backgroundSize: '200% 100%' }} />
+                </div>
               </div>
+              <div className="text-right text-white/40 text-[10px] font-black uppercase tracking-widest">{pct.toFixed(0)}{t('cyclistProfile.reached_suffix')}</div>
             </div>
-            <div className="w-full h-5 bg-white/10 rounded-full overflow-hidden mb-2">
-              <div
-                className="h-full rounded-full transition-all duration-1000 relative overflow-hidden"
-                style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #00AEEF, #F97316)' }}
-              >
-                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-white/20 to-transparent" style={{ backgroundSize: '200% 100%' }} />
-              </div>
-            </div>
-            <div className="text-right text-white/40 text-[10px] font-black uppercase tracking-widest">{pct.toFixed(0)}{t('cyclistProfile.reached_suffix')}</div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ─── CONTENT BODY ────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 py-14 grid grid-cols-1 lg:grid-cols-3 gap-10">

@@ -15,6 +15,9 @@ const Ride: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('Cyclist');
 
   const allCyclists = useQuery(api.cyclists.listAll) || [];
+  const allSettings  = useQuery(api.admin.getPublicSettings) || [];
+  const showProgressSetting = allSettings.find((s: any) => s.key === 'show_fundraising_progress');
+  const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
   const cyclists = useMemo(
     () => allCyclists.filter((c: any) => !c.isArchived),
     [allCyclists]
@@ -145,13 +148,17 @@ const Ride: React.FC = () => {
                 </div>
 
                 <div className="mt-4 mb-6">
-                  <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
-                    <span>{t('ride.rider_raised')} <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
-                    <span>{t('ride.rider_goal')} <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
-                  </div>
-                  <div className="w-full h-3 bg-brand-pale/50 rounded-full overflow-hidden p-0.5">
-                    <div className="h-full bg-brand-orange rounded-full shadow-sm transition-all duration-1000" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
-                  </div>
+                  {showFundraisingProgress && (
+                    <>
+                      <div className="flex justify-between text-[10px] font-bold text-brand-slate uppercase tracking-widest mb-1">
+                        <span>{t('ride.rider_raised')} <span className="text-brand-navy font-black text-sm">RM {rider.raised.toLocaleString()}</span></span>
+                        <span>{t('ride.rider_goal')} <span className="text-brand-cyan font-black text-sm">RM {rider.goal.toLocaleString()}</span></span>
+                      </div>
+                      <div className="w-full h-3 bg-brand-pale/50 rounded-full overflow-hidden p-0.5">
+                        <div className="h-full bg-brand-orange rounded-full shadow-sm transition-all duration-1000" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex gap-2">

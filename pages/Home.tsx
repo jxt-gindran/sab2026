@@ -44,6 +44,9 @@ const Home: React.FC = () => {
   // historicalBase: pre-2026 total entered in admin settings (e.g. RM 1.2M from 2022-2025)
   const historicalSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'raised_amount');
   const goalSetting       = allSettings.find((s: { key: string; value: string }) => s.key === 'donation_goal');
+  const showProgressSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'show_fundraising_progress');
+  // Default ON (visible) unless explicitly set to 'false'
+  const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
 
   const historicalBase = historicalSetting ? parseFloat(historicalSetting.value) : 1200000;
   const currentTotal   = historicalBase + totalRaised;  // always live DB + historical base
@@ -427,13 +430,17 @@ const Home: React.FC = () => {
                   </div>
                 </div>
                 <div className="mb-4 flex-grow">
-                  <div className="flex justify-between text-[10px] font-black text-brand-slate uppercase tracking-widest mb-2">
-                    <span>{t('home.rider_raised')} RM {rider.raised.toLocaleString()}</span>
-                    <span className="text-brand-navy">{t('home.rider_goal')} RM {rider.goal.toLocaleString()}</span>
-                  </div>
-                  <div className="w-full h-3 bg-brand-pale/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-orange rounded-full bg-chain-fill" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
-                  </div>
+                  {showFundraisingProgress && (
+                    <>
+                      <div className="flex justify-between text-[10px] font-black text-brand-slate uppercase tracking-widest mb-2">
+                        <span>{t('home.rider_raised')} RM {rider.raised.toLocaleString()}</span>
+                        <span className="text-brand-navy">{t('home.rider_goal')} RM {rider.goal.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full h-3 bg-brand-pale/30 rounded-full overflow-hidden">
+                        <div className="h-full bg-brand-orange rounded-full bg-chain-fill" style={{ width: `${Math.min((rider.raised / rider.goal) * 100, 100)}%` }}></div>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Link to={`/riders/${encodeURIComponent(rider.shareSlug)}`} className="flex-grow text-center bg-brand-navy text-white font-black py-3 rounded-xl hover:bg-brand-cyan hover:text-brand-navy transition-all text-sm uppercase tracking-widest">

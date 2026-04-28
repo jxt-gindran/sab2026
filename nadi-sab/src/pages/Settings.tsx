@@ -112,6 +112,43 @@ export default function Settings() {
         </div>
       </div>
 
+      {/* ── FUNDRAISING PROGRESS BAR TOGGLE ── */}
+      <div className="bg-gradient-to-br from-violet-900 to-violet-800 rounded-3xl p-6 mb-8 border border-violet-500/20 shadow-xl">
+        <p className="text-violet-300 font-black text-xs uppercase tracking-widest mb-1">📊 Fundraising Progress Bar</p>
+        <p className="text-white font-black text-xl font-heading mb-1">
+          {(() => {
+            const val = settings.find(s => s.key === 'show_fundraising_progress')?.value;
+            return val === 'false' ? '🔴 Hidden (OFF)' : '🟢 Visible (ON)';
+          })()}
+        </p>
+        <p className="text-white/40 text-xs mb-4">
+          Controls whether the Raised vs Goal progress bar is shown on each cyclist's card (Home, Ride, Profile pages).
+          Turn OFF to hide fundraising totals from the public.
+        </p>
+        <div className="flex gap-3">
+          {(['true', 'false'] as const).map(val => {
+            const current = settings.find(s => s.key === 'show_fundraising_progress')?.value ?? 'true';
+            const isActive = current === val;
+            return (
+              <button
+                key={val}
+                onClick={async () => {
+                  if (!token) return;
+                  await updateSetting({ token, key: 'show_fundraising_progress', value: val, isSecret: false });
+                }}
+                className={`flex-1 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${
+                  isActive
+                    ? val === 'false' ? 'bg-red-500 text-white shadow-lg' : 'bg-green-500 text-white shadow-lg'
+                    : 'bg-white/10 text-white/40 hover:bg-white/20'
+                }`}
+              >
+                {val === 'true' ? '✅ Show (ON)' : '🔴 Hide (OFF)'}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Card 3: Registration Settings */}
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 mb-8 border border-white/10 shadow-xl">
         <p className="text-brand-orange font-black text-xs uppercase tracking-widest mb-4">🚴 Cyclist Registration Settings</p>

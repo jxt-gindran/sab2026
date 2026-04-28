@@ -155,6 +155,12 @@ export default function Cyclists() {
   const generateUploadUrl = useMutation(api.admin.generateUploadUrl);
   const getImageUrlMutation = useMutation(api.admin.getImageUrlMutation);
   const [isUploading, setIsUploading] = useState(false);
+  // Preview URLs are ephemeral — only used for display in the form.
+  // We NEVER persist these; the storageId is what goes into the DB.
+  const [previewUrls, setPreviewUrls] = useState<{ profile: string; gallery: string[] }>({
+    profile: '',
+    gallery: ['', '', ''],
+  });
 
   // ── Language tab state (null = English / main tab) ────────────────────────
   const [activeLang, setActiveLang] = useState<string | null>(null);
@@ -163,10 +169,11 @@ export default function Cyclists() {
   const [formData, setFormData] = useState<FormData>(DEFAULT_FORM);
 
   const resetForm = () => {
-    setFormData(DEFAULT_FORM);
-    setActiveLang(null);
     setIsAdding(false);
     setEditingId(null);
+    setFormData(DEFAULT_FORM);
+    setActiveLang(null);
+    setPreviewUrls({ profile: '', gallery: ['', '', ''] });
   };
 
   const handleEdit = (cyclist: any) => {
@@ -200,6 +207,13 @@ export default function Cyclists() {
       shareSlug: cyclist.shareSlug || cyclist.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       raised: cyclist.raised || 0,
       translations: existingTranslations,
+    });
+    // When editing, the resolved URL from the query is used as preview
+    setPreviewUrls({
+      profile: cyclist.profileUrl || '',
+      gallery: cyclist.galleryUrls
+        ? [...cyclist.galleryUrls, '', '', ''].slice(0, 3).map(u => u || '')
+        : ['', '', ''],
     });
     setActiveLang(null);
     setEditingId(cyclist._id);
@@ -264,18 +278,26 @@ export default function Cyclists() {
         body: file,
       });
       const { storageId } = await result.json();
-      const publicUrl = await getImageUrlMutation({ token, storageId });
-      
-      if (publicUrl) {
-        if (field === 'profile') {
-          setFormData(prev => ({ ...prev, profileUrl: publicUrl }));
-        } else if (field === 'gallery' && typeof index === 'number') {
-          setFormData(prev => {
-            const newUrls = [...prev.galleryUrls];
-            newUrls[index] = publicUrl;
-            return { ...prev, galleryUrls: newUrls };
-          });
-        }
+
+      // Get a short-lived URL just for the admin form preview
+      const previewUrl = await getImageUrlMutation({ token, storageId }) ?? '';
+
+      if (field === 'profile') {
+        // Store the storageId (permanent) in formData — the Convex query resolves it fresh every time
+        setFormData(prev => ({ ...prev, profileUrl: storageId }));
+        // Show the just-resolved URL as a preview in the form (ephemeral, not persisted)
+        setPreviewUrls(prev => ({ ...prev, profile: previewUrl }));
+      } else if (field === 'gallery' && typeof index === 'number') {
+        setFormData(prev => {
+          const newUrls = [...prev.galleryUrls];
+          newUrls[index] = storageId; // store storageId
+          return { ...prev, galleryUrls: newUrls };
+        });
+        setPreviewUrls(prev => {
+          const g = [...prev.gallery];
+          g[index] = previewUrl;
+          return { ...prev, gallery: g };
+        });
       }
     } catch (err: any) {
       console.error(err);
@@ -426,13 +448,17 @@ export default function Cyclists() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Profile Picture URL</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Profile Picture</label>
+                {/* Show preview if available */}
+                {previewUrls.profile && (
+                  <img src={previewUrls.profile} alt="Profile preview" className="h-20 w-20 rounded-xl object-cover mb-2 border border-slate-200" />
+                )}
                 <div className="flex gap-2 relative">
                   <input 
                     type="url" 
-                    value={formData.profileUrl}
+                    value={formData.profileUrl.startsWith('https://') ? formData.profileUrl : (previewUrls.profile || formData.profileUrl)}
                     onChange={e => setFormData({...formData, profileUrl: e.target.value})}
-                    placeholder="https://..."
+                    placeholder="https://... or upload below"
                     className="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-sm focus:border-brand-cyan"
                     disabled={isUploading}
                   />
@@ -442,16 +468,20 @@ export default function Cyclists() {
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'profile')} disabled={isUploading} />
                   </label>
                 </div>
+                <p className="text-[10px] text-slate-400 mt-1">Uploaded images are stored permanently — no expiry.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[0, 1, 2].map(i => (
                   <div key={i}>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Gallery Image {i + 1}</label>
+                    {previewUrls.gallery[i] && (
+                      <img src={previewUrls.gallery[i]} alt={`Gallery ${i+1} preview`} className="h-16 w-full rounded-xl object-cover mb-2 border border-slate-200" />
+                    )}
                     <div className="flex gap-2">
                       <input 
                         type="url" 
-                        value={formData.galleryUrls[i]}
+                        value={formData.galleryUrls[i].startsWith('https://') ? formData.galleryUrls[i] : (previewUrls.gallery[i] || formData.galleryUrls[i])}
                         onChange={e => {
                           const newUrls = [...formData.galleryUrls];
                           newUrls[i] = e.target.value;

@@ -4,10 +4,59 @@ import { v } from "convex/values";
 // Mock auth secret matching admin.ts
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "nadi-sab-2026-admin";
 
+/**
+ * Resolve a value that is either:
+ *  1. A plain external URL (not Convex)   → returned as-is
+ *  2. An EXPIRED Convex signed URL        → storageId extracted, re-resolved fresh
+ *     Pattern: https://*.convex.cloud/api/storage/<storageId>
+ *  3. A raw Convex storage ID             → resolved to a fresh signed URL
+ *
+ * This fixes both:
+ *  - Existing records that stored the full signed URL (now expired)
+ *  - New records that store just the storageId (our new approach)
+ */
+async function resolveUrl(ctx: any, urlOrId: string | undefined): Promise<string | undefined> {
+    if (!urlOrId) return undefined;
+
+    // Case 2: Expired Convex storage signed URL — extract storageId and re-resolve
+    const convexMatch = urlOrId.match(/convex\.cloud\/api\/storage\/([^?#]+)/);
+    if (convexMatch) {
+        try {
+            const resolved = await ctx.storage.getUrl(convexMatch[1]);
+            return resolved ?? urlOrId; // fallback to original if resolve fails
+        } catch {
+            return urlOrId;
+        }
+    }
+
+    // Case 1: Any other plain URL (external CDN, direct link, etc.) — pass through
+    if (urlOrId.startsWith('https://') || urlOrId.startsWith('http://') || urlOrId.startsWith('/')) {
+        return urlOrId;
+    }
+
+    // Case 3: Raw Convex storage ID — resolve fresh
+    try {
+        const resolved = await ctx.storage.getUrl(urlOrId);
+        return resolved ?? undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/** Resolve profileUrl and each galleryUrl on a cyclist record */
+async function resolveCyclistUrls(ctx: any, c: any) {
+    const profileUrl = await resolveUrl(ctx, c.profileUrl);
+    const galleryUrls = c.galleryUrls
+        ? await Promise.all((c.galleryUrls as string[]).map(u => resolveUrl(ctx, u)))
+        : c.galleryUrls;
+    return { ...c, profileUrl, galleryUrls };
+}
+
 export const listAll = query({
     args: {},
     handler: async (ctx) => {
-        return await ctx.db.query("cyclists").order("desc").collect();
+        const cyclists = await ctx.db.query("cyclists").order("desc").collect();
+        return Promise.all(cyclists.map(c => resolveCyclistUrls(ctx, c)));
     },
 });
 
@@ -17,16 +66,19 @@ export const listFeatured = query({
         const results = await ctx.db.query("cyclists")
             .withIndex("by_featured", q => q.eq("isFeatured", true))
             .collect();
-        return results.filter(c => c.isArchived !== true);
+        const active = results.filter(c => c.isArchived !== true);
+        return Promise.all(active.map(c => resolveCyclistUrls(ctx, c)));
     },
 });
 
 export const getBySlug = query({
     args: { shareSlug: v.string() },
     handler: async (ctx, args) => {
-        return await ctx.db.query("cyclists")
+        const c = await ctx.db.query("cyclists")
             .withIndex("by_slug", q => q.eq("shareSlug", args.shareSlug))
             .first();
+        if (!c) return null;
+        return resolveCyclistUrls(ctx, c);
     },
 });
 

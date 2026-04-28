@@ -41,6 +41,7 @@ export const add = mutation({
         galleryUrls: v.optional(v.array(v.string())),
         isFeatured: v.boolean(),
         isArchived: v.optional(v.boolean()),
+        hideFundraising: v.optional(v.boolean()),
         shareSlug: v.string(),
         raised: v.optional(v.number()),
         translations: v.optional(v.record(v.string(), v.object({
@@ -62,6 +63,7 @@ export const add = mutation({
             galleryUrls: args.galleryUrls,
             isFeatured: args.isFeatured,
             isArchived: args.isArchived,
+            hideFundraising: args.hideFundraising,
             shareSlug: args.shareSlug,
             translations: args.translations,
         });
@@ -80,6 +82,7 @@ export const update = mutation({
         galleryUrls: v.optional(v.array(v.string())),
         isFeatured: v.boolean(),
         isArchived: v.optional(v.boolean()),
+        hideFundraising: v.optional(v.boolean()),
         shareSlug: v.string(),
         raised: v.optional(v.number()),
         translations: v.optional(v.record(v.string(), v.object({
@@ -100,6 +103,7 @@ export const update = mutation({
             galleryUrls: args.galleryUrls,
             isFeatured: args.isFeatured,
             isArchived: args.isArchived,
+            hideFundraising: args.hideFundraising,
             shareSlug: args.shareSlug,
             raised: args.raised,
             translations: args.translations,

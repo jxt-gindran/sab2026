@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuth } from '../components/AuthContext';
-import { CheckCircle2, XCircle, Clock, Globe, CreditCard, TrendingUp, AlertTriangle, Info } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Globe, CreditCard, TrendingUp, AlertTriangle, Info, Download } from 'lucide-react';
 
 function fmt(n: number) {
   return `RM ${n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -64,6 +64,33 @@ export default function Donations() {
     }
   };
 
+  // ── CSV Export ─────────────────────────────────────────────────────────────
+  const handleDownloadCSV = () => {
+    const rows = [
+      ['Date', 'Name', 'Email', 'Phone', 'IC', 'Amount (RM)', 'Type', 'Status', 'Rider', 'Reference'],
+      ...visible.map((d: any) => [
+        new Date(d.timestamp).toLocaleString('en-MY'),
+        d.name ?? '',
+        d.email ?? '',
+        d.phone ?? '',
+        d.icNumber ?? '',
+        d.amount.toFixed(2),
+        d.type === 'hitpay' ? 'Online (HitPay)' : 'Manual Transfer',
+        d.status,
+        d.riderId ?? 'General Fund',
+        d.paymentId ?? '',
+      ]),
+    ];
+    const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sab2026-donations-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const visible = allDonations.filter((d: any) => {
     if (filter === 'all')       return true;
     if (filter === 'pending')   return d.status === 'pending';
@@ -101,17 +128,27 @@ export default function Donations() {
             <span className="font-black text-brand-orange">Manual (admin-approved)</span>
           </p>
         </div>
-        {pendingTotal > 0 && (
-          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
-            <Clock className="h-4 w-4 text-amber-500 shrink-0" />
-            <span className="text-sm font-black text-amber-700">
-              {pendingOnline > 0 && `${pendingOnline} online`}
-              {pendingOnline > 0 && pendingManual > 0 && ' · '}
-              {pendingManual > 0 && `${pendingManual} manual`}
-              {' '}pending
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-3 flex-wrap">
+          {pendingTotal > 0 && (
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
+              <Clock className="h-4 w-4 text-amber-500 shrink-0" />
+              <span className="text-sm font-black text-amber-700">
+                {pendingOnline > 0 && `${pendingOnline} online`}
+                {pendingOnline > 0 && pendingManual > 0 && ' · '}
+                {pendingManual > 0 && `${pendingManual} manual`}
+                {' '}pending
+              </span>
+            </div>
+          )}
+          <button
+            onClick={handleDownloadCSV}
+            className="flex items-center gap-2 bg-brand-navy text-white text-xs font-black px-4 py-2.5 rounded-xl hover:bg-brand-cyan hover:text-brand-navy transition-all uppercase tracking-widest shadow-sm"
+            title={`Download ${visible.length} visible donations as CSV`}
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {/* ── WHY ARE ONLINE DONATIONS PENDING? ── */}
@@ -347,15 +384,25 @@ export default function Donations() {
                     </>
                   )}
 
-                  {/* Online pending: Void only (cannot approve — that's webhook's job) */}
+                {/* Online pending: Void only (cannot approve — that's webhook's job)
+                     BUT if webhook failed, admin can manually accept it too */}
                   {!isUpdating && isOnlinePending && (
-                    <button
-                      onClick={() => handleStatus(d._id, 'failed')}
-                      className="p-1.5 rounded-lg bg-red-100 text-red-400 hover:bg-red-500 hover:text-white transition-all"
-                      title="Void — abandoned or failed HitPay checkout"
-                    >
-                      <XCircle className="h-4 w-4" />
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleStatus(d._id, 'completed')}
+                        className="p-1.5 rounded-lg bg-green-100 text-green-700 hover:bg-green-500 hover:text-white transition-all"
+                        title="Accept — manually confirm if webhook did not fire"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleStatus(d._id, 'failed')}
+                        className="p-1.5 rounded-lg bg-red-100 text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                        title="Void — abandoned or failed HitPay checkout"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    </>
                   )}
 
                   {/* No action available */}
@@ -373,7 +420,7 @@ export default function Donations() {
       <div className="mt-4 flex flex-wrap gap-6 text-xs text-slate-400 font-bold justify-center">
         <span className="flex items-center gap-1.5">
           <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-          Approve Manual = adds to Fund Raised
+          Approve Manual / Accept HitPay = adds to Fund Raised
         </span>
         <span className="flex items-center gap-1.5">
           <XCircle className="h-3.5 w-3.5 text-red-400" />
@@ -382,6 +429,10 @@ export default function Donations() {
         <span className="flex items-center gap-1.5">
           <Globe className="h-3.5 w-3.5 text-sky-500" />
           Online completions are automatic via HitPay webhook
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Download className="h-3.5 w-3.5 text-brand-navy" />
+          Export CSV downloads the currently filtered view
         </span>
       </div>
     </div>

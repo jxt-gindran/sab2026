@@ -28,6 +28,7 @@ export default defineSchema({
         galleryUrls: v.optional(v.array(v.string())), // Up to 3 additional images
         isFeatured: v.boolean(),
         isArchived: v.optional(v.boolean()), // For past events/retired cyclists
+        hideFundraising: v.optional(v.boolean()), // Hide from public donor cyclist-selector
         shareSlug: v.string(), // Unique slug for share link e.g. "john-doe"
         /**
          * Per-language content overrides.

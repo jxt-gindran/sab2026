@@ -38,7 +38,8 @@ const Donate: React.FC = () => {
   const createPaymentLink = useAction(api.payments.createLink);
   const addDonation = useMutation(api.donations.add);
   const allCyclists = useQuery(api.cyclists.listAll) || [];
-  const cyclists = allCyclists.filter((c: any) => !c.isArchived);
+  // Filter: not archived AND not hidden from fundraising
+  const cyclists = allCyclists.filter((c: any) => !c.isArchived && !c.hideFundraising);
 
   // Form State
   const [donorName, setDonorName] = useState('');

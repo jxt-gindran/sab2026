@@ -112,6 +112,7 @@ type FormData = {
   galleryUrls: string[];
   isFeatured: boolean;
   isArchived: boolean;
+  hideFundraising: boolean;
   shareSlug: string;
   raised: number;
   translations: Record<string, LangOverride>;
@@ -126,6 +127,7 @@ const DEFAULT_FORM: FormData = {
   galleryUrls: ['', '', ''],
   isFeatured: false,
   isArchived: false,
+  hideFundraising: false,
   shareSlug: '',
   raised: 0,
   translations: {},
@@ -194,6 +196,7 @@ export default function Cyclists() {
       galleryUrls: cyclist.galleryUrls ? [...cyclist.galleryUrls, '', '', ''].slice(0, 3) : ['', '', ''],
       isFeatured: cyclist.isFeatured || false,
       isArchived: cyclist.isArchived || false,
+      hideFundraising: cyclist.hideFundraising || false,
       shareSlug: cyclist.shareSlug || cyclist.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       raised: cyclist.raised || 0,
       translations: existingTranslations,
@@ -229,6 +232,7 @@ export default function Cyclists() {
         galleryUrls: formData.galleryUrls.filter(u => u.trim() !== ''),
         isFeatured: formData.isFeatured,
         isArchived: formData.isArchived,
+        hideFundraising: formData.hideFundraising,
         shareSlug: formData.shareSlug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         raised: Number(formData.raised) || 0,
         translations: Object.keys(cleanTranslations).length > 0 ? cleanTranslations : undefined,
@@ -466,7 +470,7 @@ export default function Cyclists() {
                 ))}
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-wrap">
                 <div className="flex items-center gap-3">
                   <input 
                     type="checkbox" 
@@ -486,6 +490,16 @@ export default function Cyclists() {
                     className="w-5 h-5 accent-red-500 rounded"
                   />
                   <label htmlFor="arch" className="font-bold text-slate-500">Archive Cyclist</label>
+                </div>
+                <div className="flex items-center gap-3 ml-4">
+                  <input 
+                    type="checkbox" 
+                    id="hideFund"
+                    checked={formData.hideFundraising}
+                    onChange={e => setFormData({...formData, hideFundraising: e.target.checked})}
+                    className="w-5 h-5 accent-violet-500 rounded"
+                  />
+                  <label htmlFor="hideFund" className="font-bold text-violet-600">Hide from Donor Cyclist Selector</label>
                 </div>
               </div>
             </div>

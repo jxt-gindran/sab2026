@@ -295,19 +295,28 @@ const DonationSliderStep: React.FC<DonationSliderStepProps> = ({ amount, onChang
             zIndex: 10,
           }}
         >
-          {/* Pulsing ring — appears behind the cyclist */}
+          {/* Outer slow pulse ring — orange halo */}
           <div
             className="absolute inset-0 rounded-full animate-ping"
             style={{
-              background: 'radial-gradient(circle, rgba(244,131,31,0.35) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(255,127,50,0.55) 0%, rgba(255,127,50,0.15) 45%, transparent 70%)',
               animationDuration: '1.6s',
             }}
           />
-          {/* Soft static glow */}
+          {/* Inner fast pulse — bright white core like a heartbeat */}
+          <div
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{
+              background: 'radial-gradient(circle, rgba(255,255,255,0.92) 0%, rgba(255,200,100,0.6) 25%, transparent 55%)',
+              animationDuration: '0.9s',
+              animationDelay: '0.2s',
+            }}
+          />
+          {/* Static glow base — always visible */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: 'radial-gradient(circle, rgba(244,131,31,0.18) 0%, transparent 65%)',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,127,50,0.35) 35%, transparent 65%)',
             }}
           />
           <CyclistSVG />

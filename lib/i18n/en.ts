@@ -481,6 +481,9 @@ export const en = {
   // ─── Cyclist Profile page ─────────────────────────────────────────────────
   cyclistProfile: {
     loading:          'Loading Profile…',
+    load_error:       'Connection Timeout',
+    load_error_desc:  'Unable to load this profile. Please check your connection and try again.',
+    retry:            'Retry',
     not_found:        "This cyclist profile doesn't exist or has been removed.",
     view_all_riders:  '← View All Riders',
     back:             'Back',

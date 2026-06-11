@@ -16,6 +16,7 @@ import FAQ from './pages/FAQ';
 import ThankYou from './pages/ThankYou';
 import PaymentCancelled from './pages/PaymentCancelled';
 import CyclistProfile from './pages/CyclistProfile';
+import Media from './pages/Media';
 
 const ScrollToTopAndSEO = () => {
   const { pathname } = useLocation();
@@ -29,12 +30,16 @@ const ScrollToTopAndSEO = () => {
       '/ride': { title: 'The Ride | SAB 2026', desc: 'Explore the 680km route from Kota Kinabalu to Miri. Meet the dedicated cyclists undertaking the challenge.' },
       '/donate': { title: 'Donate | SAB 2026', desc: 'Support the Sepeda Amal Borneo expedition. Your donation directly funds life-saving paediatric care.' },
       '/contact': { title: 'Contact Us | SAB 2026', desc: 'Get in touch for sponsorships or general questions.' },
-      '/faq': { title: 'FAQ | SAB 2026', desc: 'Frequently asked questions about the SAB 2026 Charity Ride.' }
+      '/faq': { title: 'FAQ | SAB 2026', desc: 'Frequently asked questions about the SAB 2026 Charity Ride.' },
+      '/media': { title: 'Media Enquiries | SAB 2026', desc: 'Press releases, media kits, and official statements from the Sepeda Amal Borneo 2026 expedition.' },
+      '/terms': { title: 'Terms & Conditions | SAB 2026', desc: 'Terms and conditions for using the SAB 2026 website and donation platform.' },
+      '/privacy': { title: 'Privacy Policy | SAB 2026', desc: 'Privacy policy and data protection information for SAB 2026.' },
+      '/refund': { title: 'Refund Policy | SAB 2026', desc: 'Refund and cancellation policy for donations made to SAB 2026.' },
     };
 
     const seo = routesContent[pathname] || { title: 'Sepeda Amal Borneo 2026', desc: 'Charity cycling expedition across Borneo.' };
     document.title = seo.title;
-    
+
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');
@@ -65,6 +70,7 @@ const App: React.FC = () => {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/media" element={<Media />} />
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="/riders/:slug" element={<CyclistProfile />} />

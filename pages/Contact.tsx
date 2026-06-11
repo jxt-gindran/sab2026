@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Instagram, Building, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Building, ArrowRight, AlertCircle } from 'lucide-react';
 import { useTranslation } from '../lib/i18n';
 
 const Contact: React.FC = () => {
@@ -93,6 +93,42 @@ const Contact: React.FC = () => {
                                         <Instagram className="h-6 w-6" />
                                     </a>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Tax Receipt Info */}
+                        <div className="bg-brand-navy rounded-[3rem] p-10 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-cyan/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="h-12 w-12 bg-brand-cyan rounded-2xl flex items-center justify-center shrink-0">
+                                        <AlertCircle className="h-6 w-6 text-brand-navy" />
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-cyan mb-1">Tax Exemption</div>
+                                        <h3 className="text-xl font-black text-white leading-tight">{t('taxReceipt.heading')}</h3>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-white/80 font-medium leading-relaxed mb-5">{t('taxReceipt.intro')}</p>
+                                <div className="flex flex-col sm:flex-row gap-3 mb-5">
+                                    {[t('taxReceipt.email1'), t('taxReceipt.email2')].map(email => (
+                                        <a key={email} href={`mailto:${email}`}
+                                            className="inline-flex items-center gap-2 bg-brand-cyan/20 hover:bg-brand-cyan hover:text-brand-navy text-brand-cyan border border-brand-cyan/30 px-4 py-2 rounded-xl text-xs font-black transition-all">
+                                            <Mail className="h-4 w-4" />{email}
+                                        </a>
+                                    ))}
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 mb-5">
+                                    <div className="bg-white/10 rounded-2xl p-4">
+                                        <div className="text-[9px] font-black uppercase tracking-widest text-brand-cyan mb-2">{t('taxReceipt.individual_heading')}</div>
+                                        <p className="text-xs text-white/80 font-medium leading-relaxed">{t('taxReceipt.individual_fields')}</p>
+                                    </div>
+                                    <div className="bg-white/10 rounded-2xl p-4">
+                                        <div className="text-[9px] font-black uppercase tracking-widest text-brand-cyan mb-2">{t('taxReceipt.corporate_heading')}</div>
+                                        <p className="text-xs text-white/80 font-medium leading-relaxed">{t('taxReceipt.corporate_fields')}</p>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-white/50 font-bold italic">⚠ {t('taxReceipt.note')}</p>
                             </div>
                         </div>
 

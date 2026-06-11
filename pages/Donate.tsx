@@ -256,8 +256,38 @@ const Donate: React.FC = () => {
                     <Lock className="h-6 w-6 text-brand-cyan flex-shrink-0 mt-1" />
                     <p className="text-xs text-brand-navy/70 font-bold leading-relaxed">Your data is encrypted and handled according to PDPA 2010. We only use it for issuing receipts and donation verification.</p>
                   </div>
+
+                  {/* Tax Exemption Receipt Info */}
+                  <div className="mt-4 bg-brand-pale/40 rounded-3xl p-6 border border-brand-pale">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3 flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Claiming Your Tax Exemption Receipt (LHDN)
+                    </div>
+                    <p className="text-xs text-brand-slate font-medium leading-relaxed mb-4">
+                      MMAF is approved under Section 44(6) of the Income Tax Act 1967. To obtain your official receipt, email the details below — with proof of payment — to:
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {['mmafoundation1976@gmail.com', 'mmafoundation76@gmail.com'].map(e => (
+                        <a key={e} href={`mailto:${e}`} className="text-[10px] font-black text-brand-navy bg-white border border-brand-pale hover:border-brand-cyan rounded-xl px-3 py-1.5 transition-all">{e}</a>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="bg-white rounded-2xl p-3 border border-brand-pale">
+                        <div className="text-[9px] font-black uppercase tracking-widest text-brand-navy mb-1">Individual Donors</div>
+                        <p className="text-[10px] text-brand-slate font-medium leading-relaxed">Full name · NRIC number · Contact number · Postal address</p>
+                      </div>
+                      <div className="bg-white rounded-2xl p-3 border border-brand-pale">
+                        <div className="text-[9px] font-black uppercase tracking-widest text-brand-navy mb-1">Corporate Donors</div>
+                        <p className="text-[10px] text-brand-slate font-medium leading-relaxed">Company name · Registration number · Business address</p>
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-slate-400 font-bold mt-3 italic">
+                      ⚠ Receipts cannot be issued if any required information is incomplete.
+                    </p>
+                  </div>
                 </div>
               )}
+
 
               {/* STEP 4: PAYMENT METHOD */}
               {step === 4 && (

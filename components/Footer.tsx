@@ -50,9 +50,11 @@ const Footer: React.FC = () => {
               <li><Link to="/mission" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_mission')}</Link></li>
               <li><Link to="/ride" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_ride')}</Link></li>
               <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_sponsorships')}</Link></li>
+              <li><Link to="/media" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_media')}</Link></li>
               <li><Link to="/faq" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_faq')}</Link></li>
               <li><Link to="/contact" className="text-sm font-medium text-brand-pale hover:text-brand-cyan transition-colors">{t('footer.link_contact')}</Link></li>
             </ul>
+
           </div>
 
           {/* 3. LEGAL & TRUST */}

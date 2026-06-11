@@ -17,6 +17,7 @@ import type * as impactSeed from "../impactSeed.js";
 import type * as impactTiers from "../impactTiers.js";
 import type * as maps from "../maps.js";
 import type * as payments from "../payments.js";
+import type * as pressReleases from "../pressReleases.js";
 import type * as riders from "../riders.js";
 import type * as translations from "../translations.js";
 
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   impactTiers: typeof impactTiers;
   maps: typeof maps;
   payments: typeof payments;
+  pressReleases: typeof pressReleases;
   riders: typeof riders;
   translations: typeof translations;
 }>;

@@ -12,6 +12,7 @@ import MapCMS from './pages/MapCMS';
 import Translations from './pages/Translations';
 import ImpactTiersCMS from './pages/ImpactTiersCMS';
 import Donations from './pages/Donations';
+import PressReleases from './pages/PressReleases';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -199,6 +200,7 @@ const App: React.FC = () => {
               <Route path="translations" element={<Translations />} />
               <Route path="impact-tiers" element={<ImpactTiersCMS />} />
               <Route path="donations" element={<Donations />} />
+              <Route path="press-releases" element={<PressReleases />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

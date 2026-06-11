@@ -17,7 +17,7 @@ export default defineSchema({
     })
         .index("by_status", ["status"])
         .index("by_paymentId", ["paymentId"]),
-    
+
     cyclists: defineTable({
         name: v.string(),
         role: v.string(), // "Cyclist", "Medic", "Support"
@@ -114,5 +114,23 @@ export default defineSchema({
     })
         .index("by_charity", ["charity"])
         .index("by_charity_tier", ["charity", "tier"]),
-});
 
+    /**
+     * Press releases for the Media Enquiries page.
+     * year        = calendar year used for section separators (e.g. 2026)
+     * publishedAt = timestamp for ordering within a year (newest first)
+     * imageStorageId / pdfStorageId = Convex _storage IDs
+     */
+    pressReleases: defineTable({
+        title:          v.string(),
+        description:    v.string(),
+        year:           v.number(),
+        imageStorageId: v.optional(v.id("_storage")),
+        pdfStorageId:   v.optional(v.id("_storage")),
+        isPublished:    v.boolean(),
+        publishedAt:    v.number(),
+    })
+        .index("by_published", ["isPublished"])
+        .index("by_year",      ["year"])
+        .index("by_year_date", ["year", "publishedAt"]),
+});

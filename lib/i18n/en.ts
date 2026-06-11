@@ -27,8 +27,10 @@ export const en = {
     link_mission: 'The Mission',
     link_ride: 'The Ride',
     link_sponsorships: 'Sponsorships',
+    link_media: 'Media Enquiries',
     link_faq: 'FAQ',
     link_contact: 'Contact Us',
+
     legal_trust: 'Legal & Trust',
     link_privacy: 'Privacy Policy',
     link_terms: 'Terms & Conditions',
@@ -532,6 +534,46 @@ export const en = {
     go_home: 'Go Home',
     verifying: 'Verifying access...',
   },
+
+  // ─── Tax Receipt Info (shared across Donate, FAQ, Contact, Media) ──────────
+  taxReceipt: {
+    heading: 'Claiming Your Tax Exemption Receipt',
+    intro:
+      'MMAF is approved under Section 44(6) of the Income Tax Act 1967 (LHDN.01/35/42/51/179-6.5621). To obtain your official tax exemption receipt, please email the details below — together with your proof of payment — to:',
+    email1: 'mmafoundation1976@gmail.com',
+    email2: 'mmafoundation76@gmail.com',
+    note:
+      'Please note that receipts cannot be issued if any required information is incomplete.',
+    individual_heading: 'For Individual Donors',
+    individual_fields: 'Full name · NRIC number · Contact number · Postal address',
+    corporate_heading: 'For Corporate Donors',
+    corporate_fields: 'Company name · Registration number · Business address',
+    faq_q: 'How do I obtain my tax exemption receipt?',
+  },
+
+  // ─── Media Enquiries page ─────────────────────────────────────────────────
+  media: {
+    tag: 'Media & Press',
+    heading1: 'Media',
+    heading2: 'Enquiries.',
+    subtitle:
+      'For press releases, media kits, interview requests, or general media enquiries regarding the Sepeda Amal Borneo 2026 expedition, please reach out to the MMA Foundation communications team.',
+
+    contact_heading: 'Press Contact',
+    contact_email_label: 'Media Enquiries Email',
+    contact_email: 'sab2026@mma.org.my',
+    contact_note:
+      'We endeavour to respond to all media enquiries within two business days. For urgent matters, please mark your email subject line with [URGENT].',
+
+    releases_heading: 'Press Releases',
+    releases_subheading: 'Official statements and announcements from SAB 2026.',
+    releases_empty_heading: 'No Press Releases Yet',
+    releases_empty_desc:
+      'Official press releases and media statements will be published here. Please check back soon.',
+    read_pdf: 'View Press Release (PDF)',
+    download_kit: 'Download',
+  },
 } as const;
 
 export type TranslationKeys = typeof en;
+

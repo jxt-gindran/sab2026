@@ -1,9 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuth } from '../components/AuthContext';
-import { Plus, Trash2, Edit2, Star, Target, Heart, Link as LinkIcon, Image as ImageIcon, Archive, ArchiveRestore, Upload, Bold, Italic, Underline, List, Globe } from 'lucide-react';
+import { Plus, Trash2, Edit2, Star, Target, Heart, Link as LinkIcon, Image as ImageIcon, Archive, ArchiveRestore, Upload, Globe } from 'lucide-react';
 import type { Id } from '../../../convex/_generated/dataModel';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 
 // ── Language display names ─────────────────────────────────────────────────────
 const LANG_NAMES: Record<string, string> = {
@@ -16,82 +20,125 @@ const LANG_NAMES: Record<string, string> = {
 
 const getLangName = (code: string) => LANG_NAMES[code] || code.toUpperCase();
 
-// ─── Lightweight Rich Text Editor ────────────────────────────────────────────
+// ─── TipTap Rich Text Editor ─────────────────────────────────────────────────
 function RichTextEditor({ value, onChange, placeholder }: { value: string; onChange: (html: string) => void; placeholder?: string }) {
-  const editorRef = useRef<HTMLDivElement>(null);
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-brand-cyan underline' } }),
+    ],
+    content: value || '',
+    editorProps: {
+      attributes: {
+        class: 'min-h-[120px] max-h-64 overflow-y-auto px-4 py-3 text-sm text-brand-navy focus:outline-none prose prose-sm',
+        style: 'line-height: 1.7;',
+        'data-placeholder': placeholder || 'Why are they riding? Tell their story…',
+      },
+    },
+    onUpdate({ editor }) {
+      onChange(editor.getHTML());
+    },
+  });
 
-  // Sync initial value (and reset when the parent's value changes completely, e.g. tab switch)
-  useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value || '';
+  // Sync when value changes externally (e.g. tab switch)
+  const isSyncing = useCallback(() => {
+    if (!editor) return;
+    const current = editor.getHTML();
+    if (current !== value) {
+      editor.commands.setContent(value || '');
     }
+  }, [editor, value]);
+
+  useEffect(() => {
+    isSyncing();
   }, [value]); // eslint-disable-line
 
-  const exec = (cmd: string, val?: string) => {
-    document.execCommand(cmd, false, val);
-    editorRef.current?.focus();
-    onChange(editorRef.current?.innerHTML || '');
-  };
-
-  const ToolBtn = ({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) => (
+  // ── Toolbar helpers ──────────────────────────────────────────────────────
+  const Btn = ({ onClick, title, active, children }: { onClick: () => void; title: string; active?: boolean; children: React.ReactNode }) => (
     <button
       type="button"
       onMouseDown={e => { e.preventDefault(); onClick(); }}
       title={title}
-      className="p-1.5 rounded hover:bg-slate-200 text-slate-600 transition-colors"
+      className={`p-1.5 rounded transition-colors ${
+        active ? 'bg-brand-navy text-white' : 'hover:bg-slate-200 text-slate-600'
+      }`}
     >
       {children}
     </button>
   );
 
+  const setLink = () => {
+    const prev = editor?.getAttributes('link').href ?? '';
+    const url  = window.prompt('Link URL', prev);
+    if (url === null) return;
+    if (url === '') { editor?.chain().focus().extendMarkRange('link').unsetLink().run(); return; }
+    editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 px-3 py-2 bg-slate-50 border-b border-slate-200">
-        <select 
-          onChange={(e) => {
-            if (e.target.value) {
-              exec('formatBlock', e.target.value);
-              e.target.value = '';
-            }
+        {/* Headings dropdown */}
+        <select
+          onMouseDown={e => e.stopPropagation()}
+          onChange={e => {
+            const v = e.target.value;
+            if (!editor) return;
+            if (v === 'p') editor.chain().focus().setParagraph().run();
+            else editor.chain().focus().toggleHeading({ level: Number(v) as 1 | 2 | 3 }).run();
+            e.target.value = '';
           }}
           className="mx-1 text-xs font-bold text-slate-600 bg-transparent border-none focus:outline-none hover:bg-slate-200 p-1 rounded cursor-pointer"
           title="Text Style"
         >
           <option value="" disabled selected>Style</option>
-          <option value="H1">Heading 1</option>
-          <option value="H2">Heading 2</option>
-          <option value="H3">Heading 3</option>
-          <option value="H4">Heading 4</option>
-          <option value="H5">Heading 5</option>
-          <option value="H6">Heading 6</option>
-          <option value="P">Paragraph</option>
+          <option value="1">Heading 1</option>
+          <option value="2">Heading 2</option>
+          <option value="3">Heading 3</option>
+          <option value="p">Paragraph</option>
         </select>
         <div className="w-px h-5 bg-slate-300 mx-1" />
-        <ToolBtn onClick={() => exec('bold')} title="Bold"><Bold className="h-4 w-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec('italic')} title="Italic"><Italic className="h-4 w-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec('underline')} title="Underline"><Underline className="h-4 w-4" /></ToolBtn>
+        <Btn onClick={() => editor?.chain().focus().toggleBold().run()} title="Bold" active={editor?.isActive('bold')}>
+          <strong className="text-xs">B</strong>
+        </Btn>
+        <Btn onClick={() => editor?.chain().focus().toggleItalic().run()} title="Italic" active={editor?.isActive('italic')}>
+          <em className="text-xs">I</em>
+        </Btn>
+        <Btn onClick={() => editor?.chain().focus().toggleUnderline().run()} title="Underline" active={editor?.isActive('underline')}>
+          <span className="text-xs underline">U</span>
+        </Btn>
         <div className="w-px h-5 bg-slate-300 mx-1" />
-        <ToolBtn onClick={() => exec('insertUnorderedList')} title="Bullet List"><List className="h-4 w-4" /></ToolBtn>
-        <ToolBtn onClick={() => exec('insertOrderedList')} title="Numbered List">
+        <Btn onClick={() => editor?.chain().focus().toggleBulletList().run()} title="Bullet List" active={editor?.isActive('bulletList')}>
+          <span className="text-xs font-black">•≡</span>
+        </Btn>
+        <Btn onClick={() => editor?.chain().focus().toggleOrderedList().run()} title="Numbered List" active={editor?.isActive('orderedList')}>
           <span className="text-xs font-black">1.</span>
-        </ToolBtn>
+        </Btn>
         <div className="w-px h-5 bg-slate-300 mx-1" />
-        <ToolBtn onClick={() => exec('removeFormat')} title="Clear Formatting">
+        <Btn onClick={setLink} title="Insert / Edit Link" active={editor?.isActive('link')}>
+          <span className="text-xs font-bold text-brand-cyan">🔗</span>
+        </Btn>
+        <Btn onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">
           <span className="text-xs font-black text-slate-400">T×</span>
-        </ToolBtn>
+        </Btn>
       </div>
       {/* Editable area */}
-      <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={() => onChange(editorRef.current?.innerHTML || '')}
-        className="min-h-[120px] max-h-64 overflow-y-auto px-4 py-3 text-sm text-brand-navy font-medium focus:outline-none bg-white prose prose-sm"
-        style={{ lineHeight: 1.7 }}
-        data-placeholder={placeholder || 'Why are they riding? Tell their story...'}
-      />
-      <style>{`[contenteditable]:empty:before { content: attr(data-placeholder); color: #94a3b8; }`}</style>
+      <div className="bg-white relative">
+        <EditorContent editor={editor} />
+        <style>{`
+          .tiptap p.is-editor-empty:first-child::before {
+            content: attr(data-placeholder);
+            float: left;
+            color: #94a3b8;
+            pointer-events: none;
+            height: 0;
+          }
+          .tiptap { outline: none; }
+          .tiptap a { color: #00AEEF; text-decoration: underline; }
+        `}</style>
+      </div>
     </div>
   );
 }
@@ -228,13 +275,15 @@ export default function Cyclists() {
     try {
       // Strip out empty translation entries so we don't save noise
       const cleanTranslations: Record<string, { name?: string; role?: string; story?: string }> = {};
+      // Helper: check if HTML string has actual text content
+      const hasTextContent = (html: string) => html.replace(/<[^>]*>/g, '').trim().length > 0;
       for (const lang of SUPPORTED_LANGS) {
         const t = formData.translations[lang.code];
-        if (t && (t.name.trim() || t.role.trim() || t.story.trim())) {
+        if (t && (t.name.trim() || t.role.trim() || hasTextContent(t.story))) {
           cleanTranslations[lang.code] = {
             name:  t.name.trim()  || undefined,
             role:  t.role.trim()  || undefined,
-            story: t.story.trim() || undefined,
+            story: hasTextContent(t.story) ? t.story : undefined,
           };
         }
       }

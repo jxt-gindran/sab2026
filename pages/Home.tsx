@@ -52,7 +52,7 @@ const Home: React.FC = () => {
 
   const cycledValue = cycledSetting ? cycledSetting.value : t('home.stats_cycled_value');
   const charitiesValue = charitiesSetting ? charitiesSetting.value : t('home.stats_charities_value');
-  const distanceValue = distanceSetting ? distanceSetting.value : '680 KM';
+  const distanceValue = distanceSetting ? distanceSetting.value : t('home.stats_cycled_value');
   // Default ON (visible) unless explicitly set to 'false'
   const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
 
@@ -98,7 +98,7 @@ const Home: React.FC = () => {
         "name": "Sepeda Amal Borneo 2026 Charity Ride",
         "startDate": "2026-07-26",
         "location": { "@type": "Place", "name": "Borneo", "address": "Kota Kinabalu to Miri" },
-        "description": "A 660km charity cycle to raise funds for paediatric surgery and immune deficiency support.",
+        "description": "A 680km charity cycle to raise funds for paediatric surgery and immune deficiency support.",
         "organizer": { "@type": "Organization", "name": "MMA Foundation" }
       }
     ]

@@ -5,13 +5,11 @@ import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import RegistrationModal from '../components/RegistrationModal';
 import { BorneoRouteMap } from '../components/BorneoRouteMap';
-import RiderStoryModal from '../components/RiderStoryModal';
 import { useTranslation } from '../lib/i18n';
 
 const Ride: React.FC = () => {
   const { t } = useTranslation();
   const [isRegOpen, setIsRegOpen] = useState(false);
-  const [selectedRider, setSelectedRider] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<string>('Cyclist');
 
   const allCyclists = useQuery(api.cyclists.listAll) || [];
@@ -110,7 +108,6 @@ const Ride: React.FC = () => {
       </section>
 
       {/* 2.5 INTERACTIVE MAP */}
-      {/* 2.5 INTERACTIVE MAP */}
       <div className="w-full max-w-7xl mx-auto px-6 -mt-12 relative z-20 mb-24">
         <BorneoRouteMap />
       </div>
@@ -198,10 +195,7 @@ const Ride: React.FC = () => {
             )}
           </div>
         </div>
-      </section >
-
-      {/* 3.5 FAQ SECTION */}
-
+      </section>
 
       {/* 4. REGISTRATION CTA */}
       <section className="py-24 bg-brand-navy text-center relative overflow-hidden">
@@ -229,9 +223,8 @@ const Ride: React.FC = () => {
 
 
       <RegistrationModal isOpen={isRegOpen} onClose={() => setIsRegOpen(false)} />
-      <RiderStoryModal rider={selectedRider} onClose={() => setSelectedRider(null)} />
 
-    </div >
+    </div>
   );
 };
 

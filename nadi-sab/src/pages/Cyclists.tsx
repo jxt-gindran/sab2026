@@ -199,8 +199,11 @@ export default function Cyclists() {
       role: cyclist.role || 'Cyclist',
       story: cyclist.story || '',
       goal: cyclist.goal || 5000,
-      profileUrl: cyclist.profileUrl || '',
-      galleryUrls: cyclist.galleryUrls ? [...cyclist.galleryUrls, '', '', ''].slice(0, 3) : ['', '', ''],
+      // Use raw stored value (storageId or original URL) so we don't re-persist an expiring signed URL
+      profileUrl: cyclist._rawProfileUrl || cyclist.profileUrl || '',
+      galleryUrls: cyclist._rawGalleryUrls
+        ? [...cyclist._rawGalleryUrls, '', '', ''].slice(0, 3)
+        : (cyclist.galleryUrls ? [...cyclist.galleryUrls, '', '', ''].slice(0, 3) : ['', '', '']),
       isFeatured: cyclist.isFeatured || false,
       isArchived: cyclist.isArchived || false,
       hideFundraising: cyclist.hideFundraising || false,
@@ -208,11 +211,11 @@ export default function Cyclists() {
       raised: cyclist.raised || 0,
       translations: existingTranslations,
     });
-    // When editing, the resolved URL from the query is used as preview
+    // Use the RESOLVED (display-ready) URLs for form preview
     setPreviewUrls({
       profile: cyclist.profileUrl || '',
       gallery: cyclist.galleryUrls
-        ? [...cyclist.galleryUrls, '', '', ''].slice(0, 3).map(u => u || '')
+        ? [...cyclist.galleryUrls, '', '', ''].slice(0, 3).map((u: string) => u || '')
         : ['', '', ''],
     });
     setActiveLang(null);

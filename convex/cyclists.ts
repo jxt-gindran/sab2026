@@ -43,13 +43,22 @@ async function resolveUrl(ctx: any, urlOrId: string | undefined): Promise<string
     }
 }
 
-/** Resolve profileUrl and each galleryUrl on a cyclist record */
+/** Resolve profileUrl and each galleryUrl on a cyclist record.
+ *  Also returns _rawProfileUrl and _rawGalleryUrls with the original stored values
+ *  so the admin edit form can persist the raw storageId back to the DB.
+ */
 async function resolveCyclistUrls(ctx: any, c: any) {
     const profileUrl = await resolveUrl(ctx, c.profileUrl);
     const galleryUrls = c.galleryUrls
         ? await Promise.all((c.galleryUrls as string[]).map(u => resolveUrl(ctx, u)))
         : c.galleryUrls;
-    return { ...c, profileUrl, galleryUrls };
+    return {
+        ...c,
+        profileUrl,
+        galleryUrls,
+        _rawProfileUrl: c.profileUrl,
+        _rawGalleryUrls: c.galleryUrls,
+    };
 }
 
 export const listAll = query({

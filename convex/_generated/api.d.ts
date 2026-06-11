@@ -13,6 +13,8 @@ import type * as cyclists from "../cyclists.js";
 import type * as donations from "../donations.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
+import type * as impactSeed from "../impactSeed.js";
+import type * as impactTiers from "../impactTiers.js";
 import type * as maps from "../maps.js";
 import type * as payments from "../payments.js";
 import type * as riders from "../riders.js";
@@ -30,6 +32,8 @@ declare const fullApi: ApiFromModules<{
   donations: typeof donations;
   email: typeof email;
   http: typeof http;
+  impactSeed: typeof impactSeed;
+  impactTiers: typeof impactTiers;
   maps: typeof maps;
   payments: typeof payments;
   riders: typeof riders;

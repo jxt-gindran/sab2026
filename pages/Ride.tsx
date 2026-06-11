@@ -18,6 +18,21 @@ const Ride: React.FC = () => {
   const allSettings  = useQuery(api.admin.getPublicSettings) || [];
   const showProgressSetting = allSettings.find((s: any) => s.key === 'show_fundraising_progress');
   const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
+
+  const daysSetting = allSettings.find((s: any) => s.key === 'ride.days');
+  const distanceSetting = allSettings.find((s: any) => s.key === 'ride.distance');
+  const territoriesSetting = allSettings.find((s: any) => s.key === 'ride.territories');
+  const eventDateSetting = allSettings.find((s: any) => s.key === 'ride.event_date');
+
+  const daysValue = daysSetting ? daysSetting.value : t('ride.stat_days_value');
+  const distanceValue = distanceSetting ? distanceSetting.value : t('ride.stat_distance_value');
+  const territoriesValue = territoriesSetting ? territoriesSetting.value : t('ride.stat_territories_value');
+  const eventDateValue = eventDateSetting ? eventDateSetting.value : t('ride.event_date');
+
+  const cyclistCount = useMemo(() => {
+    return allCyclists.filter((c: any) => !c.isArchived && (c.role || 'Cyclist') === 'Cyclist').length;
+  }, [allCyclists]);
+
   const cyclists = useMemo(
     () => allCyclists.filter((c: any) => !c.isArchived),
     [allCyclists]
@@ -57,7 +72,7 @@ const Ride: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-brand-cyan text-[10px] font-black tracking-[0.3em] mb-8 uppercase backdrop-blur-md border border-white/10">
-            {t('ride.event_date')}
+            {eventDateValue}
           </div>
           <h1 className="text-5xl md:text-8xl font-black text-white font-heading leading-tight mb-8">
             {t('ride.hero_heading1')} <span className="text-brand-orange">{t('ride.hero_heading2')}</span>
@@ -70,10 +85,10 @@ const Ride: React.FC = () => {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 border-t border-white/10 pt-16">
             {[
-              { label: t('ride.stat_days_label'), value: t('ride.stat_days_value') },
-              { label: t('ride.stat_distance_label'), value: t('ride.stat_distance_value') },
-              { label: t('ride.stat_territories_label'), value: t('ride.stat_territories_value') },
-              { label: t('ride.stat_cyclists_label'), value: t('ride.stat_cyclists_value') },
+              { label: t('ride.stat_days_label'), value: daysValue },
+              { label: t('ride.stat_distance_label'), value: distanceValue },
+              { label: t('ride.stat_territories_label'), value: territoriesValue },
+              { label: t('ride.stat_cyclists_label'), value: String(cyclistCount) },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div className="text-4xl md:text-5xl font-black text-white mb-2 font-heading">{stat.value}</div>

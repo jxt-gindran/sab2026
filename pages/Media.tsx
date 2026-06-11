@@ -91,70 +91,65 @@ const Media: React.FC = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-brand-slate">
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="bg-brand-navy pt-36 pb-24 px-4 relative overflow-hidden">
+      {/* ── Hero & Contact Section (Merged) ───────────────────────────── */}
+      <div className="bg-brand-navy pt-32 pb-24 px-6 relative overflow-hidden text-white">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-brand-cyan/10 blur-[120px] rounded-full" />
           <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] bg-brand-orange/10 blur-[100px] rounded-full" />
         </div>
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-cyan mb-5 flex items-center gap-3">
-            <Newspaper className="h-4 w-4" />
-            {t('media.tag')}
-          </div>
-          <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tighter leading-none font-heading mb-6">
-            {t('media.heading1')}{' '}
-            <span className="text-brand-cyan">{t('media.heading2')}</span>
-          </h1>
-          <p className="text-lg text-white/70 font-medium max-w-2xl leading-relaxed">
-            {t('media.subtitle')}
-          </p>
-        </div>
-      </div>
-
-      {/* ── Body ─────────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 py-16 space-y-16">
-
-        {/* Press Contact */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column: Heading */}
           <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-cyan mb-5 flex items-center gap-3">
+              <Newspaper className="h-4 w-4" />
+              {t('media.tag')}
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight font-heading">
+              {t('media.heading1')}{' '}
+              <span className="text-brand-cyan">{t('media.heading2')}</span>
+            </h1>
+          </div>
+
+          {/* Right Column: Get in Touch Card */}
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
+            
             <div className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-orange mb-3 flex items-center gap-2">
               <Mail className="h-3.5 w-3.5" />
               {t('media.contact_heading')}
             </div>
-            <h2 className="text-3xl font-black text-brand-navy tracking-tighter mb-4 font-heading">
+            <h2 className="text-2xl font-black text-white tracking-tighter mb-3 font-heading">
               Get in Touch.
             </h2>
-            <p className="text-brand-slate font-medium leading-relaxed mb-6">
+            <p className="text-sm text-white/70 font-medium leading-relaxed mb-6">
               {t('media.contact_note')}
             </p>
 
             <div className="space-y-3">
-              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">
                 {t('media.contact_email_label')}
               </div>
-              {[t('media.contact_email')].map(email => (
-                <a
-                  key={email}
-                  href={`mailto:${email}`}
-                  className="flex items-center gap-3 bg-brand-pale/40 hover:bg-brand-cyan/10 border border-brand-pale hover:border-brand-cyan/30 rounded-2xl px-5 py-4 transition-all group"
-                >
-                  <div className="h-10 w-10 bg-brand-navy rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-cyan transition-colors">
-                    <Mail className="h-5 w-5 text-white group-hover:text-brand-navy" />
-                  </div>
-                  <div>
-                    <div className="font-black text-brand-navy text-sm">{email}</div>
-                    <div className="text-xs text-slate-400 font-medium">Media Enquiries</div>
-                  </div>
-                  <ExternalLink className="h-4 w-4 text-slate-300 ml-auto group-hover:text-brand-cyan" />
-                </a>
-              ))}
+              <a
+                href={`mailto:${t('media.contact_email')}`}
+                className="flex items-center gap-3 bg-white/5 hover:bg-brand-cyan/20 border border-white/10 hover:border-brand-cyan/30 rounded-2xl px-5 py-4 transition-all group"
+              >
+                <div className="h-10 w-10 bg-brand-cyan rounded-xl flex items-center justify-center shrink-0">
+                  <Mail className="h-5 w-5 text-brand-navy" />
+                </div>
+                <div>
+                  <div className="font-black text-white text-sm">{t('media.contact_email')}</div>
+                  <div className="text-xs text-white/40 font-medium">Media Enquiries</div>
+                </div>
+                <ExternalLink className="h-4 w-4 text-white/30 ml-auto group-hover:text-brand-cyan transition-colors" />
+              </a>
             </div>
           </div>
-
-          {/* Tax receipt info (right column) */}
-          <TaxReceiptPanel />
         </div>
+      </div>
+
+      {/* ── Body (Press Releases & Tax Info) ─────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-4 py-16 space-y-16">
 
         {/* ── Press Releases Section ───────────────────────────────────── */}
         <div>
@@ -162,9 +157,6 @@ const Media: React.FC = () => {
             <FileText className="h-3.5 w-3.5" />
             {t('media.releases_heading')}
           </div>
-          <h2 className="text-3xl font-black text-brand-navy tracking-tighter mb-2 font-heading">
-            {t('media.releases_subheading')}
-          </h2>
 
           {/* Empty state */}
           {years.length === 0 && (
@@ -191,15 +183,15 @@ const Media: React.FC = () => {
                 <div className="flex-grow h-px bg-brand-pale" />
               </div>
 
-              {/* Release cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Release list (full-width horizontal cards) */}
+              <div className="space-y-6">
                 {byYear[year].map((release: any) => (
                   <div
                     key={release._id}
-                    className="bg-white rounded-3xl border border-brand-pale shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all overflow-hidden group"
+                    className="bg-white rounded-3xl border border-brand-pale shadow-sm hover:shadow-lg transition-all overflow-hidden flex flex-col md:flex-row group"
                   >
                     {/* Cover image */}
-                    <div className="aspect-video bg-brand-pale/50 overflow-hidden">
+                    <div className="w-full md:w-64 lg:w-80 shrink-0 aspect-video md:aspect-auto md:min-h-[180px] bg-brand-pale/50 overflow-hidden relative">
                       {release.imageUrl ? (
                         <img
                           src={release.imageUrl}
@@ -207,36 +199,40 @@ const Media: React.FC = () => {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-full h-full min-h-[160px] flex items-center justify-center">
                           <Newspaper className="h-10 w-10 text-slate-300" />
                         </div>
                       )}
                     </div>
 
                     {/* Content */}
-                    <div className="p-5">
-                      <h3 className="font-black text-brand-navy text-base leading-tight mb-2 line-clamp-2">
-                        {release.title}
-                      </h3>
-                      <p className="text-sm text-brand-slate font-medium leading-relaxed line-clamp-3 mb-4">
-                        {release.description}
-                      </p>
+                    <div className="p-6 md:p-8 flex flex-col justify-between flex-grow">
+                      <div>
+                        <h3 className="font-black text-brand-navy text-xl leading-snug mb-3 group-hover:text-brand-orange transition-colors">
+                          {release.title}
+                        </h3>
+                        <p className="text-sm text-brand-slate font-medium leading-relaxed mb-6">
+                          {release.description}
+                        </p>
+                      </div>
 
-                      {release.pdfUrl ? (
-                        <a
-                          href={release.pdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-navy hover:text-brand-orange transition-colors border border-brand-pale hover:border-brand-orange rounded-xl px-4 py-2"
-                        >
-                          <FileText className="h-3.5 w-3.5" />
-                          {t('media.read_pdf')}
-                        </a>
-                      ) : (
-                        <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-300 border border-slate-100 rounded-xl px-4 py-2">
-                          <FileText className="h-3.5 w-3.5" /> PDF Coming Soon
-                        </span>
-                      )}
+                      <div>
+                        {release.pdfUrl ? (
+                          <a
+                            href={release.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-navy hover:text-brand-orange transition-colors border border-brand-pale hover:border-brand-orange rounded-xl px-5 py-3"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                            {t('media.read_pdf')}
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-300 border border-slate-100 rounded-xl px-5 py-3">
+                            <FileText className="h-3.5 w-3.5" /> PDF Coming Soon
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -244,6 +240,12 @@ const Media: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* ── Tax Exemption Panel (Moved to bottom) ────────────────────── */}
+        <div className="pt-8 border-t border-brand-pale">
+          <TaxReceiptPanel />
+        </div>
+
       </div>
     </div>
   );

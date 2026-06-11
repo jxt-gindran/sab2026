@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuth } from '../components/AuthContext';
@@ -8,6 +8,11 @@ export default function Settings() {
   const { token } = useAuth();
   const settings = useQuery(api.admin.getSettings, token ? { token } : 'skip');
   const updateSetting = useMutation(api.admin.updateSetting);
+  const cyclists = useQuery(api.cyclists.listAll) || [];
+
+  const cyclistCount = useMemo(() => {
+    return cyclists.filter((c: any) => !c.isArchived && (c.role || 'Cyclist') === 'Cyclist').length;
+  }, [cyclists]);
 
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
@@ -108,6 +113,150 @@ export default function Settings() {
             }} className="h-10 px-4 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
               <Save className="h-4 w-4" /> Save
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── RIDE STATISTICS & EVENT SETTINGS ── */}
+      <div className="bg-gradient-to-br from-brand-navy to-brand-slate rounded-3xl p-6 border border-white/10 shadow-xl mb-8">
+        <p className="text-brand-orange font-black text-xs uppercase tracking-widest mb-4">🚴 Ride Statistics & Event Settings</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Event Date */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Event Date</p>
+            <p className="text-white font-bold text-sm mb-2">
+              Current: {settings.find(s => s.key === 'ride.event_date')?.value || '26 July - 1 August 2026'}
+            </p>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="e.g. 26 July - 1 August 2026" id="event-date-input"
+                defaultValue={settings.find(s => s.key === 'ride.event_date')?.value || ''}
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
+              <button onClick={async () => {
+                const input = document.getElementById('event-date-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'ride.event_date', value: input.value, isSecret: false });
+                alert('Event date updated!');
+              }} className="h-10 px-3 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+          </div>
+
+          {/* Ride Days */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Ride Days</p>
+            <p className="text-white font-bold text-sm mb-2">
+              Current: {settings.find(s => s.key === 'ride.days')?.value || '6'}
+            </p>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="e.g. 6" id="ride-days-input"
+                defaultValue={settings.find(s => s.key === 'ride.days')?.value || ''}
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
+              <button onClick={async () => {
+                const input = document.getElementById('ride-days-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'ride.days', value: input.value, isSecret: false });
+                alert('Ride days updated!');
+              }} className="h-10 px-3 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+          </div>
+
+          {/* Ride Distance */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Ride Distance</p>
+            <p className="text-white font-bold text-sm mb-2">
+              Current: {settings.find(s => s.key === 'ride.distance')?.value || '680 KM'}
+            </p>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="e.g. 680 KM" id="ride-distance-input"
+                defaultValue={settings.find(s => s.key === 'ride.distance')?.value || ''}
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
+              <button onClick={async () => {
+                const input = document.getElementById('ride-distance-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'ride.distance', value: input.value, isSecret: false });
+                alert('Ride distance updated!');
+              }} className="h-10 px-3 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+          </div>
+
+          {/* Ride Territories */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Ride Territories</p>
+            <p className="text-white font-bold text-sm mb-2">
+              Current: {settings.find(s => s.key === 'ride.territories')?.value || '4'}
+            </p>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="e.g. 4" id="ride-territories-input"
+                defaultValue={settings.find(s => s.key === 'ride.territories')?.value || ''}
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
+              <button onClick={async () => {
+                const input = document.getElementById('ride-territories-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'ride.territories', value: input.value, isSecret: false });
+                alert('Ride territories updated!');
+              }} className="h-10 px-3 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+          </div>
+
+          {/* Cycled KM Override (Home Page stats) */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Cycled KM Override (Home Page Stats Strip)</p>
+            <p className="text-white font-bold text-sm mb-2">
+              Current: {settings.find(s => s.key === 'home.stats_cycled_value')?.value || '3,900 KM'}
+            </p>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="e.g. 3,900 KM" id="cycled-override-input"
+                defaultValue={settings.find(s => s.key === 'home.stats_cycled_value')?.value || ''}
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
+              <button onClick={async () => {
+                const input = document.getElementById('cycled-override-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'home.stats_cycled_value', value: input.value, isSecret: false });
+                alert('Cycled KM override updated!');
+              }} className="h-10 px-3 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+          </div>
+
+          {/* Charities Count (Home Page stats) */}
+          <div>
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Charities Count (Home Page Stats Strip)</p>
+            <p className="text-white font-bold text-sm mb-2">
+              Current: {settings.find(s => s.key === 'home.stats_charities_value')?.value || '5'}
+            </p>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="e.g. 5" id="charities-count-input"
+                defaultValue={settings.find(s => s.key === 'home.stats_charities_value')?.value || ''}
+                className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
+              <button onClick={async () => {
+                const input = document.getElementById('charities-count-input') as HTMLInputElement;
+                if (!token) return;
+                await updateSetting({ token, key: 'home.stats_charities_value', value: input.value, isSecret: false });
+                alert('Charities count updated!');
+              }} className="h-10 px-3 bg-brand-cyan text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-orange transition-colors flex items-center gap-2 whitespace-nowrap">
+                <Save className="h-4 w-4" /> Save
+              </button>
+            </div>
+          </div>
+
+          {/* Synced Registered Cyclists (Read-only status) */}
+          <div className="md:col-span-2 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-brand-cyan font-black text-xs uppercase tracking-widest mb-1">🚴 Synced Cyclists Count</p>
+              <p className="text-white/60 text-xs">Automatically synced from active registered cyclists in the database (role = "Cyclist").</p>
+            </div>
+            <div className="bg-brand-cyan/20 border border-brand-cyan/40 rounded-2xl px-6 py-3 text-center sm:text-right shrink-0">
+              <span className="text-brand-cyan font-black text-3xl font-heading block">{cyclistCount}</span>
+              <span className="text-white/40 text-[10px] font-black uppercase tracking-widest font-bold">Active Cyclists</span>
+            </div>
           </div>
         </div>
       </div>

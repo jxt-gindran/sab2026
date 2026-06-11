@@ -102,7 +102,7 @@ const CyclistProfile: React.FC = () => {
     <div className="min-h-screen bg-white font-sans">
 
       {/* ─── HERO BANNER ─────────────────────────────────────────────── */}
-      <div className="relative bg-brand-navy overflow-hidden pt-24 pb-0">
+      <div className="relative bg-brand-navy overflow-hidden pt-24 pb-10">
         {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(#0cdfed 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 

@@ -45,6 +45,14 @@ const Home: React.FC = () => {
   const historicalSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'raised_amount');
   const goalSetting       = allSettings.find((s: { key: string; value: string }) => s.key === 'donation_goal');
   const showProgressSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'show_fundraising_progress');
+
+  const cycledSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'home.stats_cycled_value');
+  const charitiesSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'home.stats_charities_value');
+  const distanceSetting = allSettings.find((s: { key: string; value: string }) => s.key === 'ride.distance');
+
+  const cycledValue = cycledSetting ? cycledSetting.value : t('home.stats_cycled_value');
+  const charitiesValue = charitiesSetting ? charitiesSetting.value : t('home.stats_charities_value');
+  const distanceValue = distanceSetting ? distanceSetting.value : '680 KM';
   // Default ON (visible) unless explicitly set to 'false'
   const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
 
@@ -189,16 +197,16 @@ const Home: React.FC = () => {
           <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-2xl border border-brand-grey/20 p-6 sm:p-8 md:p-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
               {[
-                { label: t('home.stats_raised_label'), value: 'RM 1.2M', icon: TrendingUp },
-                { label: t('home.stats_cycled_label'), value: t('home.stats_cycled_value'), icon: Map },
+                { label: t('home.stats_raised_label'), value: raisedDisplay, icon: TrendingUp },
+                { label: t('home.stats_cycled_label'), value: cycledValue, icon: Map },
                 { label: t('home.stats_tax_label'), value: t('home.stats_tax_value'), icon: ShieldCheck },
-                { label: t('home.stats_charities_label'), value: '5 Beneficiary', icon: Heart, special: true },
+                { label: t('home.stats_charities_label'), value: `${charitiesValue} Beneficiary`, icon: Heart, special: true },
               ].map((stat, i) => (
                 <div key={i} className="text-center md:text-left flex flex-col items-center md:items-start group w-full">
                   <stat.icon className="h-8 w-8 text-brand-cyan mb-3 group-hover:scale-110 transition-transform" />
                   {stat.special ? (
                     <div className="flex flex-col lg:flex-row lg:items-baseline gap-0 lg:gap-2 text-brand-navy">
-                      <span className="text-3xl sm:text-4xl lg:text-4xl font-black tracking-tight font-heading leading-tight">{t('home.stats_charities_value')}</span>
+                      <span className="text-3xl sm:text-4xl lg:text-4xl font-black tracking-tight font-heading leading-tight">{charitiesValue}</span>
                       <span className="text-2xl sm:text-3xl xl:text-3xl font-black tracking-tight font-heading leading-tight">{t('home.stats_charities_suffix')}</span>
                     </div>
                   ) : (
@@ -385,7 +393,7 @@ const Home: React.FC = () => {
               </div>
               <div className="relative z-10">
                 <MapPin className="h-16 w-16 text-brand-cyan mx-auto mb-6 animate-bounce" />
-                <h3 className="text-5xl md:text-6xl font-black mb-4 font-heading tracking-tight text-white drop-shadow-[0_0_15px_rgba(12,223,237,0.8)]">{t('home.ride_km')}</h3>
+                <h3 className="text-5xl md:text-6xl font-black mb-4 font-heading tracking-tight text-white drop-shadow-[0_0_15px_rgba(12,223,237,0.8)]">{distanceValue}</h3>
                 <p className="text-brand-pale font-medium text-xl max-w-2xl mx-auto leading-relaxed">{t('home.ride_desc')}</p>
                 <div className="mt-12 max-w-lg mx-auto relative cursor-default">
                   <div className="absolute -top-6 left-0 animate-[ride_8s_ease-in-out_infinite] z-20 text-brand-orange">

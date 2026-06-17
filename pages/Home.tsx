@@ -52,7 +52,7 @@ const Home: React.FC = () => {
 
   const cycledValue = cycledSetting ? cycledSetting.value : t('home.stats_cycled_value');
   const charitiesValue = charitiesSetting ? charitiesSetting.value : t('home.stats_charities_value');
-  const distanceValue = distanceSetting ? distanceSetting.value : t('home.stats_cycled_value');
+  const distanceValue = distanceSetting ? distanceSetting.value : t('home.ride_km');
   // Default ON (visible) unless explicitly set to 'false'
   const showFundraisingProgress = showProgressSetting ? showProgressSetting.value !== 'false' : true;
 

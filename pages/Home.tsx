@@ -97,6 +97,7 @@ const Home: React.FC = () => {
         "@type": "Event",
         "name": "Sepeda Amal Borneo 2026 Charity Ride",
         "startDate": "2026-07-26",
+        "endDate": "2026-07-31",
         "location": { "@type": "Place", "name": "Borneo", "address": "Kota Kinabalu to Miri" },
         "description": "A 680km charity cycle to raise funds for paediatric surgery and immune deficiency support.",
         "organizer": { "@type": "Organization", "name": "MMA Foundation" }

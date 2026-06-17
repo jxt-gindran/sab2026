@@ -24,8 +24,8 @@ const ScrollToTopAndSEO = () => {
     window.scrollTo(0, 0);
 
     const routesContent: Record<string, { title: string, desc: string }> = {
-      '/': { title: 'Sepeda Amal Borneo 2026', desc: 'A 660km charity cycling expedition across Borneo funding life-saving paediatric surgeries.' },
-      '/mission': { title: 'Our Mission | SAB 2026', desc: 'Learn about our mission to fund life-saving paediatric care in Sarawak through a 660km cycling expedition.' },
+      '/': { title: 'Sepeda Amal Borneo 2026', desc: 'A 680km charity cycling expedition across Borneo funding life-saving paediatric surgeries.' },
+      '/mission': { title: 'Our Mission | SAB 2026', desc: 'Learn about our mission to fund life-saving paediatric care in Sarawak through a 680km cycling expedition.' },
       '/legacy': { title: 'Our Legacy | SAB 2026', desc: 'Building on the success of past editions, our legacy continues as we cycle across Borneo.' },
       '/ride': { title: 'The Ride | SAB 2026', desc: 'Explore the 680km route from Kota Kinabalu to Miri. Meet the dedicated cyclists undertaking the challenge.' },
       '/donate': { title: 'Donate | SAB 2026', desc: 'Support the Sepeda Amal Borneo expedition. Your donation directly funds life-saving paediatric care.' },

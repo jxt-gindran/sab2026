@@ -125,10 +125,10 @@ export default function Settings() {
           <div>
             <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Event Date</p>
             <p className="text-white font-bold text-sm mb-2">
-              Current: {settings.find(s => s.key === 'ride.event_date')?.value || '26 July - 1 August 2026'}
+              Current: {settings.find(s => s.key === 'ride.event_date')?.value || '26 July - 31 July 2026'}
             </p>
             <div className="flex items-center gap-2">
-              <input type="text" placeholder="e.g. 26 July - 1 August 2026" id="event-date-input"
+              <input type="text" placeholder="e.g. 26 July - 31 July 2026" id="event-date-input"
                 defaultValue={settings.find(s => s.key === 'ride.event_date')?.value || ''}
                 className="flex-grow bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm font-bold focus:border-brand-cyan outline-none min-w-0" />
               <button onClick={async () => {

@@ -4,13 +4,13 @@ export default function handler(req: any, res: any) {
 
   // Default values
   let title = "Sepeda Amal Borneo 2026";
-  let description = "A 660km charity cycling expedition across Borneo funding life-saving paediatric surgeries and immune deficiency treatment. Organized by MMA Foundation.";
+  let description = "A 680km charity cycling expedition across Borneo funding life-saving paediatric surgeries and immune deficiency treatment. Organized by MMA Foundation.";
   let imageUrl = "https://sab2026.com/assets/images/sabcyclist.jpg";
 
   // Customize based on path
   if (requestPath.startsWith("/mission")) {
     title = "Our Mission | SAB 2026";
-    description = "Learn about our mission to fund life-saving paediatric care in Sarawak through a 660km cycling expedition.";
+    description = "Learn about our mission to fund life-saving paediatric care in Sarawak through a 680km cycling expedition.";
     imageUrl = "https://sab2026.com/assets/images/pediatric-surgery.webp";
   } else if (requestPath.startsWith("/legacy")) {
     title = "Our Legacy | SAB 2026";

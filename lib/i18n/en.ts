@@ -22,7 +22,7 @@ export const en = {
   footer: {
     tagline: 'Trusted Authority. Vibrant Hope.',
     description:
-      'Sepeda Amal Borneo 2026 (SAB2026) is a premier 660KM charity cycling event across Borneo, from Kota Kinabalu (Sabah) to Miri (Sarawak). Organized by the Malaysian Medical Association Foundation (MMAF) to fund life-saving paediatric surgeries and support children with Primary Immunodeficiencies (PID).',
+      'Sepeda Amal Borneo 2026 (SAB2026) is a premier 680KM charity cycling event across Borneo, from Kota Kinabalu (Sabah) to Miri (Sarawak). Organized by the Malaysian Medical Association Foundation (MMAF) to fund life-saving paediatric surgeries and support children with Primary Immunodeficiencies (PID).',
     quick_links: 'Quick Links',
     link_mission: 'The Mission',
     link_ride: 'The Ride',
@@ -51,7 +51,7 @@ export const en = {
     hero_title_line1: 'Pedal for Care,',
     hero_title_line2: 'Ride for Hope.',
     hero_subtitle:
-      "Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 660km endurance ride across Borneo.",
+      "Funding life-saving surgeries and immune defense for Malaysia's most vulnerable children. Powered by a 680km endurance ride across Borneo.",
     hero_save_life: 'Save a Life Now',
     hero_highlights: 'Past Highlights',
     hero_close: 'Close',
@@ -186,7 +186,7 @@ export const en = {
 
   // ─── Ride page ────────────────────────────────────────────────────────────
   ride: {
-    event_date: '26 July - 1 August 2026',
+    event_date: '26 July - 31 July 2026',
     hero_heading1: 'The',
     hero_heading2: 'Ride.',
     hero_location: 'Kota Kinabalu to Miri',
@@ -266,11 +266,11 @@ export const en = {
     q4: 'Will I receive a receipt?',
     a4: 'Yes. An official tax-exempt receipt will be issued by MMAF and emailed/posted to you once your donation is verified.',
     q5: 'Does the money go to the rider?',
-    a5: "No. 100% of your donation goes directly to the MMA Foundation for the beneficiaries. Selecting a rider simply helps them reach their personal fundraising goal and motivates them on their 660km journey.",
+    a5: "No. 100% of your donation goes directly to the MMA Foundation for the beneficiaries. Selecting a rider simply helps them reach their personal fundraising goal and motivates them on their 680km journey.",
     q6: 'What is the fundraising requirement?',
     a6: 'Each rider must commit to raising a minimum of RM 3,000. This ensures that the event maximizes its impact for the beneficiaries.',
     q7: 'What is the route and distance?',
-    a7: 'The ride covers approximately 660km from Kota Kinabalu to Miri over 6 days. It includes a mix of coastal roads and rolling hills.',
+    a7: 'The ride covers approximately 680km from Kota Kinabalu to Miri over 6 days (26 July – 31 July 2026). It includes a mix of coastal roads and rolling hills.',
     q8: 'Is support provided during the ride?',
     a8: 'Yes. The ride is fully supported with marshal escorts, support vehicles (SAG wagons), medical teams, and mechanical assistance. Accommodation and meals are also arranged.',
     q9: 'Do I need to be an expert cyclist?',
@@ -474,7 +474,7 @@ export const en = {
   // ─── Rider Story Modal ────────────────────────────────────────────────────
   riderstory: {
     cycling_quote:
-      '"Cycling 660km is nothing compared to the fight these children face every day."',
+      '"Cycling 680km is nothing compared to the fight these children face every day."',
     progress_label: 'Impact Progress',
     goal_label: 'Goal',
     connect_label: 'Connect:',

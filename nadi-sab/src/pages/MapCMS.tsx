@@ -1,4 +1,4 @@
-// @ts-nocheck
+// Route & Map CMS — manages GPX route uploads, markers, and map settings
 import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';

@@ -35,9 +35,16 @@ const ScrollToTopAndSEO = () => {
       '/terms': { title: 'Terms & Conditions | SAB 2026', desc: 'Terms and conditions for using the SAB 2026 website and donation platform.' },
       '/privacy': { title: 'Privacy Policy | SAB 2026', desc: 'Privacy policy and data protection information for SAB 2026.' },
       '/refund': { title: 'Refund Policy | SAB 2026', desc: 'Refund and cancellation policy for donations made to SAB 2026.' },
+      '/thank-you': { title: 'Thank You | SAB 2026', desc: 'Thank you for your generous donation to the Sepeda Amal Borneo 2026 charity ride.' },
+      '/payment-cancelled': { title: 'Payment Cancelled | SAB 2026', desc: 'Your payment was not completed. You can try again at any time.' },
     };
 
-    const seo = routesContent[pathname] || { title: 'Sepeda Amal Borneo 2026', desc: 'Charity cycling expedition across Borneo.' };
+    // Handle dynamic /riders/:slug route
+    const isRiderPage = pathname.startsWith('/riders/');
+
+    const seo = isRiderPage
+      ? { title: 'Cyclist Profile | SAB 2026', desc: 'Meet one of the dedicated cyclists taking on the 680km Sepeda Amal Borneo 2026 challenge for paediatric care.' }
+      : (routesContent[pathname] || { title: 'Sepeda Amal Borneo 2026', desc: 'Charity cycling expedition across Borneo.' });
     document.title = seo.title;
 
     let metaDesc = document.querySelector('meta[name="description"]');

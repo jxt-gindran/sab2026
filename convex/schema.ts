@@ -13,10 +13,26 @@ export default defineSchema({
         status: v.string(), // 'completed', 'pending'
         type: v.string(), // 'hitpay', 'manual'
         phone: v.optional(v.string()),
-        icNumber: v.optional(v.string())
+        icNumber: v.optional(v.string()),
+        address: v.optional(v.string()),  // Postal address (for tax receipt upfront)
+        // ── Tax receipt tracking ──────────────────────────────────────────────
+        receiptType:       v.optional(v.string()),  // 'none' | 'personal' | 'corporate'
+        receiptRequested:  v.optional(v.boolean()),
+        receiptStatus:     v.optional(v.string()),  // 'pending' | 'sent'
+        receiptSentAt:     v.optional(v.number()),
+        // Personal receipt fields (pre-filled from donor info)
+        receiptName:       v.optional(v.string()),
+        receiptIC:         v.optional(v.string()),
+        receiptPhone:      v.optional(v.string()),
+        receiptAddress:    v.optional(v.string()),
+        // Corporate receipt fields
+        receiptCompany:    v.optional(v.string()),
+        receiptRegNo:      v.optional(v.string()),
+        receiptBizAddress: v.optional(v.string()),
     })
         .index("by_status", ["status"])
-        .index("by_paymentId", ["paymentId"]),
+        .index("by_paymentId", ["paymentId"])
+        .index("by_receipt_status", ["receiptStatus"]),
 
     cyclists: defineTable({
         name: v.string(),
@@ -133,4 +149,24 @@ export default defineSchema({
         .index("by_published", ["isPublished"])
         .index("by_year",      ["year"])
         .index("by_year_date", ["year", "publishedAt"]),
+
+    /**
+     * Email log — one entry per transactional email attempt.
+     * templateId  = 'thank_you' | 'manual_submitted' | 'manual_approved' | 'admin_hitpay' | 'admin_manual' | 'receipt_request' | 'receipt_reminder'
+     * status      = 'sent' | 'failed'
+     * donationId  = string ID of the related donation (optional for cron/test emails)
+     */
+    emailLogs: defineTable({
+        donationId:    v.optional(v.string()),   // donation._id as string
+        templateId:    v.string(),               // which template fired
+        toEmail:       v.string(),               // recipient
+        subject:       v.string(),               // email subject line
+        status:        v.string(),               // 'sent' | 'failed'
+        errorMessage:  v.optional(v.string()),   // error detail on failure
+        transactionId: v.optional(v.string()),   // EngineMailer TxID
+        sentAt:        v.number(),               // timestamp
+    })
+        .index("by_donation", ["donationId"])
+        .index("by_status",   ["status"])
+        .index("by_sentAt",   ["sentAt"]),
 });

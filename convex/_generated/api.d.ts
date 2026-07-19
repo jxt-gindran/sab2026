@@ -9,9 +9,11 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as crons from "../crons.js";
 import type * as cyclists from "../cyclists.js";
 import type * as donations from "../donations.js";
 import type * as email from "../email.js";
+import type * as emailLogs from "../emailLogs.js";
 import type * as http from "../http.js";
 import type * as impactSeed from "../impactSeed.js";
 import type * as impactTiers from "../impactTiers.js";
@@ -29,9 +31,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  crons: typeof crons;
   cyclists: typeof cyclists;
   donations: typeof donations;
   email: typeof email;
+  emailLogs: typeof emailLogs;
   http: typeof http;
   impactSeed: typeof impactSeed;
   impactTiers: typeof impactTiers;

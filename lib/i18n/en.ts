@@ -78,11 +78,11 @@ export const en = {
 
     // Patient impact story
     patient_tag: 'Real Lives. Real Impact.',
-    patient_name: 'Meet Adik Rizky.',
+    patient_name: 'Meet Adik Shafeez.',
     patient_age_label: 'Years Old',
     patient_quote:
-      "\"Born with a congenital heart defect, Rizky needed urgent surgery his family couldn't afford. Thanks to funds raised by our cyclists for MAPS, he received his life-saving operation in 2024. Today, he is back in school and playing football.\"",
-    patient_cta: 'Donate to help more kids like Rizky',
+      "\"Shafeez, from Banting, was a happy boy until an accidental ingestion of a chemical liquid caused severe esophageal stricture — requiring urgent, specialist paediatric surgery to restore his ability to eat and breathe normally.\"",
+    patient_cta: 'Donate to help more kids like Shafeez',
 
     // Mission section
     mission_tag: 'Our Core Mission 2026',
@@ -176,9 +176,9 @@ export const en = {
     stories_heading1: 'Real Lives.',
     stories_heading2: 'Real Impact.',
     stories_quote:
-      '"Thanks to the surgery funded by SAB, I can play football again."',
-    stories_name: 'Adik Rizky, 7',
-    stories_role: 'Congenital Heart Defect Survivor',
+      '"Thanks to the paediatric surgery funded by SAB, I can breathe and eat normally again."',
+    stories_name: 'Adik Shafeez, 10',
+    stories_role: 'Severe Esophageal Stricture Survivor',
 
     cta_heading: 'These children cannot fight alone.',
     cta_btn: 'Donate to the Mission',
@@ -418,7 +418,7 @@ export const en = {
       'is securely received. You are directly funding life-saving surgeries for children in Borneo.',
     next_heading: 'What happens next?',
     next_step1:
-      'You will receive an official tax-exemption receipt via email within 24 hours.',
+      'You will receive an official tax-exemption receipt via email within 21 working days.',
     next_step2:
       'Your donation will be matched to a specific medical case or general fund needs.',
     share_tag: 'Multiply Your Impact',
@@ -539,11 +539,11 @@ export const en = {
   taxReceipt: {
     heading: 'Claiming Your Tax Exemption Receipt',
     intro:
-      'MMAF is approved under Section 44(6) of the Income Tax Act 1967 (LHDN.01/35/42/51/179-6.5621). To obtain your official tax exemption receipt, please email the details below — together with your proof of payment — to:',
+      'MMAF is approved under Section 44(6) of the Income Tax Act 1967 (LHDN.01/35/42/51/179-6.5621). Your official tax exemption receipt will be issued within 30 days of verification. To obtain your receipt, please email the details below — together with your proof of payment — to:',
     email1: 'mmafoundation1976@gmail.com',
     email2: 'mmafoundation76@gmail.com',
     note:
-      'Please note that receipts cannot be issued if any required information is incomplete.',
+      'Please allow up to 30 days for your receipt to be issued after verification. Receipts cannot be issued if any required information is incomplete.',
     individual_heading: 'For Individual Donors',
     individual_fields: 'Full name · NRIC number · Contact number · Postal address',
     corporate_heading: 'For Corporate Donors',

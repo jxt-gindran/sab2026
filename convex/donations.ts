@@ -1,4 +1,4 @@
-import { mutation, query, internalMutation } from "./_generated/server";
+import { mutation, query, internalMutation, internalQuery, action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { MutationCtx } from "./_generated/server";
@@ -69,7 +69,18 @@ export const add = mutation({
         message: v.optional(v.string()),
         reference: v.optional(v.string()),
         icNumber: v.optional(v.string()),
-        type: v.optional(v.string()), // 'hitpay' or 'manual'
+        address: v.optional(v.string()),       // Personal postal address (for tax receipt)
+        type: v.optional(v.string()),          // 'hitpay' or 'manual'
+        // ── Tax receipt fields (collected upfront in Step 4) ──────────────────
+        receiptType:       v.optional(v.string()),   // 'none' | 'personal' | 'corporate'
+        receiptRequested:  v.optional(v.boolean()),
+        receiptName:       v.optional(v.string()),
+        receiptIC:         v.optional(v.string()),
+        receiptPhone:      v.optional(v.string()),
+        receiptAddress:    v.optional(v.string()),
+        receiptCompany:    v.optional(v.string()),
+        receiptRegNo:      v.optional(v.string()),
+        receiptBizAddress: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const type = args.type || 'manual';
@@ -85,11 +96,24 @@ export const add = mutation({
             type: type,
             phone: args.phone,
             icNumber: args.icNumber,
+            address: args.address,
+            // Receipt fields
+            receiptType:       args.receiptType,
+            receiptRequested:  args.receiptRequested,
+            receiptName:       args.receiptName,
+            receiptIC:         args.receiptIC,
+            receiptPhone:      args.receiptPhone,
+            receiptAddress:    args.receiptAddress,
+            receiptCompany:    args.receiptCompany,
+            receiptRegNo:      args.receiptRegNo,
+            receiptBizAddress: args.receiptBizAddress,
         });
+        const donationId = id.toString();
 
         // Notify Admin + Confirm to donor (Fire & Forget)
         if (type === 'manual') {
             await ctx.scheduler.runAfter(0, internal.email.sendAdminManualNotification, {
+                donationId,
                 name: args.name,
                 amount: args.amount,
                 phone: args.phone || '',
@@ -98,6 +122,7 @@ export const add = mutation({
             // Confirmation to donor that we received their submission
             if (args.email) {
                 await ctx.scheduler.runAfter(0, internal.email.sendManualSubmissionConfirmation, {
+                    donationId,
                     email: args.email,
                     name: args.name,
                     amount: args.amount,
@@ -110,6 +135,7 @@ export const add = mutation({
         return id;
     },
 });
+
 
 // ─── Internal mutation: HitPay webhook ───────────────────────────────────────
 
@@ -277,10 +303,11 @@ export const updateStatus = mutation({
         // Send approval confirmation to donor when manual donation is marked completed
         if (donation.type === 'manual' && previousStatus !== 'completed' && status === 'completed' && donation.email) {
             await ctx.scheduler.runAfter(0, internal.email.sendManualApproved, {
+                donationId: id.toString(),
                 email: donation.email,
                 name: donation.name,
                 amount: donation.amount,
-                ref: donation.paymentId || id,
+                ref: donation.paymentId || id.toString(),
                 beneficiary: donation.riderId || undefined,
             });
         }
@@ -317,5 +344,136 @@ export const getStats = query({
             avgDonation,
             recentDonations,
         };
+    },
+});
+
+// ─── Receipt tracking ─────────────────────────────────────────────────────────
+
+/**
+ * Fetch a single donation by its paymentId/reference (used by the /thank-you page).
+ */
+export const getByRef = query({
+    args: { ref: v.string() },
+    handler: async (ctx, args) => {
+        const donation = await ctx.db
+            .query("donations")
+            .withIndex("by_paymentId", q => q.eq("paymentId", args.ref))
+            .first();
+        return donation ?? null;
+    },
+});
+
+/**
+ * Called from the /thank-you page when the donor submits the receipt form.
+ * Stores receipt details and schedules Template 6 email to both admin Gmail addresses.
+ */
+export const requestReceipt = mutation({
+    args: {
+        ref:               v.string(),        // paymentId / reference to find the donation
+        receiptType:       v.string(),        // 'personal' | 'corporate'
+        // Personal
+        receiptName:       v.optional(v.string()),
+        receiptIC:         v.optional(v.string()),
+        receiptPhone:      v.optional(v.string()),
+        receiptAddress:    v.optional(v.string()),
+        // Corporate
+        receiptCompany:    v.optional(v.string()),
+        receiptRegNo:      v.optional(v.string()),
+        receiptBizAddress: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const donation = await ctx.db
+            .query("donations")
+            .withIndex("by_paymentId", q => q.eq("paymentId", args.ref))
+            .first();
+
+        if (!donation) throw new Error("Donation not found");
+        if (donation.receiptRequested) return; // idempotent
+
+        await ctx.db.patch(donation._id, {
+            receiptType:       args.receiptType,
+            receiptRequested:  true,
+            receiptStatus:     "pending",
+            receiptName:       args.receiptName,
+            receiptIC:         args.receiptIC,
+            receiptPhone:      args.receiptPhone,
+            receiptAddress:    args.receiptAddress,
+            receiptCompany:    args.receiptCompany,
+            receiptRegNo:      args.receiptRegNo,
+            receiptBizAddress: args.receiptBizAddress,
+        });
+
+        // Send Template 6 — receipt request email to both admin Gmail addresses
+        await ctx.scheduler.runAfter(0, internal.email.sendReceiptRequest, {
+            donorName:      donation.name,
+            donorEmail:     donation.email || "—",
+            donorPhone:     donation.phone || "—",
+            amount:         donation.amount,
+            ref:            args.ref,
+            receiptType:    args.receiptType,
+            // Personal
+            receiptName:    args.receiptName,
+            receiptIC:      args.receiptIC,
+            receiptPhone:   args.receiptPhone,
+            receiptAddress: args.receiptAddress,
+            // Corporate
+            receiptCompany:    args.receiptCompany,
+            receiptRegNo:      args.receiptRegNo,
+            receiptBizAddress: args.receiptBizAddress,
+        });
+    },
+});
+
+/**
+ * Admin: mark a receipt as sent (stops the weekly reminder).
+ */
+export const markReceiptSent = mutation({
+    args: { token: v.string(), id: v.id("donations") },
+    handler: async (ctx, args) => {
+        if (args.token !== (process.env.ADMIN_SECRET || "nadi-sab-2026-admin")) {
+            throw new Error("Unauthorized");
+        }
+        await ctx.db.patch(args.id, {
+            receiptStatus: "sent",
+            receiptSentAt: Date.now(),
+        });
+    },
+});
+
+/**
+ * Internal: fetch all donations with a pending receipt request (used by weekly cron).
+ */
+export const getPendingReceipts = internalQuery({
+    args: {},
+    handler: async (ctx) => {
+        return await ctx.db
+            .query("donations")
+            .withIndex("by_receipt_status", q => q.eq("receiptStatus", "pending"))
+            .collect();
+    },
+});
+
+/**
+ * Internal action: send the weekly receipt reminder email.
+ * Called by the cron job.
+ */
+export const sendWeeklyReceiptReminder = action({
+    args: {},
+    handler: async (ctx) => {
+        const pending = await ctx.runQuery(internal.donations.getPendingReceipts);
+        if (pending.length === 0) {
+            console.log("[Cron] No pending receipts — skipping reminder.");
+            return;
+        }
+        await ctx.runAction(internal.email.sendReceiptReminder, {
+            pendingReceipts: pending.map((d: any) => ({
+                name:        d.name,
+                amount:      d.amount,
+                ref:         d.paymentId || d._id,
+                receiptType: d.receiptType || "personal",
+                requestedAt: d.timestamp,
+            })),
+        });
+        console.log(`[Cron] Reminder sent for ${pending.length} outstanding receipts.`);
     },
 });

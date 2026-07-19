@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Heart,
   User,
+  Building2,
   CreditCard,
   CheckCircle2,
   ArrowRight,
@@ -26,6 +27,7 @@ import DonationSliderStep from '../components/DonationSliderStep';
 const Donate: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
   // Single source of truth for donation amount (replaces selectedAmount + customAmount)
@@ -41,24 +43,61 @@ const Donate: React.FC = () => {
   // Filter: not archived AND not hidden from fundraising
   const cyclists = allCyclists.filter((c: any) => !c.isArchived && !c.hideFundraising);
 
-  // Form State
+  // ── Step 3: Basic contact info ──────────────────────────────────────────────
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
   const [donorPhone, setDonorPhone] = useState('');
-  const [donorIC, setDonorIC] = useState('');
 
-  // Check if a rider was passed in the URL (e.g. from Home page or Share link)
+  // ── Step 4: Tax receipt ──────────────────────────────────────────────────────
+  const [wantsTaxReceipt, setWantsTaxReceipt] = useState(false);
+  const [receiptType, setReceiptType] = useState<'personal' | 'corporate' | null>(null);
+  // Personal
+  const [donorIC, setDonorIC] = useState('');
+  const [donorAddress, setDonorAddress] = useState('');
+  // Corporate
+  const [companyName, setCompanyName] = useState('');
+  const [regNo, setRegNo] = useState('');
+  const [bizAddress, setBizAddress] = useState('');
+
+  // Pre-select cyclist from URL param
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const slug = params.get('cyclist');
+    const slug = params.get('cyclist') || params.get('beneficiary');
     if (slug && cyclists.length > 0) {
       const match = cyclists.find((c: any) => c.shareSlug === slug);
       if (match) setSelectedRider(match.shareSlug);
     }
   }, [location, cyclists]);
 
+  // Build addDonation payload with receipt info
+  const buildDonationArgs = (type: 'hitpay' | 'manual', ref: string) => ({
+    amount: donationAmount,
+    name: donorName,
+    email: donorEmail,
+    phone: donorPhone,
+    type,
+    reference: ref,
+    riderId: selectedRider || undefined,
+    receiptType: (wantsTaxReceipt ? receiptType! : 'none') as string,
+    receiptRequested: wantsTaxReceipt,
+    ...(receiptType === 'personal' ? {
+      icNumber: donorIC || undefined,
+      address: donorAddress || undefined,
+      receiptName: donorName,
+      receiptIC: donorIC || undefined,
+      receiptPhone: donorPhone || undefined,
+      receiptAddress: donorAddress || undefined,
+    } : {}),
+    ...(receiptType === 'corporate' ? {
+      address: bizAddress || undefined,
+      receiptCompany: companyName || undefined,
+      receiptRegNo: regNo || undefined,
+      receiptBizAddress: bizAddress || undefined,
+    } : {}),
+  });
+
   const nextStep = () => {
-    // Step 3: personal info validation
+    // Step 3: basic info only
     if (step === 3) {
       if (!donorName.trim() || !donorEmail.trim() || !donorPhone.trim()) {
         alert(t('donate.val_required'));
@@ -73,20 +112,26 @@ const Donate: React.FC = () => {
         alert(t('donate.val_phone'));
         return;
       }
-      const icClean = donorIC.replace(/[\s-]/g, '');
-      if (icClean && icClean.length < 6) {
-        alert(t('donate.val_ic'));
-        return;
+    }
+    // Step 4: receipt validation (only when opted in)
+    if (step === 4 && wantsTaxReceipt) {
+      if (!receiptType) { alert('Please select Personal or Corporate receipt type.'); return; }
+      if (receiptType === 'personal') {
+        if (!donorIC.trim()) { alert('IC / Passport number is required for a personal tax receipt.'); return; }
+        if (!donorAddress.trim()) { alert('Postal address is required for a personal tax receipt.'); return; }
+      }
+      if (receiptType === 'corporate') {
+        if (!companyName.trim()) { alert('Company name is required for a corporate tax receipt.'); return; }
+        if (!regNo.trim()) { alert('Registration number is required for a corporate tax receipt.'); return; }
+        if (!bizAddress.trim()) { alert('Business address is required for a corporate tax receipt.'); return; }
       }
     }
-    // Step 4: payment method must be selected before proceeding
-    if (step === 4) {
-      if (!paymentMethod) {
-        alert('Please select a payment method to continue.');
-        return;
-      }
+    // Step 5: payment method must be selected
+    if (step === 5 && !paymentMethod) {
+      alert('Please select a payment method to continue.');
+      return;
     }
-    setStep(s => Math.min(s + 1, 5));
+    setStep(s => Math.min(s + 1, 6));
   };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
@@ -121,18 +166,18 @@ const Donate: React.FC = () => {
           ))}
         </div>
 
-        {/* Progress Stepper — 5 steps */}
+        {/* Progress Stepper — 6 steps */}
         <div className="flex items-center justify-between mb-8 px-2 sm:px-4 max-w-2xl mx-auto">
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="flex items-center">
               <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center font-black text-xs md:text-sm transition-all shadow-md
                 ${step >= i ? 'bg-brand-navy text-white scale-110' : 'bg-white text-slate-300 border border-slate-200'}
               `}>
                 {step > i ? <CheckCircle2 className="h-4 w-4" /> : i}
               </div>
-              {i < 5 && (
+              {i < 6 && (
                 <div
-                  className={`h-2 w-4 sm:w-8 md:w-16 mx-1 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
+                  className={`h-2 w-3 sm:w-5 md:w-10 mx-1 transition-colors relative ${step > i ? 'text-brand-cyan' : 'text-slate-200'}`}
                   style={{ backgroundImage: `repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 6px)` }}
                 />
               )}
@@ -190,107 +235,135 @@ const Donate: React.FC = () => {
                 </div>
               )}
 
-              {/* STEP 3: PERSONAL INFO */}
+              {/* STEP 3: YOUR DETAILS (Name / Email / Phone) */}
               {step === 3 && (
                 <div className="animate-fade-in flex-grow">
                   <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step2_heading')}</h2>
-                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step2_sub')}</p>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">We need your contact details to send you a donation confirmation.</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-6">
-                    <div className="bg-brand-pale/30 p-4 sm:p-6 rounded-2xl border border-brand-pale mb-0 md:mb-8">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-full bg-brand-navy flex items-center justify-center text-white shrink-0">
-                          <Heart size={20} />
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-brand-slate uppercase tracking-widest mb-1">{t('donate.step2_beneficiary')}</div>
-                          <div className="font-black text-brand-navy text-lg">
-                            {selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General Fund (SAB2026)' : 'General Fund (SAB2026)'}
-                          </div>
-                        </div>
+                  <div className="space-y-5 mb-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Full Name <span className="normal-case text-slate-400 font-bold">(as in IC / Passport)</span> <span className="text-red-500">*</span>
+                      </label>
+                      <input type="text" value={donorName} onChange={(e) => setDonorName(e.target.value)} placeholder={t('donate.step2_name_placeholder')} className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_email_label')} <span className="text-red-500">*</span></label>
+                        <input type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} placeholder={t('donate.step2_email_placeholder')} className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all" />
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_name_label')} <span className="text-red-500">*</span></label>
-                      <input
-                        type="text"
-                        value={donorName}
-                        onChange={(e) => setDonorName(e.target.value)}
-                        placeholder={t('donate.step2_name_placeholder')}
-                        className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_email_label')} <span className="text-red-500">*</span></label>
-                      <input
-                        type="email"
-                        value={donorEmail}
-                        onChange={(e) => setDonorEmail(e.target.value)}
-                        placeholder={t('donate.step2_email_placeholder')}
-                        className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_phone_label')} <span className="text-red-500">*</span></label>
-                      <input
-                        type="tel"
-                        value={donorPhone}
-                        onChange={(e) => setDonorPhone(e.target.value)}
-                        placeholder={t('donate.step2_phone_placeholder')}
-                        className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_ic_label')} <span className="text-slate-300 text-[9px] normal-case">{t('donate.step2_ic_optional')}</span></label>
-                      <input
-                        type="text"
-                        value={donorIC}
-                        onChange={(e) => setDonorIC(e.target.value)}
-                        placeholder={t('donate.step2_ic_placeholder')}
-                        className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all"
-                      />
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{t('donate.step2_phone_label')} <span className="text-red-500">*</span></label>
+                        <input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} placeholder={t('donate.step2_phone_placeholder')} className="w-full bg-slate-50 border-4 border-slate-50 rounded-2xl px-6 py-4 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all" />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-brand-cyan/5 p-6 rounded-3xl border border-brand-cyan/20 flex items-start gap-4">
-                    <Lock className="h-6 w-6 text-brand-cyan flex-shrink-0 mt-1" />
+                  <div className="bg-brand-cyan/5 p-5 rounded-2xl border border-brand-cyan/20 flex items-start gap-4">
+                    <Lock className="h-5 w-5 text-brand-cyan flex-shrink-0 mt-0.5" />
                     <p className="text-xs text-brand-navy/70 font-bold leading-relaxed">Your data is encrypted and handled according to PDPA 2010. We only use it for issuing receipts and donation verification.</p>
-                  </div>
-
-                  {/* Tax Exemption Receipt Info */}
-                  <div className="mt-4 bg-brand-pale/40 rounded-3xl p-6 border border-brand-pale">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3 flex items-center gap-2">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      Claiming Your Tax Exemption Receipt (LHDN)
-                    </div>
-                    <p className="text-xs text-brand-slate font-medium leading-relaxed mb-4">
-                      MMAF is approved under Section 44(6) of the Income Tax Act 1967. To obtain your official receipt, email the details below — with proof of payment — to:
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {['mmafoundation1976@gmail.com', 'mmafoundation76@gmail.com'].map(e => (
-                        <a key={e} href={`mailto:${e}`} className="text-[10px] font-black text-brand-navy bg-white border border-brand-pale hover:border-brand-cyan rounded-xl px-3 py-1.5 transition-all">{e}</a>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="bg-white rounded-2xl p-3 border border-brand-pale">
-                        <div className="text-[9px] font-black uppercase tracking-widest text-brand-navy mb-1">Individual Donors</div>
-                        <p className="text-[10px] text-brand-slate font-medium leading-relaxed">Full name · NRIC number · Contact number · Postal address</p>
-                      </div>
-                      <div className="bg-white rounded-2xl p-3 border border-brand-pale">
-                        <div className="text-[9px] font-black uppercase tracking-widest text-brand-navy mb-1">Corporate Donors</div>
-                        <p className="text-[10px] text-brand-slate font-medium leading-relaxed">Company name · Registration number · Business address</p>
-                      </div>
-                    </div>
-                    <p className="text-[9px] text-slate-400 font-bold mt-3 italic">
-                      ⚠ Receipts cannot be issued if any required information is incomplete.
-                    </p>
                   </div>
                 </div>
               )}
 
-
-              {/* STEP 4: PAYMENT METHOD */}
+              {/* STEP 4: CONFIRM + TAX RECEIPT */}
               {step === 4 && (
+                <div className="animate-fade-in flex-grow">
+                  <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">Confirm Your Donation</h2>
+                  <p className="text-sm sm:text-base text-brand-slate font-medium mb-6">Review your details below, then let us know if you need a tax-exemption receipt.</p>
+
+                  {/* Summary card */}
+                  <div className="bg-brand-pale/30 rounded-2xl p-5 border border-brand-pale mb-7 grid grid-cols-2 gap-x-6 gap-y-4">
+                    {[
+                      { label: 'Amount', value: `RM ${donationAmount.toLocaleString()}` },
+                      { label: 'Beneficiary', value: selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General Fund' : 'General Fund (SAB2026)' },
+                      { label: 'Name', value: donorName },
+                      { label: 'Email', value: donorEmail },
+                      { label: 'Phone', value: donorPhone },
+                    ].map(({ label, value }) => (
+                      <div key={label}>
+                        <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{label}</div>
+                        <div className="text-sm font-black text-brand-navy truncate">{value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Tax exemption checkbox */}
+                  <button
+                    onClick={() => { const next = !wantsTaxReceipt; setWantsTaxReceipt(next); if (!next) setReceiptType(null); }}
+                    className={`w-full flex items-center gap-4 p-5 rounded-2xl border-4 transition-all mb-6 text-left ${wantsTaxReceipt ? 'border-brand-cyan bg-brand-cyan/5' : 'border-slate-100 bg-slate-50 hover:border-brand-cyan/40'}`}
+                  >
+                    <div className={`h-6 w-6 rounded-md flex-shrink-0 flex items-center justify-center border-2 transition-all ${wantsTaxReceipt ? 'bg-brand-cyan border-brand-cyan' : 'bg-white border-slate-300'}`}>
+                      {wantsTaxReceipt && <CheckCircle2 className="h-4 w-4 text-brand-navy" />}
+                    </div>
+                    <div>
+                      <div className="font-black text-brand-navy text-sm">I would like a tax-exemption receipt (LHDN)</div>
+                      <div className="text-[10px] text-brand-slate font-medium mt-0.5">MMAF is approved under Section 44(6) of the Income Tax Act 1967 · Receipt issued within 30 days of verification</div>
+                    </div>
+                  </button>
+
+                  {wantsTaxReceipt && (
+                    <div className="animate-fade-in space-y-5">
+                      {/* Personal / Corporate toggle */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {(['personal', 'corporate'] as const).map((type) => (
+                          <button key={type} onClick={() => setReceiptType(type)} className={`flex flex-col items-center gap-2.5 p-5 rounded-2xl border-4 font-black transition-all ${receiptType === type ? 'border-brand-navy bg-brand-navy text-white shadow-lg shadow-brand-navy/20' : 'border-slate-100 bg-slate-50 text-brand-navy hover:border-brand-navy/30'}`}>
+                            {type === 'personal' ? <User className="h-6 w-6" /> : <Building2 className="h-6 w-6" />}
+                            <span className="text-sm uppercase tracking-widest">{type === 'personal' ? 'Personal' : 'Corporate'}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Personal fields */}
+                      {receiptType === 'personal' && (
+                        <div className="animate-fade-in space-y-4 bg-brand-pale/20 rounded-2xl p-5 border border-brand-pale">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-brand-navy">Personal Receipt Details</div>
+                          <div className="bg-brand-cyan/10 rounded-xl px-4 py-2.5 text-xs text-brand-navy font-bold flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-brand-cyan flex-shrink-0" />
+                            Your name, email and phone from the previous step will be used automatically.
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">IC / Passport Number <span className="text-red-500">*</span></label>
+                            <input type="text" value={donorIC} onChange={(e) => setDonorIC(e.target.value)} placeholder="e.g. 880101-14-5678 or A12345678" className="w-full bg-white border-4 border-slate-100 rounded-2xl px-5 py-3.5 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                              Postal Address <span className="text-red-500">*</span> <span className="text-brand-orange normal-case font-bold text-[9px]">(receipt will be mailed here)</span>
+                            </label>
+                            <textarea value={donorAddress} onChange={(e) => setDonorAddress(e.target.value)} placeholder="e.g. No. 12, Jalan Ampang, 50450 Kuala Lumpur" rows={3} className="w-full bg-white border-4 border-slate-100 rounded-2xl px-5 py-3.5 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all resize-none" />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Corporate fields */}
+                      {receiptType === 'corporate' && (
+                        <div className="animate-fade-in space-y-4 bg-brand-pale/20 rounded-2xl p-5 border border-brand-pale">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-brand-navy">Corporate Receipt Details</div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Company Name <span className="text-red-500">*</span></label>
+                            <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="e.g. Syarikat Harapan Sdn Bhd" className="w-full bg-white border-4 border-slate-100 rounded-2xl px-5 py-3.5 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Registration Number <span className="text-red-500">*</span></label>
+                            <input type="text" value={regNo} onChange={(e) => setRegNo(e.target.value)} placeholder="e.g. 1234567-A" className="w-full bg-white border-4 border-slate-100 rounded-2xl px-5 py-3.5 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                              Business Address <span className="text-red-500">*</span> <span className="text-brand-orange normal-case font-bold text-[9px]">(receipt will be mailed here)</span>
+                            </label>
+                            <textarea value={bizAddress} onChange={(e) => setBizAddress(e.target.value)} placeholder="e.g. Level 5, Menara ABC, Jalan Sultan Ismail, 50250 Kuala Lumpur" rows={3} className="w-full bg-white border-4 border-slate-100 rounded-2xl px-5 py-3.5 font-bold text-brand-navy focus:border-brand-cyan outline-none transition-all resize-none" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+
+              {/* STEP 5: PAYMENT METHOD */}
+              {step === 5 && (
                 <div className="animate-fade-in flex-grow">
                   <h2 className="text-2xl sm:text-4xl font-black text-brand-navy mb-3 tracking-tighter leading-none font-heading">{t('donate.step3_heading')}</h2>
                   <p className="text-sm sm:text-base text-brand-slate font-medium mb-8">{t('donate.step3_sub')}</p>
@@ -333,8 +406,8 @@ const Donate: React.FC = () => {
                 </div>
               )}
 
-              {/* STEP 5: THANK YOU / ACTION */}
-              {step === 5 && (
+              {/* STEP 6: ACTION */}
+              {step === 6 && (
                 <div className="animate-fade-in text-center py-10 flex flex-col items-center">
 
                   {/* PAYMENT SWITCHER (New) */}
@@ -352,7 +425,7 @@ const Donate: React.FC = () => {
                       {t('donate.step4_transfer_tab')}
                     </button>
                     <button
-                      onClick={() => setStep(4)}
+                      onClick={() => setStep(5)}
                       className="ml-4 px-4 py-3 text-brand-cyan hover:text-brand-orange transition-colors"
                     >
                       <ArrowLeft className="h-5 w-5" />
@@ -374,16 +447,7 @@ const Donate: React.FC = () => {
                           try {
                             const ref = 'SAB-' + Date.now();
                             try {
-                              await addDonation({
-                                amount: totalAmount,
-                                name: donorName,
-                                email: donorEmail,
-                                phone: donorPhone,
-                                icNumber: donorIC,
-                                type: 'hitpay',
-                                reference: ref,
-                                riderId: selectedRider || undefined
-                              });
+                              await addDonation(buildDonationArgs('hitpay', ref));
                             } catch (err) {
                               console.error('Failed to create pending record:', err);
                             }
@@ -461,53 +525,22 @@ const Donate: React.FC = () => {
                           </button>
                         </div>
 
-                        <div className="space-y-4">
                           <button
                             onClick={async () => {
+                              const ref = 'SAB-MAN-' + Date.now();
                               try {
-                                const ref = 'SAB-MAN-' + Date.now();
-                                await addDonation({
-                                  amount: totalAmount,
-                                  name: donorName,
-                                  email: donorEmail,
-                                  phone: donorPhone,
-                                  icNumber: donorIC,
-                                  type: 'manual',
-                                  reference: ref,
-                                  riderId: selectedRider || undefined
-                                });
+                                await addDonation(buildDonationArgs('manual', ref));
+                                navigate(`/thank-you?ref=${ref}&amount=${totalAmount}`);
                               } catch (err) {
-                                console.error('Failed to create pending manual record:', err);
+                                console.error('Failed to create manual record:', err);
+                                alert('Error recording donation. Please try again.');
                               }
-
-                              const beneficiaryName = selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General' : 'General';
-                              const text = encodeURIComponent(`Hi MMA Foundation, I have made a manual transfer of RM ${totalAmount} for SAB2026.\n\nName: ${donorName}\nPhone: ${donorPhone}\nEmail: ${donorEmail}\nBeneficiary: ${beneficiaryName}\nRef: SAB2026\n\nPlease find my receipt attached.`);
-                              window.open(`https://wa.me/60145139470?text=${text}`, '_blank');
                             }}
-                            className="w-full bg-[#25D366] text-white font-black py-4 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-[#128C7E] uppercase tracking-widest text-sm mb-4"
+                            className="w-full bg-brand-navy text-white font-black py-5 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-brand-orange uppercase tracking-widest text-sm mb-4"
                           >
-                            <Flag className="h-5 w-5" />
-                            Send Receipt via WhatsApp
+                            <CheckCircle2 className="h-5 w-5 text-brand-cyan" />
+                            I Have Completed the Transfer
                           </button>
-
-                          <div className="relative group">
-                            <input
-                              type="file"
-                              id="receipt-upload"
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                              onChange={(e) => {
-                                if (e.target.files?.[0]) {
-                                  alert("Thank you! Please email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification. Your donation has already been recorded.");
-                                }
-                              }}
-                            />
-                            <div className="w-full bg-brand-cyan text-brand-navy font-black py-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 group-hover:bg-brand-navy group-hover:text-white uppercase tracking-widest text-sm">
-                              <Flag className="h-5 w-5" />
-                              Click to Upload Receipt (Email)
-                            </div>
-                          </div>
-                          <p className="text-[10px] text-center text-slate-400 font-black uppercase tracking-widest">PDF, JPG, or PNG (Max 5MB)</p>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -516,7 +549,7 @@ const Donate: React.FC = () => {
 
               {/* ACTION BUTTONS */}
               <div className="mt-6 sm:mt-10 flex items-center justify-between pt-6 sm:pt-10 border-t border-slate-50">
-                {step > 1 && step < 5 && (
+                {step > 1 && step < 6 && (
                   <button
                     onClick={prevStep}
                     className="flex items-center gap-2 text-brand-navy font-black text-xs uppercase tracking-widest hover:text-brand-orange transition-colors"
@@ -527,7 +560,7 @@ const Donate: React.FC = () => {
                 {step === 1 && (
                   <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">{t('donate.step_indicator')}</div>
                 )}
-                {step < 5 && (
+                {step < 6 && (
                   <button
                     onClick={nextStep}
                     disabled={step === 1 && totalAmount < 1}
@@ -535,7 +568,7 @@ const Donate: React.FC = () => {
                       ${step === 1 && totalAmount < 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-cyan hover:text-brand-navy hover:-translate-y-1'}
                     `}
                   >
-                    {step === 4 ? 'Complete Donation' : 'Continue'}
+                    {step === 5 ? 'Complete Donation' : 'Continue'}
                     <ArrowRight className="h-5 w-5" />
                   </button>
                 )}

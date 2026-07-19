@@ -8,9 +8,11 @@ import {
   Map,
   MapPin,
   PlayCircle,
+  Play,
   User,
   Bike,
-  Settings
+  Settings,
+  CheckCircle2
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -27,7 +29,9 @@ const TIMELINE = [
 const Home: React.FC = () => {
   const { t } = useTranslation();
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const charityVideoRef = useRef<HTMLVideoElement>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isCharityVideoPlaying, setIsCharityVideoPlaying] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -263,40 +267,190 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* PATIENT IMPACT */}
-      <section className="py-24 bg-white relative">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-brand-pale/20 rounded-[3rem] p-10 md:p-16 relative overflow-hidden flex flex-col md:flex-row items-center gap-12 border border-brand-pale">
-            <div className="w-full md:w-1/3 relative">
-              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl rotate-3 border-4 border-white">
-                <img src="https://images.unsplash.com/photo-1540479859555-17af45c78602?q=80&w=600&h=800&auto=format&fit=crop" alt="Adik Rizky playing football" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg rotate-3 z-10">
-                <div className="text-4xl font-black text-brand-orange font-heading">7</div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-brand-slate">{t('home.patient_age_label')}</div>
+      {/* PATIENT IMPACT — Shafeez's Story (Emotional) */}
+      <section className="relative bg-white overflow-hidden">
+
+        {/* Top warm amber wash — transitions into the section */}
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-50 via-white to-white pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+
+          {/* ── Eyebrow ── */}
+          <div className="flex items-center gap-3 mb-10 justify-center md:justify-start">
+            <Heart className="h-5 w-5 fill-brand-orange text-brand-orange animate-pulse" />
+            <span className="text-[11px] font-black uppercase tracking-[0.35em] text-brand-orange">A Child's Story</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-10 items-stretch">
+
+            {/* ── LEFT: Large Portrait ── */}
+            <div className="lg:col-span-4 relative flex flex-col">
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl flex-1 min-h-[420px]">
+                <img
+                  src="/assets/images/shafeez-portrait.png"
+                  alt="Shafeez, 10 years old"
+                  className="w-full h-full object-cover object-top"
+                  style={{ minHeight: '420px' }}
+                />
+                {/* Warm vignette overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/70 via-transparent to-transparent" />
+
+                {/* Name caption at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="text-white font-black text-3xl font-heading leading-tight">Shafeez</div>
+                  <div className="text-white/60 text-sm font-medium mt-0.5">10 years old · Banting, Selangor</div>
+                </div>
               </div>
             </div>
-            <div className="w-full md:w-2/3 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 text-brand-cyan mb-4">
-                <Heart className="h-5 w-5 fill-current animate-pulse" />
-                <span className="text-xs font-black uppercase tracking-[0.3em]">{t('home.patient_tag')}</span>
+
+            {/* ── CENTRE: Emotional Story ── */}
+            <div className="lg:col-span-5 flex flex-col justify-center py-8 lg:py-0 lg:px-6">
+
+              {/* Pull quote — large, lyrical */}
+              <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black text-brand-navy font-heading tracking-tight leading-[1.15] mb-6">
+                He just wanted<br />
+                <span className="text-brand-orange">to eat.</span>
+              </h2>
+
+              {/* Emotional prose — no bullet points */}
+              <div className="space-y-5 text-brand-slate/90 text-base sm:text-lg leading-[1.8] font-medium">
+                <p>
+                  Shafeez was a boy who loved life — laughing, running, playing. Then one ordinary afternoon, a single accidental sip of a chemical liquid stole something irreplaceable from him: the simple act of swallowing.
+                </p>
+                <p>
+                  What followed were hospital beds, feeding tubes, and journeys to Klang that no child should ever have to make. His throat — scarred and narrowed — turns every meal into a battle.
+                </p>
+                <p className="text-brand-navy font-semibold">
+                  And yet — he still smiles. He still holds on. He still hopes for the day he can eat normally again.
+                </p>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-brand-navy mb-6 font-heading">{t('home.patient_name')}</h2>
-              <blockquote className="text-xl md:text-2xl text-brand-slate font-medium italic mb-8 leading-relaxed">
-                {t('home.patient_quote')}
+
+              {/* Emotional pull-quote */}
+              <blockquote className="mt-8 border-l-4 border-brand-orange pl-5 py-1">
+                <p className="text-brand-orange font-bold italic text-lg leading-relaxed">
+                  "Because no child should have to fight just to swallow."
+                </p>
               </blockquote>
-              <Link to="/donate?beneficiary=MAPS" className="inline-flex items-center gap-2 text-brand-orange font-black uppercase tracking-widest text-sm border-b-2 border-brand-orange hover:text-brand-navy hover:border-brand-navy pb-1 transition-all group">
-                {t('home.patient_cta')} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+
+              {/* CTA */}
+              <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/donate?beneficiary=MAPS"
+                  className="inline-flex items-center justify-center gap-2.5 bg-brand-orange text-white font-black px-8 py-4 rounded-full shadow-[0_8px_30px_rgba(249,115,22,0.35)] hover:shadow-[0_12px_40px_rgba(249,115,22,0.5)] hover:-translate-y-0.5 transition-all text-sm uppercase tracking-widest"
+                >
+                  <Heart className="h-4 w-4 fill-current" />
+                  Help children like Shafeez
+                </Link>
+                <Link
+                  to="/mission"
+                  className="inline-flex items-center justify-center gap-2 text-brand-navy font-black text-sm uppercase tracking-widest hover:text-brand-orange transition-colors border-b-2 border-transparent hover:border-brand-orange pb-0.5"
+                >
+                  Learn about our mission <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
+
+            {/* ── RIGHT: Hospital Photo — quiet & secondary ── */}
+            <div className="lg:col-span-3 flex flex-col gap-4 justify-center">
+              <div className="relative rounded-[2rem] overflow-hidden shadow-xl">
+                <img
+                  src="/assets/images/shafeez-hospital.png"
+                  alt="Shafeez recovering in hospital"
+                  className="w-full h-auto object-cover"
+                />
+                {/* Desaturate slightly for emotional weight */}
+                <div className="absolute inset-0 bg-brand-navy/20 mix-blend-multiply pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="text-white/90 text-xs font-bold leading-snug">
+                    One of many hospital stays — each one a step closer to healing.
+                  </div>
+                </div>
+              </div>
+
+              {/* Quiet emotional stat */}
+              <div className="bg-amber-50 border border-amber-200/70 rounded-2xl p-5 text-center">
+                <div className="text-4xl font-black text-brand-navy font-heading">2024</div>
+                <div className="text-xs font-black uppercase tracking-widest text-brand-slate/60 mt-1">
+                  Year his treatment began — and is still ongoing
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      {/* WHY WE RIDE — Charity Story Video */}
+      <section className="py-24 bg-brand-navy relative overflow-hidden">
+        {/* subtle background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-cyan/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-10">
+            <div className="text-brand-cyan font-black text-xs uppercase tracking-[0.3em] mb-3">Our Purpose</div>
+            <h2 className="text-4xl md:text-5xl font-black text-white font-heading tracking-tighter mb-4">
+              Why We Ride
+            </h2>
+            <p className="text-brand-pale/70 font-medium text-lg max-w-2xl mx-auto leading-relaxed">
+              Hear directly from the people behind our mission — the families, doctors, and champions who make every kilometre count.
+            </p>
+          </div>
+
+          <div className="relative rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(12,223,237,0.15)] group">
+            <video
+              ref={charityVideoRef}
+              controls
+              playsInline
+              preload="metadata"
+              onPlay={() => setIsCharityVideoPlaying(true)}
+              onPause={() => setIsCharityVideoPlaying(false)}
+              className="w-full aspect-video object-cover bg-black"
+              src="/assets/videos/why-we-ride.mp4#t=0.001"
+            >
+              Your browser does not support the video tag.
+            </video>
+
+            {!isCharityVideoPlaying && (
+              <button
+                type="button"
+                onClick={() => charityVideoRef.current?.play()}
+                className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 hover:bg-black/30 transition-all duration-300 group cursor-pointer z-10"
+                aria-label="Play video"
+              >
+                <div className="relative flex items-center justify-center">
+                  {/* Lightly pulsing white outer ring */}
+                  <div className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/40 animate-ping pointer-events-none" />
+                  <div className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white/20 animate-pulse pointer-events-none" />
+                  
+                  {/* White circular play button */}
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/95 text-brand-navy shadow-[0_0_40px_rgba(255,255,255,0.7)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                    <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-brand-navy text-brand-navy translate-x-0.5" />
+                  </div>
+                </div>
+              </button>
+            )}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link
+              to="/donate"
+              className="inline-block bg-brand-orange text-white font-black px-10 py-4 rounded-full hover:bg-brand-cyan hover:text-brand-navy transition-all shadow-xl uppercase tracking-widest text-sm"
+            >
+              {t('home.fundraising_donate')}
+            </Link>
           </div>
         </div>
       </section>
 
       {/* MISSION */}
-      <section id="mission" className="py-24 bg-brand-pale">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section id="mission" className="py-24 bg-brand-pale relative overflow-hidden">
+        {/* Background decorative gradient blobs */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-brand-cyan/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-brand-orange/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            {/* Left: Section header */}
             <div className="relative">
               <Bike className="absolute -top-10 -left-10 h-40 w-40 text-brand-navy/5 -rotate-12 pointer-events-none" />
               <div className="text-brand-orange font-black uppercase tracking-[0.2em] mb-4 text-sm animate-fade-in relative z-10">{t('home.mission_tag')}</div>
@@ -305,47 +459,74 @@ const Home: React.FC = () => {
               <div className="h-1 w-24 bg-brand-cyan rounded-full relative z-10"></div>
             </div>
 
-            <div className="grid gap-6">
-              {/* MAPS Card */}
-              <div className="bg-white p-8 rounded-[2rem] border border-brand-grey/20 hover:shadow-xl transition-all group cursor-pointer hover:border-brand-cyan/30">
-                <div className="flex items-start gap-6">
-                  <div className="h-20 w-20 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-brand-grey/20 p-2 group-hover:scale-105 transition-transform">
-                    <img src="/assets/logos/MAPS%20Logo.png" alt="MAPS Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex-grow">
-                    <h3 className="text-2xl font-black text-brand-navy mb-2 font-heading">{t('home.maps_name')}</h3>
-                    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest mb-3">{t('home.maps_tagline')}</div>
-                    <p className="text-sm text-brand-slate font-medium mb-4">{t('home.maps_desc')}</p>
-                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mt-6">
-                      <Link to="/mission" className="text-[10px] font-black text-brand-navy uppercase tracking-widest hover:text-brand-cyan transition-colors flex items-center gap-1 border-b border-brand-navy hover:border-brand-cyan pb-0.5">
-                        {t('home.maps_see_how')} <ArrowRight className="h-3 w-3" />
-                      </Link>
-                      <Link to="/donate?beneficiary=MAPS" className="text-[10px] font-black text-brand-orange uppercase tracking-widest hover:text-brand-navy transition-colors flex items-center gap-1">
-                        {t('home.maps_donate')}
-                      </Link>
+            {/* Right: Cards */}
+            <div className="grid gap-5">
+              {/* MAPS Card — Cyan accent */}
+              <div className="group bg-white rounded-[2rem] overflow-hidden border border-brand-grey/10 shadow-lg hover:shadow-2xl hover:shadow-brand-cyan/10 transition-all duration-300 hover:-translate-y-1">
+                {/* Coloured accent bar */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-brand-cyan to-sky-400" />
+                <div className="p-7 sm:p-8">
+                  <div className="flex items-start gap-5">
+                    {/* Logo */}
+                    <div className="h-16 w-16 rounded-2xl bg-brand-pale/40 flex items-center justify-center shrink-0 border border-brand-grey/10 p-2.5 group-hover:scale-105 group-hover:bg-brand-cyan/10 transition-all">
+                      <img src="/assets/logos/MAPS%20Logo.png" alt="MAPS Logo" className="w-full h-full object-contain" />
                     </div>
+                    <div className="flex-grow min-w-0">
+                      <h3 className="text-xl font-black text-brand-navy mb-1 font-heading">{t('home.maps_name')}</h3>
+                      <div className="inline-flex items-center gap-1.5 bg-brand-cyan/10 text-brand-navy/70 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full mb-3">
+                        <div className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                        Complex Paediatric Surgery
+                      </div>
+                      <p className="text-sm text-brand-slate font-medium leading-relaxed">{t('home.maps_desc')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <Link
+                      to="/mission"
+                      className="flex-1 text-center text-[11px] font-black text-brand-navy uppercase tracking-widest hover:text-brand-cyan transition-colors border-2 border-brand-pale hover:border-brand-cyan py-3 rounded-xl"
+                    >
+                      {t('home.maps_see_how')}
+                    </Link>
+                    <Link
+                      to="/donate?beneficiary=MAPS"
+                      className="flex-1 text-center text-[11px] font-black text-white bg-brand-navy hover:bg-brand-cyan hover:text-brand-navy uppercase tracking-widest py-3 rounded-xl transition-all"
+                    >
+                      {t('home.maps_donate')}
+                    </Link>
                   </div>
                 </div>
               </div>
 
-              {/* MyPOPI Card */}
-              <div className="bg-white p-8 rounded-[2rem] border border-brand-grey/20 hover:shadow-xl transition-all group cursor-pointer hover:border-brand-cyan/30">
-                <div className="flex items-start gap-6">
-                  <div className="h-20 w-20 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-brand-grey/20 p-2 group-hover:scale-105 transition-transform">
-                    <img src="/assets/logos/MyPOPI-1.png" alt="MyPOPI Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex-grow">
-                    <h3 className="text-2xl font-black text-brand-navy mb-2 font-heading">{t('home.mypopi_name')}</h3>
-                    <div className="text-[10px] font-black text-brand-orange uppercase tracking-widest mb-3">{t('home.mypopi_tagline')}</div>
-                    <p className="text-sm text-brand-slate font-medium mb-4">{t('home.mypopi_desc')}</p>
-                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mt-6">
-                      <Link to="/mission" className="text-[10px] font-black text-brand-navy uppercase tracking-widest hover:text-brand-cyan transition-colors flex items-center gap-1 border-b border-brand-navy hover:border-brand-cyan pb-0.5">
-                        {t('home.mypopi_see_how')} <ArrowRight className="h-3 w-3" />
-                      </Link>
-                      <Link to="/donate?beneficiary=MyPOPI" className="text-[10px] font-black text-brand-orange uppercase tracking-widest hover:text-brand-navy transition-colors flex items-center gap-1">
-                        {t('home.mypopi_donate')}
-                      </Link>
+              {/* MyPOPI Card — Orange accent */}
+              <div className="group bg-white rounded-[2rem] overflow-hidden border border-brand-grey/10 shadow-lg hover:shadow-2xl hover:shadow-brand-orange/10 transition-all duration-300 hover:-translate-y-1">
+                <div className="h-1.5 w-full bg-gradient-to-r from-brand-orange to-amber-400" />
+                <div className="p-7 sm:p-8">
+                  <div className="flex items-start gap-5">
+                    <div className="h-16 w-16 rounded-2xl bg-brand-pale/40 flex items-center justify-center shrink-0 border border-brand-grey/10 p-2.5 group-hover:scale-105 group-hover:bg-brand-orange/10 transition-all">
+                      <img src="/assets/logos/MyPOPI-1.png" alt="MyPOPI Logo" className="w-full h-full object-contain" />
                     </div>
+                    <div className="flex-grow min-w-0">
+                      <h3 className="text-xl font-black text-brand-navy mb-1 font-heading">{t('home.mypopi_name')}</h3>
+                      <div className="inline-flex items-center gap-1.5 bg-brand-orange/10 text-brand-navy/70 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full mb-3">
+                        <div className="h-1.5 w-1.5 rounded-full bg-brand-orange" />
+                        Primary Immunodeficiency (PID)
+                      </div>
+                      <p className="text-sm text-brand-slate font-medium leading-relaxed">{t('home.mypopi_desc')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <Link
+                      to="/mission"
+                      className="flex-1 text-center text-[11px] font-black text-brand-navy uppercase tracking-widest hover:text-brand-orange transition-colors border-2 border-brand-pale hover:border-brand-orange/40 py-3 rounded-xl"
+                    >
+                      {t('home.mypopi_see_how')}
+                    </Link>
+                    <Link
+                      to="/donate?beneficiary=MyPOPI"
+                      className="flex-1 text-center text-[11px] font-black text-white bg-brand-orange hover:bg-brand-navy uppercase tracking-widest py-3 rounded-xl transition-all"
+                    >
+                      {t('home.mypopi_donate')}
+                    </Link>
                   </div>
                 </div>
               </div>

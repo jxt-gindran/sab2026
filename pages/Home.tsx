@@ -419,13 +419,13 @@ const Home: React.FC = () => {
                 aria-label="Play video"
               >
                 <div className="relative flex items-center justify-center">
-                  {/* Lightly pulsing SAB orange outer rings */}
-                  <div className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-brand-orange/40 animate-ping pointer-events-none" />
-                  <div className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-brand-orange/25 animate-pulse pointer-events-none" />
+                  {/* Lightly pulsing outer rings */}
+                  <div className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-brand-orange/30 animate-ping pointer-events-none" />
+                  <div className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white/20 animate-pulse pointer-events-none" />
                   
-                  {/* SAB Brand Orange circular play button */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-brand-orange text-white shadow-[0_0_50px_rgba(249,115,22,0.7)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-white text-white translate-x-0.5" />
+                  {/* White circular button with SAB Brand Orange play icon */}
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/95 text-brand-orange shadow-[0_0_50px_rgba(255,255,255,0.8)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                    <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-brand-orange text-brand-orange translate-x-0.5" />
                   </div>
                 </div>
               </button>

@@ -415,17 +415,17 @@ const Home: React.FC = () => {
               <button
                 type="button"
                 onClick={() => charityVideoRef.current?.play()}
-                className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/20 hover:bg-black/30 transition-all duration-300 group cursor-pointer z-10"
+                className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-300 group cursor-pointer z-10"
                 aria-label="Play video"
               >
                 <div className="relative flex items-center justify-center">
-                  {/* Lightly pulsing white outer ring */}
-                  <div className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/40 animate-ping pointer-events-none" />
-                  <div className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white/20 animate-pulse pointer-events-none" />
+                  {/* Lightly pulsing SAB orange outer rings */}
+                  <div className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-brand-orange/40 animate-ping pointer-events-none" />
+                  <div className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-brand-orange/25 animate-pulse pointer-events-none" />
                   
-                  {/* White circular play button */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/95 text-brand-navy shadow-[0_0_40px_rgba(255,255,255,0.7)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-brand-navy text-brand-navy translate-x-0.5" />
+                  {/* SAB Brand Orange circular play button */}
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-brand-orange text-white shadow-[0_0_50px_rgba(249,115,22,0.7)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                    <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-white text-white translate-x-0.5" />
                   </div>
                 </div>
               </button>

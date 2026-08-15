@@ -15,6 +15,7 @@ export default defineSchema({
         phone: v.optional(v.string()),
         icNumber: v.optional(v.string()),
         address: v.optional(v.string()),  // Postal address (for tax receipt upfront)
+        reference: v.optional(v.string()), // SAB-17xxxxxx reference number
         // ── Tax receipt tracking ──────────────────────────────────────────────
         receiptType:       v.optional(v.string()),  // 'none' | 'personal' | 'corporate'
         receiptRequested:  v.optional(v.boolean()),
@@ -32,7 +33,39 @@ export default defineSchema({
     })
         .index("by_status", ["status"])
         .index("by_paymentId", ["paymentId"])
+        .index("by_reference", ["reference"])
         .index("by_receipt_status", ["receiptStatus"]),
+
+    /**
+     * Temporary storage for checkout session data before payment is confirmed.
+     * Prevents uncompleted/abandoned checkouts from polluting the main donations table.
+     */
+    paymentIntents: defineTable({
+        reference: v.string(), // SAB-17xxxxxx
+        hitpayRequestId: v.optional(v.string()), // HitPay Payment Request UUID
+        amount: v.number(),
+        name: v.string(),
+        email: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        riderId: v.optional(v.string()),
+        message: v.optional(v.string()),
+        icNumber: v.optional(v.string()),
+        address: v.optional(v.string()),
+        // Tax receipt intent
+        receiptType: v.optional(v.string()),
+        receiptRequested: v.optional(v.boolean()),
+        receiptName: v.optional(v.string()),
+        receiptIC: v.optional(v.string()),
+        receiptPhone: v.optional(v.string()),
+        receiptAddress: v.optional(v.string()),
+        receiptCompany: v.optional(v.string()),
+        receiptRegNo: v.optional(v.string()),
+        receiptBizAddress: v.optional(v.string()),
+        status: v.string(), // 'initiated' | 'fulfilled'
+        createdAt: v.number(),
+    })
+        .index("by_reference", ["reference"])
+        .index("by_hitpayRequestId", ["hitpayRequestId"]),
 
     cyclists: defineTable({
         name: v.string(),

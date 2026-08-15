@@ -91,6 +91,7 @@ export const add = mutation({
             email: args.email,
             message: args.message,
             paymentId: args.reference,
+            reference: args.reference,
             timestamp: Date.now(),
             status: 'pending',
             type: type,
@@ -136,15 +137,103 @@ export const add = mutation({
     },
 });
 
+// ─── Payment Intent Helpers (HitPay Pre-checkout Storage) ─────────────────────
 
-// ─── Internal mutation: HitPay webhook ───────────────────────────────────────
+export const savePaymentIntent = internalMutation({
+    args: {
+        reference: v.string(),
+        amount: v.number(),
+        name: v.string(),
+        email: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        riderId: v.optional(v.string()),
+        message: v.optional(v.string()),
+        icNumber: v.optional(v.string()),
+        address: v.optional(v.string()),
+        // Receipt intent fields
+        receiptType: v.optional(v.string()),
+        receiptRequested: v.optional(v.boolean()),
+        receiptName: v.optional(v.string()),
+        receiptIC: v.optional(v.string()),
+        receiptPhone: v.optional(v.string()),
+        receiptAddress: v.optional(v.string()),
+        receiptCompany: v.optional(v.string()),
+        receiptRegNo: v.optional(v.string()),
+        receiptBizAddress: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        // Idempotent upsert by reference
+        const existing = await ctx.db
+            .query("paymentIntents")
+            .withIndex("by_reference", q => q.eq("reference", args.reference))
+            .first();
+
+        if (existing) {
+            await ctx.db.patch(existing._id, {
+                amount: args.amount,
+                name: args.name,
+                email: args.email,
+                phone: args.phone,
+                riderId: args.riderId,
+                message: args.message,
+                icNumber: args.icNumber,
+                address: args.address,
+                receiptType: args.receiptType,
+                receiptRequested: args.receiptRequested,
+                receiptName: args.receiptName,
+                receiptIC: args.receiptIC,
+                receiptPhone: args.receiptPhone,
+                receiptAddress: args.receiptAddress,
+                receiptCompany: args.receiptCompany,
+                receiptRegNo: args.receiptRegNo,
+                receiptBizAddress: args.receiptBizAddress,
+                status: 'initiated',
+            });
+            return existing._id;
+        }
+
+        return await ctx.db.insert("paymentIntents", {
+            ...args,
+            status: 'initiated',
+            createdAt: Date.now(),
+        });
+    },
+});
+
+export const updatePaymentIntentHitPayId = internalMutation({
+    args: {
+        reference: v.string(),
+        hitpayRequestId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const intent = await ctx.db
+            .query("paymentIntents")
+            .withIndex("by_reference", q => q.eq("reference", args.reference))
+            .first();
+        if (intent) {
+            await ctx.db.patch(intent._id, { hitpayRequestId: args.hitpayRequestId });
+        }
+    },
+});
+
+export const getPaymentIntent = internalQuery({
+    args: { reference: v.string() },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("paymentIntents")
+            .withIndex("by_reference", q => q.eq("reference", args.reference))
+            .first();
+    },
+});
+
+// ─── Internal mutation: Record Confirmed Payment (HitPay Webhook / Verification) ──
 
 export const recordPayment = internalMutation({
     args: {
         amount: v.number(),
         paymentId: v.string(),
         reference: v.optional(v.string()),
-        name: v.string(),
+        name: v.optional(v.string()),
         email: v.optional(v.string()),
         riderId: v.optional(v.string()),
         status: v.string(),
@@ -152,75 +241,142 @@ export const recordPayment = internalMutation({
         message: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        // ── Path 1: Match existing pending record by reference ───────────────
+        // Only process completed payments
+        if (args.status !== 'completed') {
+            console.log(`[recordPayment] Payment ${args.paymentId} status is '${args.status}' — not recording.`);
+            return null;
+        }
+
+        // ── 1. Idempotency Check: already recorded in donations? ───────────
         if (args.reference) {
-            const existing = await ctx.db
+            const existingByRef = await ctx.db
                 .query("donations")
-                .withIndex("by_paymentId", q => q.eq("paymentId", args.reference))
+                .withIndex("by_reference", q => q.eq("reference", args.reference))
                 .first();
-
-            if (existing) {
-                if (existing.status === 'completed') {
-                    console.warn(`[recordPayment] Duplicate for ref ${args.reference} — skipping`);
-                    return existing._id;
-                }
-
-                await ctx.db.patch(existing._id, {
-                    status: args.status,
-                    paymentId: args.paymentId,
-                    message: args.message
-                        ? (existing.message ? existing.message + " | " + args.message : args.message)
-                        : existing.message,
-                });
-
-                // Sync cyclist(s) raised
-                if (existing.status !== "completed" && args.status === "completed") {
-                    if (existing.riderId) {
-                        await syncCyclistRaised(ctx, existing.riderId, existing.amount, existing.status, args.status);
-                    } else {
-                        // General Fund → distribute equally across all active cyclists
-                        await distributeGeneralFund(ctx, existing.amount, existing.status, args.status);
-                    }
-                }
-
-                return existing._id;
+            if (existingByRef) {
+                console.log(`[recordPayment] Duplicate for reference ${args.reference} — skipping.`);
+                return existingByRef._id;
             }
         }
 
-        // ── Path 2: Idempotency guard by paymentId ───────────────────────────
         if (args.paymentId) {
-            const existing = await ctx.db
+            const existingByPaymentId = await ctx.db
                 .query("donations")
                 .withIndex("by_paymentId", q => q.eq("paymentId", args.paymentId))
                 .first();
-            if (existing) {
-                console.warn(`[recordPayment] Duplicate paymentId ${args.paymentId} — skipping`);
-                return existing._id;
+            if (existingByPaymentId) {
+                console.log(`[recordPayment] Duplicate for paymentId ${args.paymentId} — skipping.`);
+                return existingByPaymentId._id;
             }
         }
 
-        // ── Path 3: Fallback — create new record ─────────────────────────────
-        const newId = await ctx.db.insert("donations", {
-            amount: args.amount,
-            riderId: args.riderId,
-            name: args.name,
-            email: args.email,
-            message: args.message,
+        // ── 2. Look up Pre-checkout Intent ────────────────────────────────
+        let intent = null;
+        const refArg = args.reference;
+        if (refArg) {
+            intent = await ctx.db
+                .query("paymentIntents")
+                .withIndex("by_reference", q => q.eq("reference", refArg))
+                .first();
+        }
+        const payIdArg = args.paymentId;
+        if (!intent && payIdArg) {
+            intent = await ctx.db
+                .query("paymentIntents")
+                .withIndex("by_hitpayRequestId", q => q.eq("hitpayRequestId", payIdArg))
+                .first();
+        }
+
+        // ── 3. Construct Donation Record ──────────────────────────────────
+        const donorName = intent?.name || args.name || args.email || 'HitPay Donor';
+        const donorEmail = intent?.email || args.email;
+        const donorPhone = intent?.phone;
+        const riderId = intent?.riderId || args.riderId;
+        const donationAmount = args.amount > 0 ? args.amount : (intent?.amount || 0);
+        const refNumber = args.reference || intent?.reference;
+
+        const isReceiptReq = !!intent?.receiptRequested;
+
+        const donationData = {
+            amount: donationAmount,
+            riderId: riderId,
+            name: donorName,
+            email: donorEmail,
+            phone: donorPhone,
+            message: intent?.message || args.message,
             paymentId: args.paymentId,
+            reference: refNumber,
             timestamp: Date.now(),
-            status: args.status,
-            type: args.type,
+            status: 'completed',
+            type: 'hitpay',
+            icNumber: intent?.icNumber,
+            address: intent?.address,
+            // Tax Receipt Info
+            receiptType: intent?.receiptType,
+            receiptRequested: isReceiptReq,
+            receiptStatus: isReceiptReq ? 'pending' : undefined,
+            receiptName: intent?.receiptName || donorName,
+            receiptIC: intent?.receiptIC || intent?.icNumber,
+            receiptPhone: intent?.receiptPhone || donorPhone,
+            receiptAddress: intent?.receiptAddress || intent?.address,
+            receiptCompany: intent?.receiptCompany,
+            receiptRegNo: intent?.receiptRegNo,
+            receiptBizAddress: intent?.receiptBizAddress,
+        };
+
+        const donationId = await ctx.db.insert("donations", donationData);
+
+        // ── 4. Mark Intent as Fulfilled ───────────────────────────────────
+        if (intent) {
+            await ctx.db.patch(intent._id, { status: 'fulfilled' });
+        }
+
+        // ── 5. Sync Cyclist / General Fund totals ─────────────────────────
+        if (riderId) {
+            await syncCyclistRaised(ctx, riderId, donationAmount, "pending", "completed");
+        } else {
+            await distributeGeneralFund(ctx, donationAmount, "pending", "completed");
+        }
+
+        // ── 6. Dispatch Emails (Fire & Forget) ────────────────────────────
+        if (donorEmail) {
+            await ctx.scheduler.runAfter(0, internal.email.sendThankYou, {
+                donationId: donationId.toString(),
+                email: donorEmail,
+                name: donorName,
+                amount: donationAmount,
+                ref: refNumber || args.paymentId,
+            });
+        }
+
+        await ctx.scheduler.runAfter(0, internal.email.sendAdminHitPayNotification, {
+            donationId: donationId.toString(),
+            name: donorName,
+            amount: donationAmount,
+            ref: refNumber || args.paymentId,
+            email: donorEmail,
         });
 
-        if (args.status === "completed") {
-            if (args.riderId) {
-                await syncCyclistRaised(ctx, args.riderId, args.amount, "pending", args.status);
-            } else {
-                await distributeGeneralFund(ctx, args.amount, "pending", args.status);
-            }
+        // If donor requested tax receipt upfront, notify admins immediately
+        if (isReceiptReq) {
+            await ctx.scheduler.runAfter(0, internal.email.sendReceiptRequest, {
+                donorName: donorName,
+                donorEmail: donorEmail || "—",
+                donorPhone: donorPhone || "—",
+                amount: donationAmount,
+                ref: refNumber || args.paymentId,
+                receiptType: intent?.receiptType || "personal",
+                receiptName: intent?.receiptName || donorName,
+                receiptIC: intent?.receiptIC || intent?.icNumber,
+                receiptPhone: intent?.receiptPhone || donorPhone,
+                receiptAddress: intent?.receiptAddress || intent?.address,
+                receiptCompany: intent?.receiptCompany,
+                receiptRegNo: intent?.receiptRegNo,
+                receiptBizAddress: intent?.receiptBizAddress,
+            });
         }
 
-        return newId;
+        return donationId;
     },
 });
 
@@ -350,16 +506,26 @@ export const getStats = query({
 // ─── Receipt tracking ─────────────────────────────────────────────────────────
 
 /**
- * Fetch a single donation by its paymentId/reference (used by the /thank-you page).
+ * Fetch a single donation by its paymentId or reference (used by the /thank-you page).
  */
 export const getByRef = query({
     args: { ref: v.string() },
     handler: async (ctx, args) => {
-        const donation = await ctx.db
+        if (!args.ref) return null;
+
+        // 1. Search by reference (e.g. SAB-17xxxxxx)
+        const byRef = await ctx.db
+            .query("donations")
+            .withIndex("by_reference", q => q.eq("reference", args.ref))
+            .first();
+        if (byRef) return byRef;
+
+        // 2. Search by paymentId (e.g. HitPay UUID)
+        const byPaymentId = await ctx.db
             .query("donations")
             .withIndex("by_paymentId", q => q.eq("paymentId", args.ref))
             .first();
-        return donation ?? null;
+        return byPaymentId ?? null;
     },
 });
 
@@ -382,10 +548,18 @@ export const requestReceipt = mutation({
         receiptBizAddress: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const donation = await ctx.db
+        // Look up by reference or paymentId
+        let donation = await ctx.db
             .query("donations")
-            .withIndex("by_paymentId", q => q.eq("paymentId", args.ref))
+            .withIndex("by_reference", q => q.eq("reference", args.ref))
             .first();
+
+        if (!donation) {
+            donation = await ctx.db
+                .query("donations")
+                .withIndex("by_paymentId", q => q.eq("paymentId", args.ref))
+                .first();
+        }
 
         if (!donation) throw new Error("Donation not found");
         if (donation.receiptRequested) return; // idempotent

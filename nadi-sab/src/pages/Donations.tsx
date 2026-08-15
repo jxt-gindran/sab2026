@@ -223,15 +223,13 @@ export default function Donations() {
           <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
           <div className="flex-grow min-w-0">
             <p className="text-sm font-black text-amber-800 mb-1">
-              Why are Online (HitPay) donations showing as Pending?
+              Legacy Online (HitPay) Pending Records
             </p>
             <p className="text-xs text-amber-700 leading-relaxed mb-3">
-              When a donor clicks <strong>"Proceed to Checkout"</strong>, a <em>pending</em> record is created immediately
-              before they are redirected to HitPay. If the donor abandons the checkout, the payment fails,
-              or HitPay's webhook does not fire, the record stays pending permanently.
+              Under the updated payment architecture, new online donations are only inserted into this table once payment is confirmed by HitPay.
+              Any existing pending online records represent abandoned checkouts from earlier sessions.
               <br /><br />
-              <strong>These pending online donations will NOT count towards Fund Raised</strong> — only
-              webhook-confirmed <em>completed</em> donations do. You can safely void abandoned ones below.
+              <strong>These pending online records do NOT count towards Fund Raised.</strong> You can safely clean them up by voiding them below.
             </p>
             {pendingOnline > 0 && (
               <button
@@ -243,7 +241,7 @@ export default function Donations() {
                   ? <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   : <XCircle className="h-4 w-4" />
                 }
-                Void All {pendingOnline} Pending Online Donation{pendingOnline > 1 ? 's' : ''}
+                Void All {pendingOnline} Legacy Pending Online Donation{pendingOnline > 1 ? 's' : ''}
               </button>
             )}
           </div>
@@ -261,7 +259,7 @@ export default function Donations() {
       <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6 flex gap-3">
         <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
         <p className="text-xs text-blue-600 leading-relaxed">
-          <strong>Online (HitPay):</strong> Auto-verified via webhook — no action needed unless voiding an abandoned checkout.
+          <strong>Online (HitPay):</strong> Automatically recorded and verified upon completed payment.
           {' '}<strong>Manual Transfer:</strong> Approve <CheckCircle2 className="inline h-3 w-3 text-green-500" /> to add to Fund Raised,
           or Reject <XCircle className="inline h-3 w-3 text-red-400" /> if payment not received.
           {' '}<strong>Receipt Requests:</strong> Click on any row with a receipt status badge to view details, copy info, and mark as sent.

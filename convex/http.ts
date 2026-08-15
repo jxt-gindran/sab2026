@@ -67,6 +67,7 @@ http.route({
         // ─── PROCESS PAYMENT ──────────────────────────────────
         const {
             payment_id,
+            payment_request_id,
             status,
             amount,
             reference_number,
@@ -74,35 +75,18 @@ http.route({
             payer_email
         } = body;
 
-        console.log(`[Webhook] Payment ${payment_id}: ${status} (ref: ${reference_number})`);
+        console.log(`[Webhook] Payment ${payment_id || payment_request_id}: ${status} (ref: ${reference_number})`);
 
         if (status === 'completed') {
             await ctx.runMutation(internal.donations.recordPayment, {
                 amount: parseFloat(amount) || 0,
                 name: payer_name || payer_email || 'HitPay Donor',
                 email: payer_email,
-                paymentId: payment_id,
+                paymentId: payment_id || payment_request_id || reference_number,
                 reference: reference_number,
                 status: 'completed',
                 type: 'hitpay',
                 message: `Via HitPay (ref: ${reference_number || 'N/A'})`
-            });
-
-            // Send Emails (Fire & Forget)
-            if (payer_email) {
-                await ctx.scheduler.runAfter(0, internal.email.sendThankYou, {
-                    email: payer_email,
-                    name: payer_name || 'Donor',
-                    amount: parseFloat(amount) || 0,
-                    ref: payment_id
-                });
-            }
-
-            await ctx.scheduler.runAfter(0, internal.email.sendAdminHitPayNotification, {
-                name: payer_name || 'Anonymous',
-                amount: parseFloat(amount) || 0,
-                ref: payment_id,
-                email: payer_email
             });
         }
 

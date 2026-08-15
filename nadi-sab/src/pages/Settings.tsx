@@ -38,7 +38,7 @@ const EMAIL_TEMPLATES = [
     subject: '✅ Bank Transfer Approved — RM {amount} | SAB2026 Thank You!',
     audience: 'Donor',
     trigger: 'Fired when an admin clicks "Approve" on a pending manual donation.',
-    description: 'Confirms to the donor that their bank transfer has been verified and counted in the fundraising total. Informs them a tax-exemption receipt will follow within 3–5 working days.',
+    description: 'Confirms to the donor that their bank transfer has been verified and counted in the fundraising total. Informs them a tax-exemption receipt will follow within 30 days of verification.',
     color: 'from-sky-950 to-sky-900',
     accent: 'text-sky-300',
     badge: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
@@ -743,7 +743,7 @@ export default function Settings() {
           </div>
           <div>
             <span className="font-black text-slate-400 uppercase tracking-widest">Admin Inbox</span>
-            <p className="font-bold text-brand-navy mt-0.5">sab2026@mma.org.my</p>
+            <p className="font-bold text-brand-navy mt-0.5">mmafoundation1976@gmail.com</p>
           </div>
           <div>
             <span className="font-black text-slate-400 uppercase tracking-widest">Provider</span>

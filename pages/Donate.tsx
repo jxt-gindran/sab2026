@@ -35,6 +35,7 @@ const Donate: React.FC = () => {
   const [selectedRider, setSelectedRider] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'HITPAY' | 'TRANSFER' | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Convex Hooks
   const createPaymentLink = useAction(api.payments.createLink);
@@ -443,39 +444,52 @@ const Donate: React.FC = () => {
 
                       <button
                         id="hitpay-btn"
+                        disabled={isRedirecting}
                         onClick={async () => {
+                          if (isRedirecting) return;
+                          setIsRedirecting(true);
                           try {
                             const ref = 'SAB-' + Date.now();
-                            try {
-                              await addDonation(buildDonationArgs('hitpay', ref));
-                            } catch (err) {
-                              console.error('Failed to create pending record:', err);
-                            }
-
                             const beneficiaryName = selectedRider ? cyclists.find((c: any) => c.shareSlug === selectedRider)?.name || 'General' : 'General';
+                            
                             const result = await createPaymentLink({
                               amount: totalAmount,
                               name: donorName,
                               email: donorEmail,
+                              phone: donorPhone,
+                              riderId: selectedRider || undefined,
                               purpose: `Donation for SAB2026 (Fund: ${beneficiaryName})`,
                               reference: ref,
-                              siteUrl: window.location.origin
+                              siteUrl: window.location.origin,
+                              icNumber: donorIC || undefined,
+                              address: (receiptType === 'personal' ? donorAddress : bizAddress) || undefined,
+                              receiptType: wantsTaxReceipt ? (receiptType || 'none') : 'none',
+                              receiptRequested: wantsTaxReceipt,
+                              receiptName: receiptType === 'personal' ? donorName : undefined,
+                              receiptIC: receiptType === 'personal' ? donorIC : undefined,
+                              receiptPhone: receiptType === 'personal' ? donorPhone : undefined,
+                              receiptAddress: receiptType === 'personal' ? donorAddress : undefined,
+                              receiptCompany: receiptType === 'corporate' ? companyName : undefined,
+                              receiptRegNo: receiptType === 'corporate' ? regNo : undefined,
+                              receiptBizAddress: receiptType === 'corporate' ? bizAddress : undefined,
                             });
 
                             if (result && result.url) {
                               window.location.href = result.url;
                             } else {
                               alert(t('donate.err_init'));
+                              setIsRedirecting(false);
                             }
                           } catch (e) {
                             alert(t('donate.err_server'));
                             console.error(e);
+                            setIsRedirecting(false);
                           }
                         }}
-                        className="w-full bg-brand-navy text-white text-xl font-black py-8 rounded-[2.5rem] shadow-2xl hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-4 group uppercase tracking-widest"
+                        className="w-full bg-brand-navy text-white text-xl font-black py-8 rounded-[2.5rem] shadow-2xl hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-4 group uppercase tracking-widest disabled:opacity-60"
                       >
-                        {t('donate.step4_proceed')}
-                        <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                        {isRedirecting ? 'Connecting to Gateway...' : t('donate.step4_proceed')}
+                        <ArrowRight className={`h-6 w-6 transition-transform ${isRedirecting ? 'animate-pulse' : 'group-hover:translate-x-2'}`} />
                       </button>
 
                       <div className="mt-8 flex items-center justify-center gap-6 opacity-40 grayscale group-hover:grayscale-0 transition-all">

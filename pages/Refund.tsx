@@ -44,7 +44,7 @@ const Refund: React.FC = () => {
                     <div className="bg-brand-pale/20 p-8 rounded-[2rem] border border-brand-pale mt-12">
                         <h4 className="text-brand-navy font-black text-xl mb-4">{t('legal.questions_heading')}</h4>
                         <p className="mb-4">For any inquiries regarding this policy, please reach out to the MMAF secretariat.</p>
-                        <p className="text-brand-orange font-bold">Email: sab2026@mma.org.my</p>
+                        <p className="text-brand-orange font-bold">Email: mmafoundation1976@gmail.com</p>
                     </div>
                 </div>
             </div>

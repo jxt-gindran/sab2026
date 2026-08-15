@@ -262,7 +262,7 @@ export const en = {
     q2: 'How will my donation be used?',
     a2: 'Funds raised are directed to our two main beneficiaries: MAPS (for paediatric surgeries) and MyPOPI (for immune deficiency diagnostics and treatment). Your contribution directly saves lives.',
     q3: 'Can I donate offline or via cheque?',
-    a3: 'Yes. Please contact the MMA Foundation directly at +603-4041 1375 or email sab2026@mma.org.my for bank transfer details or cheque instructions.',
+    a3: 'Yes. Please contact the MMA Foundation directly at +603-4041 1375 or email mmafoundation1976@gmail.com for bank transfer details or cheque instructions.',
     q4: 'Will I receive a receipt?',
     a4: 'Yes. An official tax-exempt receipt will be issued by MMAF and emailed/posted to you once your donation is verified.',
     q5: 'Does the money go to the rider?',
@@ -285,7 +285,7 @@ export const en = {
     how_step2_title: '100% Secure',
     how_step2_desc: 'Direct to MMA Foundation (Tax Exempt).',
     how_step3_title: 'Get Receipt',
-    how_step3_desc: 'LHDN-compliant tax receipt instantly.',
+    how_step3_desc: 'Official LHDN tax-exemption receipt.',
 
     // Progress stepper
     step_indicator: 'Step 1 of 5',
@@ -369,8 +369,8 @@ export const en = {
     // Errors
     err_init: 'Payment initialization failed. Please try again.',
     err_server: 'Error connecting to payment server. Please try again.',
-    err_receipt_recorded: 'Thank you! Your donation of RM {amount} has been recorded.\n\nPlease also email your receipt to sab2026@mma.org.my with subject \'SAB2026 Manual Receipt\' for verification.',
-    err_receipt_email: "Please email your receipt to sab2026@mma.org.my with subject 'SAB2026 Manual Receipt' for verification.",
+    err_receipt_recorded: 'Thank you! Your donation of RM {amount} has been recorded.\n\nPlease also email your receipt to mmafoundation1976@gmail.com with subject \'SAB2026 Manual Receipt\' for verification.',
+    err_receipt_email: "Please email your receipt to mmafoundation1976@gmail.com with subject 'SAB2026 Manual Receipt' for verification.",
 
     // Sidebar
     sidebar_summary: 'Current Summary',
@@ -418,7 +418,7 @@ export const en = {
       'is securely received. You are directly funding life-saving surgeries for children in Borneo.',
     next_heading: 'What happens next?',
     next_step1:
-      'You will receive an official tax-exemption receipt via email within 21 working days.',
+      'Official tax-exemption receipt will be issued via email within 30 days of verification.',
     next_step2:
       'Your donation will be matched to a specific medical case or general fund needs.',
     share_tag: 'Multiply Your Impact',
@@ -541,7 +541,7 @@ export const en = {
     intro:
       'MMAF is approved under Section 44(6) of the Income Tax Act 1967 (LHDN.01/35/42/51/179-6.5621). Your official tax exemption receipt will be issued within 30 days of verification. To obtain your receipt, please email the details below — together with your proof of payment — to:',
     email1: 'mmafoundation1976@gmail.com',
-    email2: 'mmafoundation76@gmail.com',
+    email2: 'mmafoundation1976@gmail.com',
     note:
       'Please allow up to 30 days for your receipt to be issued after verification. Receipts cannot be issued if any required information is incomplete.',
     individual_heading: 'For Individual Donors',
@@ -561,7 +561,7 @@ export const en = {
 
     contact_heading: 'Press Contact',
     contact_email_label: 'Media Enquiries Email',
-    contact_email: 'sab2026@mma.org.my',
+    contact_email: 'mmafoundation1976@gmail.com',
     contact_note:
       'We endeavour to respond to all media enquiries within two business days. For urgent matters, please mark your email subject line with [URGENT].',
 

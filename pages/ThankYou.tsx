@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
-    Heart,
     Share2,
     Facebook,
     CheckCircle2,
     ArrowRight,
     Copy,
-    FileText,
     Building2,
     User,
-    Check
+    Check,
+    Loader2,
+    AlertCircle,
+    RotateCcw
 } from 'lucide-react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../lib/i18n';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '../convex/_generated/api';
 
-// Simple WhatsApp Icon component since Lucide doesn't have it explicitly sometimes or varying
+// Simple WhatsApp Icon component
 const WhatsAppIcon = ({ className }: { className?: string }) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -40,10 +41,13 @@ const ThankYou: React.FC = () => {
     const { t } = useTranslation();
     const [amount, setAmount] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [hasAttemptedVerification, setHasAttemptedVerification] = useState(false);
 
     const refParam = searchParams.get('ref') || searchParams.get('reference') || '';
     const donation = useQuery(api.donations.getByRef, refParam ? { ref: refParam } : "skip");
     const requestReceipt = useMutation(api.donations.requestReceipt);
+    const verifyPayment = useAction(api.payments.verifyPayment);
 
     // Form states
     const [receiptType, setReceiptType] = useState<'none' | 'personal' | 'corporate'>('none');
@@ -65,10 +69,10 @@ const ThankYou: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
+    // Redirect to cancelled page if HitPay explicitly passed status=failed/canceled
     useEffect(() => {
-        // HitPay redirects with ?status=completed or ?status=failed/canceled
         const status = searchParams.get('status');
-        if (status && status !== 'completed') {
+        if (status && (status === 'failed' || status === 'canceled' || status === 'cancelled')) {
             navigate('/payment-cancelled', { replace: true });
             return;
         }
@@ -80,15 +84,34 @@ const ThankYou: React.FC = () => {
         }
     }, [searchParams, navigate, donation]);
 
+    // Active status verification fallback if record is not immediately in Convex
+    const verificationTriggered = useRef(false);
+    useEffect(() => {
+        if (refParam && donation === null && !hasAttemptedVerification && !verificationTriggered.current) {
+            verificationTriggered.current = true;
+            setIsVerifying(true);
+            verifyPayment({ ref: refParam })
+                .then(res => {
+                    console.log("[ThankYou] Verification result:", res);
+                })
+                .catch(err => {
+                    console.error("[ThankYou] Verification error:", err);
+                })
+                .finally(() => {
+                    setIsVerifying(false);
+                    setHasAttemptedVerification(true);
+                });
+        }
+    }, [refParam, donation, hasAttemptedVerification, verifyPayment]);
+
+    // Populate donation & receipt details when available
     useEffect(() => {
         if (donation) {
             setReceiptName(donation.receiptName || donation.name || '');
             setReceiptIC(donation.receiptIC || donation.icNumber || '');
             setReceiptPhone(donation.receiptPhone || donation.phone || '');
-            // Pre-fill address from upfront donation.address if available
             setReceiptAddress(donation.receiptAddress || (donation as any).address || '');
 
-            
             setReceiptCompany(donation.receiptCompany || '');
             setReceiptRegNo(donation.receiptRegNo || '');
             setReceiptBizAddress(donation.receiptBizAddress || '');
@@ -97,7 +120,7 @@ const ThankYou: React.FC = () => {
             setContactEmail(donation.email || '');
 
             if (donation.receiptRequested) {
-                setReceiptType(donation.receiptType as 'personal' | 'corporate' || 'none');
+                setReceiptType((donation.receiptType as 'personal' | 'corporate') || 'none');
                 setSubmitted(true);
             }
         }
@@ -108,6 +131,18 @@ const ThankYou: React.FC = () => {
         navigator.clipboard.writeText(shareUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleManualReverify = async () => {
+        if (!refParam) return;
+        setIsVerifying(true);
+        try {
+            await verifyPayment({ ref: refParam });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsVerifying(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -152,6 +187,89 @@ const ThankYou: React.FC = () => {
     const shareUrl = "https://sab.mma.org.my";
     const shareText = t('thankyou.share_text');
 
+    // ── STATE 1: Verifying / Loading ─────────────────────────────────────────
+    const isLoading = refParam && (donation === undefined || isVerifying);
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-white pt-32 pb-20 font-sans text-brand-slate">
+                <div className="max-w-4xl mx-auto px-6 animate-fade-in text-center">
+                    <div className="h-28 w-28 bg-brand-cyan/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
+                        <Loader2 className="h-12 w-12 text-brand-cyan animate-spin" />
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black text-brand-navy mb-4 font-heading tracking-tight">
+                        Verifying Your Donation...
+                    </h1>
+                    <p className="text-lg text-brand-slate font-medium max-w-md mx-auto mb-8 leading-relaxed">
+                        Please hold on while we confirm your payment details with the secure gateway.
+                    </p>
+                    <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-500 text-xs font-bold px-4 py-2 rounded-full">
+                        Reference: <span className="font-mono text-brand-navy">{refParam}</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ── STATE 2: Unconfirmed / Not Found ──────────────────────────────────────
+    const isNotFound = refParam && donation === null && hasAttemptedVerification;
+    if (isNotFound) {
+        return (
+            <div className="min-h-screen bg-white pt-32 pb-20 font-sans text-brand-slate">
+                <div className="max-w-3xl mx-auto px-6 animate-fade-in text-center">
+                    
+                    <div className="h-24 w-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                        <AlertCircle className="h-12 w-12 text-amber-600" />
+                    </div>
+
+                    <h1 className="text-4xl md:text-5xl font-black text-brand-navy mb-4 font-heading tracking-tight">
+                        Payment Verification Pending
+                    </h1>
+
+                    <p className="text-lg text-brand-slate font-medium max-w-xl mx-auto mb-8 leading-relaxed">
+                        We could not immediately find a confirmed payment record for reference <span className="font-mono font-bold text-brand-navy bg-slate-100 px-2 py-0.5 rounded">{refParam}</span>.
+                    </p>
+
+                    <div className="bg-amber-50 border border-amber-200 rounded-3xl p-8 text-left max-w-2xl mx-auto mb-10 shadow-sm">
+                        <h4 className="text-sm font-black uppercase tracking-wider text-amber-800 mb-3">What does this mean?</h4>
+                        <ul className="text-sm text-slate-600 space-y-3 leading-relaxed mb-6">
+                            <li>• <strong>If you completed the payment:</strong> Online banking systems may occasionally take 1–2 minutes to process. Click below to check again.</li>
+                            <li>• <strong>If money was deducted:</strong> Please retain your bank reference/receipt and reach out to our team at <a href="mailto:mmafoundation1976@gmail.com" className="font-bold text-brand-navy underline">mmafoundation1976@gmail.com</a>. We will manually verify and issue your receipt.</li>
+                            <li>• <strong>If the payment was cancelled or abandoned:</strong> No charges were made to your account.</li>
+                        </ul>
+
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button
+                                onClick={handleManualReverify}
+                                disabled={isVerifying}
+                                className="inline-flex items-center justify-center gap-2 bg-brand-navy text-white text-xs font-black px-6 py-3.5 rounded-xl hover:bg-brand-orange transition-all uppercase tracking-widest disabled:opacity-50"
+                            >
+                                <RotateCcw className={`h-4 w-4 ${isVerifying ? 'animate-spin' : ''}`} />
+                                Check Status Again
+                            </button>
+                            <Link
+                                to="/donate"
+                                className="inline-flex items-center justify-center gap-2 bg-white border-2 border-slate-200 text-brand-navy text-xs font-black px-6 py-3.5 rounded-xl hover:border-brand-navy transition-all uppercase tracking-widest"
+                            >
+                                Back to Donation Page
+                            </Link>
+                        </div>
+                    </div>
+
+                    <Link
+                        to="/"
+                        className="inline-flex items-center gap-2 text-brand-slate font-bold text-sm uppercase tracking-widest hover:text-brand-orange transition-colors"
+                    >
+                        {t('thankyou.return_home')} <ArrowRight className="h-4 w-4" />
+                    </Link>
+
+                </div>
+            </div>
+        );
+    }
+
+    // ── STATE 3: Confirmed Success ────────────────────────────────────────────
+    const displayAmount = donation?.amount ? donation.amount.toString() : amount;
+
     return (
         <div className="min-h-screen bg-white pt-32 pb-20 font-sans text-brand-slate">
             <div className="max-w-4xl mx-auto px-6 animate-fade-in text-center">
@@ -166,23 +284,40 @@ const ThankYou: React.FC = () => {
                     {t('thankyou.heading')}
                 </h1>
 
-                <p className="text-xl md:text-2xl text-brand-slate font-medium max-w-2xl mx-auto mb-12 leading-relaxed">
-                    {t('thankyou.subtitle_prefix')}{amount ? ` ${t('thankyou.subtitle_amount_prefix')} ${parseFloat(amount).toLocaleString('en-MY', { minimumFractionDigits: 2 })}` : ''} {t('thankyou.subtitle_suffix')}
+                <p className="text-xl md:text-2xl text-brand-slate font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+                    {t('thankyou.subtitle_prefix')}{displayAmount ? ` ${t('thankyou.subtitle_amount_prefix')} ${parseFloat(displayAmount).toLocaleString('en-MY', { minimumFractionDigits: 2 })}` : ''} {t('thankyou.subtitle_suffix')}
                 </p>
+
+                {/* Donation Summary Card */}
+                {donation && (
+                    <div className="max-w-2xl mx-auto mb-12 bg-slate-50 border border-slate-200 rounded-3xl p-6 text-left shadow-sm">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Donor</span>
+                                <span className="font-black text-brand-navy text-sm truncate block">{donation.name}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Amount</span>
+                                <span className="font-black text-brand-cyan text-sm block">RM {donation.amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Status</span>
+                                <span className="inline-flex items-center gap-1 font-bold text-green-600 text-xs bg-green-100 px-2 py-0.5 rounded-full">
+                                    <Check className="h-3 w-3" /> Confirmed
+                                </span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Reference</span>
+                                <span className="font-mono font-bold text-brand-navy text-xs truncate block">{donation.reference || donation.paymentId || refParam}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* 🧾 Tax Receipt Section */}
                 {refParam && (
                     <div className="max-w-2xl mx-auto mb-16 text-left">
-                        {donation === undefined ? (
-                            <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 text-center animate-pulse">
-                                <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">Loading donation details...</p>
-                            </div>
-                        ) : donation === null ? (
-                            <div className="bg-orange-50 border border-orange-200 rounded-[2.5rem] p-8 text-center">
-                                <p className="text-orange-600 font-bold mb-2">Donation record not found</p>
-                                <p className="text-sm text-slate-500">If you completed a payment, it may take a few moments to sync. If you still need assistance or to request a tax receipt manually, please contact us at <a href="mailto:mmafoundation76@gmail.com" className="underline font-bold text-brand-navy">mmafoundation76@gmail.com</a>.</p>
-                            </div>
-                        ) : submitted ? (
+                        {submitted ? (
                             <div className="bg-green-50 border-2 border-green-200 rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-green-900/5 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
                                 <div className="flex items-center gap-4 mb-6">
@@ -190,15 +325,15 @@ const ThankYou: React.FC = () => {
                                         <Check className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-black text-brand-navy font-heading">Receipt Request Submitted!</h3>
-                                        <p className="text-xs text-green-700 font-bold uppercase tracking-wider">Status: Pending Verification</p>
+                                        <h3 className="text-2xl font-black text-brand-navy font-heading">Receipt Request Logged!</h3>
+                                        <p className="text-xs text-green-700 font-bold uppercase tracking-wider">Status: Processing with MMA Foundation</p>
                                     </div>
                                 </div>
                                 <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                                    Your request has been logged. An email has been sent to the administrators at <span className="font-bold text-brand-navy">mmafoundation76@gmail.com</span> &amp; <span className="font-bold text-brand-navy">mmafoundation1976@gmail.com</span>. They will verify your donation amount and issue your official LHDN tax-exempt receipt. <span className="font-semibold text-brand-navy">Please allow up to 30 days for your receipt to be issued.</span>
+                                    Your tax exemption request has been securely recorded. An official LHDN tax-exempt receipt will be verified and issued by the MMA Foundation. <span className="font-semibold text-brand-navy">Please allow up to 30 days of verification for your receipt to be issued.</span>
                                 </p>
                                 <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                                    <h4 className="text-xs font-black text-brand-navy uppercase tracking-widest mb-3 pb-2 border-b border-slate-100">Requested Details</h4>
+                                    <h4 className="text-xs font-black text-brand-navy uppercase tracking-widest mb-3 pb-2 border-b border-slate-100">Receipt Recipient Details</h4>
                                     <table className="w-full text-xs">
                                         <tbody>
                                             {receiptType === 'personal' ? (

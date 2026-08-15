@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 
 
-const ADMIN_EMAIL = "sab2026@mma.org.my";
+const ADMIN_EMAIL = "mmafoundation1976@gmail.com";
 const FROM_EMAIL  = "mmafoundation1976@gmail.com";
 const FROM_NAME   = "SAB2026 — MMA Foundation";
 const SITE_URL    = "https://sab.mma.org.my";
@@ -252,7 +252,7 @@ function layout(body: string): string {
           <tr>
             <td style="background:#0F172A;padding:32px 40px;text-align:center;">
               <h1 style="margin:0;font-size:26px;font-weight:900;letter-spacing:-0.5px;color:#FFFFFF;">
-                SEMPARUH AMAL<br/>
+                SEPEDA AMAL<br/>
                 <span style="color:#00AEEF;">BORNEO 2026</span>
               </h1>
               <p style="margin:6px 0 0;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;">Malaysian Medical Association Foundation</p>
@@ -270,7 +270,7 @@ function layout(body: string): string {
           <tr>
             <td style="background:#F1F5F9;padding:24px 40px;text-align:center;border-top:1px solid #E2E8F0;">
               <p style="margin:0 0 6px;font-size:12px;color:#94A3B8;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
-                Semparuh Amal Borneo 2026
+                Sepeda Amal Borneo 2026
               </p>
               <p style="margin:0;font-size:11px;color:#CBD5E1;">
                 Malaysian Medical Association Foundation &nbsp;·&nbsp;
@@ -340,7 +340,7 @@ export const sendThankYou = internalAction({
         let subject = subjectSetting?.value || "✅ Donation Confirmed — {amount} | SAB2026 (Ref: {ref})";
         subject = subject.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", args.ref).replaceAll("{name}", args.name);
 
-        let message = bodySetting?.value || `Your generous contribution directly helps fund <strong>life-saving surgeries for children in Borneo</strong> through the Semparuh Amal Borneo 2026 cycling initiative.<br/><br/>An official <strong>tax-exemption receipt</strong> will be issued within <strong>3–5 working days</strong>. Please keep this email as proof of your donation.`;
+        let message = bodySetting?.value || `Your generous contribution directly helps fund <strong>life-saving surgeries for children in Borneo</strong> through the Sepeda Amal Borneo 2026 cycling initiative.<br/><br/>An official <strong>tax-exemption receipt</strong> will be issued within <strong>30 days of verification</strong>. Please keep this email as proof of your donation.`;
         message = message.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", args.ref).replaceAll("{name}", args.name);
 
         const html = `
@@ -457,7 +457,7 @@ export const sendManualSubmissionConfirmation = internalAction({
           <ol style="margin:0;padding-left:20px;font-size:14px;color:#334155;line-height:2;">
             <li>Complete your bank transfer to <strong>UOB Malaysia, MMA Foundation (Acc: 2403057985)</strong>.</li>
             <li>Send your payment receipt to our team via WhatsApp or email it to <a href="mailto:${ADMIN_EMAIL}" style="color:#00AEEF;">${ADMIN_EMAIL}</a> with the subject <em>"SAB2026 Manual Receipt — ${args.ref}"</em>.</li>
-            <li>Our team will verify and send you an official tax-exemption receipt within 3–5 working days of approval.</li>
+            <li>Our team will verify and send you an official tax-exemption receipt within 30 days of verification.</li>
           </ol>
 
           ${ctaButton("View SAB2026", SITE_URL)}
@@ -519,7 +519,7 @@ export const sendManualApproved = internalAction({
         let subject = subjectSetting?.value || "✅ Bank Transfer Approved — {amount} | SAB2026 Thank You!";
         subject = subject.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", args.ref).replaceAll("{name}", args.name);
 
-        let message = bodySetting?.value || `Your bank transfer has been verified and approved by our team. Your contribution has now been counted towards the live fundraising progress thermometer.<br/><br/>An official tax-exemption receipt will follow within 3–5 working days.`;
+        let message = bodySetting?.value || `Your bank transfer has been verified and approved by our team. Your contribution has now been counted towards the live fundraising progress thermometer.<br/><br/>An official tax-exemption receipt will follow within 30 days of verification.`;
         message = message.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", args.ref).replaceAll("{name}", args.name);
 
         const html = `
@@ -840,7 +840,7 @@ export const sendReceiptRequest = internalAction({
           </div>
         `;
 
-        for (const toEmail of ["mmafoundation1976@gmail.com", "mmafoundation76@gmail.com"]) {
+        for (const toEmail of ["mmafoundation1976@gmail.com"]) {
             await sendRawEmail({
                 toEmail,
                 subject,
@@ -916,7 +916,7 @@ export const sendReceiptReminder = internalAction({
           </div>
         `;
 
-        for (const toEmail of ["mmafoundation1976@gmail.com", "mmafoundation76@gmail.com"]) {
+        for (const toEmail of ["mmafoundation1976@gmail.com"]) {
             await sendRawEmail({
                 toEmail,
                 subject,
@@ -962,7 +962,7 @@ export const sendTestEmail = action({
                 subject = subjectSetting?.value || "✅ [TEST] Donation Confirmed — {amount} | SAB2026";
                 subject = subject.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", demoRef).replaceAll("{name}", demoName);
 
-                body = bodySetting?.value || `Your generous contribution directly helps fund <strong>life-saving surgeries for children in Borneo</strong> through the Semparuh Amal Borneo 2026 cycling initiative.<br/><br/>An official <strong>tax-exemption receipt</strong> will be issued within <strong>3–5 working days</strong>. Please keep this email as proof of your donation.`;
+                body = bodySetting?.value || `Your generous contribution directly helps fund <strong>life-saving surgeries for children in Borneo</strong> through the Sepeda Amal Borneo 2026 cycling initiative.<br/><br/>An official <strong>tax-exemption receipt</strong> will be issued within <strong>30 days of verification</strong>. Please keep this email as proof of your donation.`;
                 body = body.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", demoRef).replaceAll("{name}", demoName);
 
                 body = `
@@ -1013,7 +1013,7 @@ export const sendTestEmail = action({
                 subject = subjectSetting?.value || "✅ [TEST] Bank Transfer Approved — {amount} | SAB2026";
                 subject = subject.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", demoRef).replaceAll("{name}", demoName);
 
-                body = bodySetting?.value || `Your bank transfer has been verified and approved by our team. Your contribution has now been counted towards the live fundraising progress thermometer.<br/><br/>An official tax-exemption receipt will follow within 3–5 working days.`;
+                body = bodySetting?.value || `Your bank transfer has been verified and approved by our team. Your contribution has now been counted towards the live fundraising progress thermometer.<br/><br/>An official tax-exemption receipt will follow within 30 days of verification.`;
                 body = body.replaceAll("{amount}", fmtAmount).replaceAll("{ref}", demoRef).replaceAll("{name}", demoName);
 
                 body = `
@@ -1226,7 +1226,7 @@ export const resendDonationEmail = action({
           </div>
           <p style="font-family:sans-serif;color:#334155;font-size:14px;">
             This is a resent copy of the original transactional email.
-            If you have any questions, contact <a href="mailto:sab2026@mma.org.my">sab2026@mma.org.my</a>.
+            If you have any questions, contact <a href="mailto:mmafoundation1976@gmail.com">mmafoundation1976@gmail.com</a>.
           </p>`;
 
         try {
